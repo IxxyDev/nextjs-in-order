@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Next.js, in order</title>
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <div id="rail-root" class="rail"></div>
+  <div id="diagram-root" class="diagram-col"></div>
+  <main class="narrative-col">
+    <section class="act" data-act="prologue"></section>
+    <section class="act" data-act="compile-bundle"></section>
+    <section class="act" data-act="server-boot"></section>
+    <section class="act" data-act="request"></section>
+    <section class="act" data-act="render"></section>
+    <section class="act" data-act="ship-hydrate"></section>
+    <section class="act" data-act="client"></section>
+    <section class="act" data-act="mutations"></section>
+    <section class="act" data-act="dev-mode"></section>
+    <section class="act" data-act="optimization"></section>
+  </main>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

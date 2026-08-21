@@ -1,0 +1,68 @@
+:root {
+  --progress: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  background: #0d1117;
+  color: #c9d1d9;
+}
+
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  z-index: 20;
+  display: flex;
+}
+
+.rail__station {
+  flex: 1;
+  border-right: 1px solid #161b22;
+  background: #21262d;
+}
+
+.rail__station.is-active {
+  background: #f78166;
+}
+
+.diagram-col {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #21262d;
+}
+
+.narrative-col {
+  width: 50%;
+  padding: 8vh 3rem;
+}
+
+.act {
+  min-height: 100vh;
+  padding: 4rem 0;
+}
+
+.act p {
+  max-width: 40ch;
+  line-height: 1.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
