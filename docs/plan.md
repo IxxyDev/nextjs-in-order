@@ -780,8 +780,13 @@ export function mountAct1(section: HTMLElement): void {
 
 ```css
 /* append to src/styles.css */
+.diagram-col > svg.backbone,
+.diagram-col > .station-stage {
+  position: absolute;
+  inset: 0;
+}
+
 .station-stage {
-  position: relative;
   width: 100%;
   height: 100%;
 }
@@ -829,12 +834,12 @@ const sections = Array.from(document.querySelectorAll<HTMLElement>('.act'))
 const diagramRoot = document.getElementById('diagram-root')!
 const railRoot = document.getElementById('rail-root')!
 
+const backboneSvg = renderBackbone(diagramRoot)
+renderProgressRail(railRoot)
+
 const stationStage = document.createElement('div')
 stationStage.className = 'station-stage'
 diagramRoot.appendChild(stationStage)
-
-const backboneSvg = renderBackbone(diagramRoot)
-renderProgressRail(railRoot)
 
 const act1Section = sections.find((s) => s.dataset.act === 'compile-bundle')!
 mountAct1(act1Section)
@@ -847,6 +852,8 @@ initScrollProgress(sections, (update) => {
   if (update.actId === 'compile-bundle') renderModuleGraph(update.actProgress)
 })
 ```
+
+Note: `backboneSvg` is appended to `diagramRoot` before `stationStage`, so the active sub-visualization (which fully covers the same box once its `data-act` matches, per the Step 7 CSS) paints on top of the backbone rather than being hidden beneath it.
 
 - [ ] **Step 9: Verify manually**
 
@@ -1011,12 +1018,12 @@ const sections = Array.from(document.querySelectorAll<HTMLElement>('.act'))
 const diagramRoot = document.getElementById('diagram-root')!
 const railRoot = document.getElementById('rail-root')!
 
+const backboneSvg = renderBackbone(diagramRoot)
+renderProgressRail(railRoot)
+
 const stationStage = document.createElement('div')
 stationStage.className = 'station-stage'
 diagramRoot.appendChild(stationStage)
-
-const backboneSvg = renderBackbone(diagramRoot)
-renderProgressRail(railRoot)
 
 const act1Section = sections.find((s) => s.dataset.act === 'compile-bundle')!
 mountAct1(act1Section)
