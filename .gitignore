@@ -1,3 +1,5 @@
 node_modules/
 dist/
 .superpowers/
+all_articles.txt
+fetch_articles.py
