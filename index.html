@@ -3,24 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Next.js, in order</title>
-  <link rel="stylesheet" href="/src/styles.css" />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,500;1,400&display=swap" />
+  <title>Next.js Under the Hood</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%23d4610b%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%277%27 fill=%27none%27 stroke=%27white%27 stroke-width=%273%27/%3E%3C/svg%3E" />
+  <meta name="description" content="An interactive map of how Next.js builds, routes, renders, streams, hydrates, navigates and caches." />
 </head>
 <body>
-  <div id="rail-root" class="rail"></div>
-  <div id="diagram-root" class="diagram-col"></div>
-  <main class="narrative-col">
-    <section class="act" data-act="prologue"></section>
-    <section class="act" data-act="compile-bundle"></section>
-    <section class="act" data-act="server-boot"></section>
-    <section class="act" data-act="request"></section>
-    <section class="act" data-act="render"></section>
-    <section class="act" data-act="ship-hydrate"></section>
-    <section class="act" data-act="client"></section>
-    <section class="act" data-act="mutations"></section>
-    <section class="act" data-act="dev-mode"></section>
-    <section class="act" data-act="optimization"></section>
-  </main>
-  <script type="module" src="/src/main.ts"></script>
+  <div id="app"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
