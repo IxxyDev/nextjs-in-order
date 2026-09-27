@@ -50,7 +50,27 @@ export const EDGES: Edge[] = [
   { id: 'e-dev-child-bundler', from: 'dev-child', to: 'bundler', kind: 'dev', label: 'embedded' },
   { id: 'e-dev-watcher-ladder', from: 'dev-watcher', to: 'routing-ladder', kind: 'dev', label: 'live route map' },
   { id: 'e-dev-hmr-refresh', from: 'dev-hmr', to: 'dev-fast-refresh', kind: 'dev', label: 'client change' },
-  { id: 'e-dev-hmr-router', from: 'dev-hmr', to: 'app-router', kind: 'dev', label: 'server change → hmrRefresh()', crossing: 'data' }
+  { id: 'e-dev-hmr-router', from: 'dev-hmr', to: 'app-router', kind: 'dev', label: 'server change → hmrRefresh()', crossing: 'data' },
+
+  // ---------- Navigation (J6) ----------
+  { id: 'e-client-scheduler', from: 'client-components', to: 'prefetch-scheduler', kind: 'control', label: '<Link> in viewport / hover' },
+  { id: 'e-scheduler-ladder', from: 'prefetch-scheduler', to: 'routing-ladder', kind: 'data', label: 'GET + RSC: 1 + Next-Router-Prefetch: 1', crossing: 'data' },
+  { id: 'e-scheduler-route-cache', from: 'prefetch-scheduler', to: 'route-cache', kind: 'control', label: '/_tree response' },
+  { id: 'e-router-ladder', from: 'app-router', to: 'routing-ladder', kind: 'data', label: 'GET + RSC: 1 + Next-Router-State-Tree', crossing: 'data' },
+  { id: 'e-route-cache-router', from: 'route-cache', to: 'app-router', kind: 'data', label: 'tree on click' },
+  { id: 'e-segment-cache-router', from: 'segment-cache', to: 'app-router', kind: 'data', label: 'cached segments' },
+  { id: 'e-flight-segment-cache', from: 'flight', to: 'segment-cache', kind: 'data', label: 'prefetched segments', crossing: 'data' },
+
+  // ---------- Server Actions (J7) ----------
+  { id: 'e-actions-swc', from: 'src-actions', to: 'swc', kind: 'transform', label: '"use server"' },
+  { id: 'e-bundler-srm', from: 'bundler', to: 'server-reference-manifest', kind: 'transform', label: 'action IDs' },
+  { id: 'e-form-swc', from: 'src-profile-form', to: 'swc', kind: 'transform', label: 'import → reference' },
+  { id: 'e-ladder-action', from: 'routing-ladder', to: 'action-handler', kind: 'control', label: 'POST + Next-Action' },
+  { id: 'e-srm-action', from: 'server-reference-manifest', to: 'action-handler', kind: 'lookup', label: 'ID → module' },
+  { id: 'e-action-rsc', from: 'action-handler', to: 'rsc-runtime-entity', kind: 'control', label: 're-render if invalidated' },
+  { id: 'e-action-flight', from: 'action-handler', to: 'flight', kind: 'transform', label: 'a + f' },
+  { id: 'e-data-cache-rsc', from: 'data-cache', to: 'rsc-runtime-entity', kind: 'data', label: 'cache reads' },
+  { id: 'e-action-server-cache', from: 'action-handler', to: 'server-cache', kind: 'control', label: 'updateTag / revalidatePath' }
 ]
 
 const byId = new Map(EDGES.map((e) => [e.id, e]))
