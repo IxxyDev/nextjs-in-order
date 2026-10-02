@@ -112,6 +112,7 @@ a { color: var(--accent); }
 .ring-label { color: var(--accent); transform: translate(-100%, -100%); }
 .label { position: absolute; transform: translate(-50%, 0); pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: transparent; padding: 0; cursor: pointer; }
 .label-row { display: flex; gap: 4px; align-items: center; }
+.label.is-inline { flex-direction: row; gap: 4px; }
 .label-name { font: 400 12px var(--font-mono); letter-spacing: 0.01em; color: var(--fg); background: var(--bg); padding: 2px 7px; border: 1px solid var(--line); white-space: nowrap; }
 .label.is-dimmed .label-name { color: var(--muted); }
 .label.is-dimmed { opacity: 0.8; }
@@ -144,7 +145,7 @@ a { color: var(--accent); }
 .text-equivalent { font-family: var(--font-mono); font-size: 12px; line-height: 1.6; color: var(--hi); background: var(--surface); padding: 14px; border: 1px solid var(--line); margin-top: 16px; }
 
 /* minimap */
-.minimap { position: absolute; left: 12px; bottom: 12px; width: 132px; height: 82px; border: 1px solid var(--line); background: var(--bg); opacity: 0.9; cursor: pointer; }
+.minimap { position: absolute; /* place and size: MINIMAP in camera.ts, which labels and framing keep clear */ border: 1px solid var(--line); background: var(--bg); opacity: 0.9; cursor: pointer; }
 .minimap rect { stroke: var(--mid); }
 .minimap rect.cam { fill: var(--accent); fill-opacity: 0.12; stroke: var(--accent); stroke-width: 24; }
 

@@ -2,7 +2,8 @@
 import { signal, type Signal } from '@preact/signals'
 import type { Camera, CameraTarget, Rect } from '../domain/types'
 import { WORLD, regionById } from '../domain/regions'
-import { entityById } from '../domain/entities'
+import { ENTITIES, entityById } from '../domain/entities'
+import type { ScreenRect } from './labelLayout'
 
 export interface Viewport { w: number; h: number }
 
@@ -22,9 +23,30 @@ export const MAIN_RIG = createRig()
 export const viewport = MAIN_RIG.viewport
 export const camera = MAIN_RIG.camera
 
-export function fitRect(rect: Rect, vp: Viewport, pad = 0.12): Camera {
-  const zoom = Math.min(vp.w / (rect.w * (1 + pad)), vp.h / (rect.h * (1 + pad)))
-  return { x: rect.x + rect.w / 2, y: rect.y + rect.h / 2, zoom: Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom)) }
+/** screen-px margins of the viewport that a fit keeps clear */
+export interface Inset { left: number; bottom: number }
+const NO_INSET: Inset = { left: 0, bottom: 0 }
+
+/** fits the rect into the viewport minus the inset, centered in what is left */
+export function fitRect(rect: Rect, vp: Viewport, pad = 0.12, inset: Inset = NO_INSET): Camera {
+  const fit = Math.min((vp.w - inset.left) / (rect.w * (1 + pad)), (vp.h - inset.bottom) / (rect.h * (1 + pad)))
+  const zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, fit))
+  return { x: rect.x + rect.w / 2 - inset.left / 2 / zoom, y: rect.y + rect.h / 2 + inset.bottom / 2 / zoom, zoom }
+}
+
+/** the minimap's place on the stage (bottom-left); it is drawn on every MAIN_RIG view and hidden on phones */
+export const MINIMAP = { left: 12, bottom: 12, w: 132, h: 82 }
+const MINIMAP_GAP = 8
+
+export function minimapRect(vp: Viewport): ScreenRect | undefined {
+  if (typeof matchMedia === 'function' && matchMedia('(max-width: 767px)').matches) return undefined
+  return { x: 0, y: vp.h - MINIMAP.bottom - MINIMAP.h - MINIMAP_GAP, w: MINIMAP.left + MINIMAP.w + MINIMAP_GAP, h: MINIMAP.bottom + MINIMAP.h + MINIMAP_GAP }
+}
+
+/** screen zones a rig's labels and framing keep clear: the minimap on the main rig */
+export function reservedFor(rig: CameraRig): ScreenRect[] {
+  const r = rig === MAIN_RIG ? minimapRect(rig.viewport.value) : undefined
+  return r ? [r] : []
 }
 
 export function targetToRect(target: CameraTarget): Rect {
@@ -40,6 +62,53 @@ export function targetToRect(target: CameraTarget): Rect {
     x1 = Math.max(x1, e.x + ENTITY_MARGIN); y1 = Math.max(y1, e.y + ENTITY_MARGIN)
   }
   return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }
+}
+
+/** the entities a target is about: its ids, or everything inside its rect */
+function targetEntities(target: CameraTarget, rect: Rect): { x: number; y: number }[] {
+  if (target.kind === 'entities') return target.ids.map(entityById)
+  return ENTITIES.filter((e) => e.x >= rect.x && e.x <= rect.x + rect.w && e.y >= rect.y && e.y <= rect.y + rect.h)
+}
+
+/** glyph plus a typical two-row label under it, in screen px */
+function footprint(p: { x: number; y: number }, cam: Camera, vp: Viewport): ScreenRect {
+  const s = worldToScreen(p, cam, vp)
+  return { x: s.x - 60, y: s.y - 28 * cam.zoom, w: 120, h: 58 * cam.zoom + 44 }
+}
+
+function rectOnScreen(r: Rect, cam: Camera, vp: Viewport): ScreenRect {
+  const p = worldToScreen(r, cam, vp)
+  return { x: p.x, y: p.y, w: r.w * cam.zoom, h: r.h * cam.zoom }
+}
+
+const hits = (a: ScreenRect, b: ScreenRect) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y
+
+/**
+ * Plain fit first. When that puts any of the target's entities under a reserved zone, try the smallest
+ * pan of the same fit that clears the zone (when the target still fits on screen), then
+ * refitting into the viewport minus the zone's height or width. The best uncovered try with the most
+ * zoom wins, so the corner stays clear without shrinking the scene more than needed.
+ */
+export function frame(target: CameraTarget, vp: Viewport, reserved: ScreenRect[] = [], inset: Inset = NO_INSET): Camera {
+  const rect = targetToRect(target)
+  const plain = clampToWorld(fitRect(rect, vp, 0.12, inset), vp)
+  const points = targetEntities(target, rect)
+  const covered = (cam: Camera) => reserved.some((r) => points.some((p) => hits(footprint(p, cam, vp), r)))
+  if (!covered(plain)) return plain
+  const inside = (f: ScreenRect) => f.x >= 0 && f.x + f.w <= vp.w && f.y >= 0 && f.y + f.h <= vp.h
+  /** a region or the world must stay whole on screen; an entity target only needs its entities */
+  const inView = (cam: Camera) => points.every((p) => inside(footprint(p, cam, vp))) && (target.kind === 'entities' || inside(rectOnScreen(rect, cam, vp)))
+  /** the smallest pan right or up that takes every covered footprint out of the zone */
+  const pans = reserved.flatMap((r) => {
+    const under = points.map((p) => footprint(p, plain, vp)).filter((f) => hits(f, r))
+    if (!under.length) return []
+    const dx = Math.max(...under.map((f) => r.x + r.w - f.x)), dy = Math.max(...under.map((f) => f.y + f.h - r.y))
+    return [{ x: -dx / plain.zoom, y: 0 }, { x: 0, y: dy / plain.zoom }]
+  }).map((d) => clampToWorld({ ...plain, x: plain.x + d.x, y: plain.y + d.y }, vp)).filter(inView)
+  const fits = reserved.flatMap((r) => [{ left: 0, bottom: r.h }, { left: r.x + r.w, bottom: 0 }])
+    .map((inset) => clampToWorld(fitRect(rect, vp, 0.12, inset), vp))
+  const tries = [...pans, ...fits].sort((a, b) => Number(covered(a)) - Number(covered(b)) || b.zoom - a.zoom)
+  return tries[0] && !covered(tries[0]) ? tries[0] : plain
 }
 
 export function transformFor(cam: Camera, vp: Viewport): string {
@@ -79,17 +148,33 @@ export function animateTo(cam: Camera, rig = MAIN_RIG): void {
   rig.frame = requestAnimationFrame(tick)
 }
 
-/** keep the visible rectangle inside the world when the world is larger than the viewport */
+/** how far past the world's edge the view may reach, as a share of the visible span */
+export const OVERSCROLL = 0.25
+
+/**
+ * Keep the view on the world. Each edge may overshoot by OVERSCROLL of the visible span, so a target at
+ * the world's edge (the dev column) can still be framed near the middle; a world smaller than the view
+ * may sit anywhere inside it, so a fit that leaves room for the minimap is not re-centered.
+ */
 export function clampToWorld(cam: Camera, vp: Viewport): Camera {
   const halfW = vp.w / cam.zoom / 2, halfH = vp.h / cam.zoom / 2
-  const clampAxis = (c: number, half: number, min: number, max: number) =>
-    max - min <= half * 2 ? (min + max) / 2 : Math.min(max - half, Math.max(min + half, c))
+  const clampAxis = (c: number, half: number, min: number, max: number) => {
+    const over = half * 2 * OVERSCROLL
+    const lo = min - over + half, hi = max + over - half
+    return lo <= hi ? Math.min(hi, Math.max(lo, c)) : Math.min(min + half, Math.max(max - half, c))
+  }
   return { ...cam, x: clampAxis(cam.x, halfW, WORLD.x, WORLD.x + WORLD.w), y: clampAxis(cam.y, halfH, WORLD.y, WORLD.y + WORLD.h) }
 }
 
-/** moves the rig's camera to the target */
-export function goTo(target: CameraTarget, instant: boolean, rig = MAIN_RIG): void {
-  const cam = clampToWorld(fitRect(targetToRect(target), rig.viewport.value), rig.viewport.value)
+/** the rig's framing of a target, with its reserved zones kept clear */
+export function frameFor(target: CameraTarget, rig = MAIN_RIG): Camera {
+  return frame(target, rig.viewport.value, reservedFor(rig))
+}
+
+/** moves the rig's camera to the target and returns where it lands */
+export function goTo(target: CameraTarget, instant: boolean, rig = MAIN_RIG): Camera {
+  const cam = frameFor(target, rig)
   if (instant) setCamera(cam, rig)
   else animateTo(cam, rig)
+  return cam
 }
