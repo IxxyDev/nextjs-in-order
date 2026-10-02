@@ -6,6 +6,7 @@ export interface JourneyEntry { id: string; slug: string; title: string; load: (
 
 export const JOURNEY_CATALOG: JourneyEntry[] = [
   { id: 'j0', slug: 'whole-lifecycle', title: 'The whole lifecycle', load: async () => WHOLE_LIFECYCLE },
+  { id: 'j1', slug: 'production-build', title: 'Production build', load: () => import('./production-build').then((m) => m.PRODUCTION_BUILD) },
   { id: 'j5', slug: 'app-initial', title: 'App Router: the initial request', load: () => import('./app-initial').then((m) => m.APP_INITIAL) },
   { id: 'j6', slug: 'app-navigation', title: 'App Router: prefetch and navigation', load: () => import('./app-navigation').then((m) => m.APP_NAVIGATION) },
   { id: 'j7', slug: 'server-actions', title: 'Server Actions', load: () => import('./server-actions').then((m) => m.SERVER_ACTIONS) }

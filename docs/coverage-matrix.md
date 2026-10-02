@@ -17,12 +17,12 @@ list is in §Sources at the end.
 |---|---|---|---|---|---|---|
 | 1 | Introduction: compiler + bundler + two runtimes + protocol | J0 step 1 (three bands) | explain | L1 | A1 §Введение | implemented (J0) |
 | 1 | Brief history: SSR wrapper → getInitialProps → 9.3 split → 12 SWC → 13 App Router → today | Atlas timeline strip in the Source region header; J0 step 1 caption | inspect | L2 (history field on `next build`), L3 | A1 §Краткая история; docs: release notes | planned |
-| 1 | SWC as compiler (single file, N-API, no graph knowledge) | J1 steps 3–5 | transform | L1–L3 | A1 §SWC; A7 §SWC; docs: next/compiler | planned |
-| 1 | Turbopack as bundler: incremental graph, lazy bundling in dev, unified graph, crates location | J1 step 9; C6; J9 step 6 | explain / compare | L1–L3 | A1 §Turbopack; A7 §Turbopack; docs: turbopack | planned · version note (default status) |
+| 1 | SWC as compiler (single file, N-API, no graph knowledge) | J1 steps 3–5 | transform | L1–L3 | A1 §SWC; A7 §SWC; docs: next/compiler | implemented (J1) |
+| 1 | Turbopack as bundler: incremental graph, lazy bundling in dev, unified graph, crates location | J1 step 9; C6; J9 step 6 | explain / compare | L1–L3 | A1 §Turbopack; A7 §Turbopack; docs: turbopack | implemented (J1) · version note (default status) |
 | 1 | `BaseServer`, `NextNodeServer`, `NextWebServer` | J2 step 9 inspector; Atlas render-server | inspect | L2, L3 | A1 §Серверный слой; source: packages/next/src/server | planned |
 | 1 | Node vs Edge capabilities and limits | Atlas runtime badges; J2 step 5 | inspect | L2 | A1 §Серверный слой; docs: runtimes | planned |
 | 1 | Middleware always on Edge | J2 step 5 (article snapshot chip vs current chip) | gate | L1 + version note | A1 §Серверный слой; docs: proxy runtime | planned · version note |
-| 1 | Route manifests used by `BaseServer` | J1 step 12; J2 step 2 | connect | L1–L3 | A1 §Серверный слой; A2 §Манифесты | planned |
+| 1 | Route manifests used by `BaseServer` | J1 step 12; J2 step 2 | connect | L1–L3 | A1 §Серверный слой; A2 §Манифесты | implemented (J1) |
 | 1 | Pages Router: page as rendering unit | J3 step 1 | explain | L1 | A1 §Страница как единица рендеринга | planned |
 | 1 | `_app` and `_document` roles | J3 steps 6, 8 | assemble | L1–L2 | A1, A2 §Рендеринг HTML | planned |
 | 1 | Pages data strategies (getStaticProps/ISR, getServerSideProps, getStaticPaths/fallback) | J3 steps 3–4 | transform / explain | L1–L2 | A1 §Стратегии получения данных | planned |
@@ -46,15 +46,15 @@ list is in §Sources at the end.
 
 | Article | Section / concept | Visual scene | Interaction | Explanation layer | Verification source | Status |
 |---|---|---|---|---|---|---|
-| 2 | Production build outputs (`.next/`) | J1 step 17; Atlas shelf | explain | L1–L2 | A2 §Сборка для продакшена | planned |
-| 2 | `pages-manifest.json` (route → server module) | J1 step 12; J3 step 2 | connect | L2–L3 (excerpt) | A2 §Манифесты | planned |
-| 2 | `build-manifest.json` (route → browser chunks, `lowPriorityFiles`) | J1 step 12; J3 step 8 | connect | L2–L3 (excerpt) | A2 §Манифесты | planned |
-| 2 | `prerender-manifest.json` (revalidate/expire, fallback, dataRoute) | J1 step 12; J3 step 4 | connect | L2–L3 (excerpt) | A2 §Манифесты | planned |
-| 2 | `routes-manifest.json` (static/dynamic, priority, redirects/rewrites/headers, dataRoutes, rsc header) | J1 step 12; J2 step 2 | connect | L2–L3 (excerpt) | A2 §Манифесты | planned |
-| 2 | Server files (`.next/server/pages`, prerendered `.html`/`.json`) vs client chunks (`.next/static/chunks`) | J1 step 14, 17; Atlas shelf | inspect | L1–L2 | A2 §Серверные и клиентские файлы | planned |
-| 2 | Route-level code splitting | J1 step 10 | pack | L1 | A2 §Серверные и клиентские файлы | planned |
+| 2 | Production build outputs (`.next/`) | J1 step 17; Atlas shelf | explain | L1–L2 | A2 §Сборка для продакшена | implemented (J1) |
+| 2 | `pages-manifest.json` (route → server module) | J1 step 12; J3 step 2 | connect | L2–L3 (excerpt) | A2 §Манифесты | implemented (J1) |
+| 2 | `build-manifest.json` (route → browser chunks, `lowPriorityFiles`) | J1 step 12; J3 step 8 | connect | L2–L3 (excerpt) | A2 §Манифесты | implemented (J1) |
+| 2 | `prerender-manifest.json` (revalidate/expire, fallback, dataRoute) | J1 step 12; J3 step 4 | connect | L2–L3 (excerpt) | A2 §Манифесты | implemented (J1) |
+| 2 | `routes-manifest.json` (static/dynamic, priority, redirects/rewrites/headers, dataRoutes, rsc header) | J1 step 12; J2 step 2 | connect | L2–L3 (excerpt) | A2 §Манифесты | implemented (J1) |
+| 2 | Server files (`.next/server/pages`, prerendered `.html`/`.json`) vs client chunks (`.next/static/chunks`) | J1 step 14, 17; Atlas shelf | inspect | L1–L2 | A2 §Серверные и клиентские файлы | implemented (J1) |
+| 2 | Route-level code splitting | J1 step 10 | pack | L1 | A2 §Серверные и клиентские файлы | implemented (J1) |
 | 2 | Rendering-strategy detection from exports; `_app.getInitialProps` disables ASO | J3 step 1 | explain (toggle) | L1–L2 | A2 §Как определяется стратегия | planned |
-| 2 | Build output symbols ○ ● ƒ | J1 step 17 | explain | L1 | A2 | planned |
+| 2 | Build output symbols ○ ● ƒ | J1 step 17 | explain | L1 | A2 | implemented (J1) |
 | 2 | Route matching priority (static → dynamic → catch-all) | J3 step 2; J2 step 7 | gate | L1–L2 | A2 §Матчинг маршрута | planned |
 | 2 | `getStaticProps`: file read, ISR stale-while-revalidate | J3 step 4; J8 steps 5–8 | stale-serve | L1–L2 | A2 §getStaticProps; docs: ISR | planned |
 | 2 | `getStaticPaths` fallback `false` / `true` / `'blocking'` | J3 step 4 (three exits) | gate | L1–L2 | A2 §getStaticProps; docs: getStaticPaths | planned |
@@ -82,7 +82,7 @@ list is in §Sources at the end.
 | 3 | Two React builds in one process | J5 step 1 (cutaway); C3 | explain | L1–L2 | A3 §Два рантайма React | implemented (J5) |
 | 3 | RSC build: async components, serializes to a stream, no DOM, no `useState`/`useEffect` | J5 step 6; Atlas RSC runtime | transform | L1–L2 | A3; docs: server components | planned · version note ("binary") |
 | 3 | `react-server` conditional export map in React's `package.json` | J5 step 2 (L3 excerpt) | explain | L3 | A3; source: react package.json | implemented (J5) |
-| 3 | Bundler layers activate the condition per module | J1 step 8; J5 step 2 | explain | L1–L3 | A3; A7 §Слои | planned |
+| 3 | Bundler layers activate the condition per module | J1 step 8; J5 step 2 | explain | L1–L3 | A3; A7 §Слои | implemented (J1) |
 | 3 | Loader tree shape `[segment, parallelRoutes, modules]`; `children` and `@slot` keys | J5 step 3 | assemble | L1–L3 (excerpt) | A3 §Как описывается маршрут; source: next-app-loader | implemented (J5) |
 | 3 | Segment = folder; example `/dashboard/settings` | J5 step 3; example app | assemble | L1 | A3 §Рендеринг | implemented (J5) |
 | 3 | Structure vs content separation (why) | J5 step 9; J6 step 8 | explain / diff | L1 | A3 §Рендеринг | implemented (J5) |
@@ -169,35 +169,35 @@ list is in §Sources at the end.
 
 | Article | Section / concept | Visual scene | Interaction | Explanation layer | Verification source | Status |
 |---|---|---|---|---|---|---|
-| 7 | Compiler vs bundler responsibilities | J1 steps 3, 7; concept pair | predict / reveal | L1 | A7 §Компилятор и бандлер | planned |
-| 7 | Bundler options: Webpack, Turbopack, Rspack (experimental); Turbopack embeds SWC | J1 step 9 | explain | L1–L2 | A7; docs: rspack | planned · version note |
+| 7 | Compiler vs bundler responsibilities | J1 steps 3, 7; concept pair | predict / reveal | L1 | A7 §Компилятор и бандлер | implemented (J1) |
+| 7 | Bundler options: Webpack, Turbopack, Rspack (experimental); Turbopack embeds SWC | J1 step 9 | explain | L1–L2 | A7; docs: rspack | implemented (J1) · version note |
 | 7 | History: Babel/Terser/Webpack → SWC (12) → Turbopack | Atlas build region history field | inspect | L2 | A7 | planned |
-| 7 | SWC transforms list (types, JSX, downlevel, minify) | J1 step 3 | transform | L1–L2 | A7 §SWC | planned |
-| 7 | Native N-API packages per platform; WASM fallback | J1 step 3 L3 | inspect | L3 | A7 | planned |
-| 7 | Next-specific transforms: console removal, `data-testid`, CSS-in-JS | J1 step 3 L3 | inspect | L3 | A7; docs: compiler options | planned |
+| 7 | SWC transforms list (types, JSX, downlevel, minify) | J1 step 3 | transform | L1–L2 | A7 §SWC | implemented (J1) |
+| 7 | Native N-API packages per platform; WASM fallback | J1 step 3 L3 | inspect | L3 | A7 | implemented (J1) |
+| 7 | Next-specific transforms: console removal, `data-testid`, CSS-in-JS | J1 step 3 L3 | inspect | L3 | A7; docs: compiler options | implemented (J1) |
 | 7 | `modularizeImports` / `optimizePackageImports` | J1 step 5; J11 step 5 | transform | L1–L2 | A7; docs: optimizePackageImports | planned |
-| 7 | `serverComponents` / `serverActions` transforms; action IDs | J1 step 4; J7 step 2 | transform | L1–L3 | A7 | planned |
-| 7 | Babel fallback and its cost | J1 step 3 (toggle) | inspect | L2 | A7; docs: babel | planned |
-| 7 | Worker-thread scheduling (`registerWorkerScheduler`) | J1 step 3 L3 | inspect | L3 | A7 | planned |
-| 7 | Webpack: three target compilers stitched | J1 step 9; C6 | compare | L1–L2 | A7 §Webpack | planned |
-| 7 | Layers list and their effect on resolution | J1 step 8 | explain | L1–L3 (list) | A7 §Слои; source: webpack-config layers | planned |
-| 7 | `react-server` resolution in the `rsc` layer | J1 step 8; J5 step 2 | explain | L1–L3 | A7 | planned |
-| 7 | `next-swc-loader` per layer | J1 step 3 L3 | inspect | L3 | A7 §Загрузчики и плагины | planned |
-| 7 | `next-flight-loader` | J1 step 4 L3 | inspect | L3 | A7 | planned |
+| 7 | `serverComponents` / `serverActions` transforms; action IDs | J1 step 4; J7 step 2 | transform | L1–L3 | A7 | implemented (J1) |
+| 7 | Babel fallback and its cost | J1 step 3 (toggle) | inspect | L2 | A7; docs: babel | implemented (J1 step 3 internals; no toggle yet) |
+| 7 | Worker-thread scheduling (`registerWorkerScheduler`) | J1 step 3 L3 | inspect | L3 | A7 | implemented (J1) |
+| 7 | Webpack: three target compilers stitched | J1 step 9; C6 | compare | L1–L2 | A7 §Webpack | implemented (J1) |
+| 7 | Layers list and their effect on resolution | J1 step 8 | explain | L1–L3 (list) | A7 §Слои; source: webpack-config layers | implemented (J1) |
+| 7 | `react-server` resolution in the `rsc` layer | J1 step 8; J5 step 2 | explain | L1–L3 | A7 | implemented (J1) |
+| 7 | `next-swc-loader` per layer | J1 step 3 L3 | inspect | L3 | A7 §Загрузчики и плагины | implemented (J1) |
+| 7 | `next-flight-loader` | J1 step 4 L3 | inspect | L3 | A7 | implemented (J1) |
 | 7 | `next-app-loader` | J5 step 3 L3 | inspect | L3 | A7 | implemented (J5) |
 | 7 | `next-font-loader`, CSS loader chain | J11 steps 8–9 | transform | L2–L3 | A7 | planned |
-| 7 | Plugins generate manifests | J1 step 12 | connect | L2 | A7 | planned |
-| 7 | `flight-client-entry-plugin` and `flight-manifest-plugin` | J1 steps 10–11 | pack / reference | L1–L3 | A7 | planned |
+| 7 | Plugins generate manifests | J1 step 12 | connect | L2 | A7 | implemented (J1) |
+| 7 | `flight-client-entry-plugin` and `flight-manifest-plugin` | J1 steps 10–11 | pack / reference | L1–L3 | A7 | implemented (J1) |
 | 7 | Chunk policy: framework, lib > ~160 KB, runtime | J1 step 10; J11 step 4 | pack | L1–L2 | A7 §Разделение на чанки; source: webpack-config splitChunks | planned |
-| 7 | Turbopack default in 16; Webpack via flag | J1 step 9 version chip | explain | version note | A7 §Turbopack; docs | planned · version note |
-| 7 | `turbo-tasks`: functions, tasks, values, `Vc`; dependency graph | J1 step 9 L3; C6 | inspect | L3 | A7 §Устройство Turbopack | planned |
+| 7 | Turbopack default in 16; Webpack via flag | J1 step 9 version chip | explain | version note | A7 §Turbopack; docs | implemented (J1) · version note |
+| 7 | `turbo-tasks`: functions, tasks, values, `Vc`; dependency graph | J1 step 9 L3; C6 | inspect | L3 | A7 §Устройство Turbopack | implemented (J1) |
 | 7 | Bottom-up invalidation; affected subgraph only | C6; J9 step 6 | explain | L1–L2 | A7 | planned |
 | 7 | Persistent filesystem cache across builds | J8 step 12 | explain | L1–L2 | A7; docs: turbopack cache | planned |
-| 7 | Crates: core, ecmascript, css, resolve, node | J1 step 9 L3 | inspect | L3 | A7 | planned |
+| 7 | Crates: core, ecmascript, css, resolve, node | J1 step 9 L3 | inspect | L3 | A7 | implemented (J1) |
 | 7 | Unified graph vs separate compilers | C6 | compare | L1 | A7 | planned |
-| 7 | Next ↔ Turbopack through N-API `Project`; identical manifests | J1 step 9 L3; J1 step 12 | inspect | L2–L3 | A7 §Как Next.js управляет Turbopack | planned |
-| 7 | `next build` phases: buildId, config, redirects/rewrites, route discovery, compile, trace, analyze, prerender, standalone, summary | J1 step 1 | explain | L1–L2 | A7 §Другие шаги | planned |
-| 7 | Route analysis and prerender | J1 steps 13–14 | explain / transform | L1–L2 | A7 | planned |
+| 7 | Next ↔ Turbopack through N-API `Project`; identical manifests | J1 step 9 L3; J1 step 12 | inspect | L2–L3 | A7 §Как Next.js управляет Turbopack | implemented (J1) |
+| 7 | `next build` phases: buildId, config, redirects/rewrites, route discovery, compile, trace, analyze, prerender, standalone, summary | J1 step 1 | explain | L1–L2 | A7 §Другие шаги | implemented (J1) |
+| 7 | Route analysis and prerender | J1 steps 13–14 | explain / transform | L1–L2 | A7 | implemented (J1) |
 | 7 | Output file tracing → standalone | J1 steps 15–16; J11 step 12 | explain / pack | L1–L2 | A7; docs: output tracing | planned |
 
 ## Article 8 — Development mode

@@ -1,5 +1,5 @@
 // src/domain/entities.ts
-import type { Entity, RegionId } from './types'
+import type { Entity } from './types'
 
 const DOCS = 'https://nextjs.org/docs/app'
 
@@ -64,6 +64,24 @@ export const ENTITIES: Entity[] = [
 
   // ---------- Build ----------
   {
+    id: 'next-build', short: 'next build', name: 'next build · pipeline', region: 'build', glyph: 'process', x: 600, y: 110, badge: 'Node',
+    phase: ['build'], env: ['node'], role: 'process',
+    what: 'Runs the production pipeline in a fixed order: buildId, config, route discovery, compile and bundle, trace, analyze, prerender, standalone, summary. Ends by printing the ○ ● ƒ route tree.',
+    consumes: ['source tree', 'next.config.js'], produces: ['.next/', 'build summary'],
+    exists: 'one run per deploy', connects: ['route-discovery', 'bundler', 'route-analysis', 'tracing'], reaches: 'no',
+    internals: ['buildId k7Qm2xLp9 → .next/BUILD_ID', 'next.config.js loaded once; redirects, rewrites and headers resolved before routes are written', 'packages/next/src/build/index.ts'],
+    sources: [{ label: 'next build (CLI)', url: `${DOCS}/api-reference/cli/next` }]
+  },
+  {
+    id: 'route-discovery', short: 'Route discovery', name: 'Route discovery · app/ + pages/ walk', region: 'build', glyph: 'segment', x: 900, y: 110,
+    phase: ['build', 'dev'], env: ['node'], role: 'route-description',
+    what: 'Walks app/ and pages/ and turns folders and special files into a route map and one loader tree per app route. The route map is what the bundler uses as entrypoints.',
+    consumes: ['app/ and pages/ folders'], produces: ['route map → routes-manifest', 'loader trees', 'bundler entrypoints'],
+    exists: 'build (prod); continuous through the watcher in dev', connects: ['routes-manifest', 'loader-tree', 'bundler'], reaches: 'no',
+    internals: ['/dashboard/settings → ["", { children: ["dashboard", { children: ["settings", { children: ["__PAGE__", {}] }] }] }]', 'pages routes: /products/[id], /posts/[id], /api/hello'],
+    sources: [{ label: 'Project structure', url: `${DOCS}/getting-started/project-structure` }]
+  },
+  {
     id: 'swc', short: 'SWC', name: 'SWC compiler', region: 'build', glyph: 'machine', x: 600, y: 330, badge: 'Rust',
     phase: ['build', 'dev'], env: ['rust', 'node-worker'], role: 'compiler',
     what: 'Transforms one file at a time: strips types, compiles JSX, downlevels, minifies, marks "use client" and assigns "use server" IDs. Never sees the module graph.',
@@ -112,37 +130,91 @@ export const ENTITIES: Entity[] = [
     phase: ['build'], env: ['node'], role: 'artifact',
     what: 'Statically finds the minimal file set each server entry needs, so output: "standalone" can ship without the whole node_modules.',
     consumes: ['server entries'], produces: ['.nft.json lists', '.next/standalone'],
-    exists: 'build', connects: [], reaches: 'no'
+    exists: 'build', connects: ['standalone'], reaches: 'no',
+    internals: ['@vercel/nft', '.next/server/app/dashboard/settings/page.js.nft.json'],
+    sources: [{ label: 'output: standalone', url: `${DOCS}/api-reference/config/next-config-js/output` }]
+  },
+  {
+    id: 'flight-client-entry-plugin', short: 'client entries', name: 'Client entry creation · flight-client-entry-plugin', region: 'build', glyph: 'machine', x: 740, y: 540,
+    phase: ['build', 'dev'], env: ['node'], role: 'bundler',
+    what: 'For each server entry, creates a matching browser entry at every "use client" boundary it reaches. That is how ProfileForm gets into a browser chunk although the page that imports it never ships.',
+    consumes: ['module graph per server entry'], produces: ['browser entries at client boundaries'],
+    exists: 'build; per compilation in dev', connects: ['split-chunks', 'flight-manifest-plugin'], reaches: 'no',
+    internals: ['next/src/build/webpack/plugins/flight-client-entry-plugin.ts', 'entry name: app/dashboard/settings/page → client entry with ./components/ProfileForm.tsx'],
+    versionNote: {
+      article: 'Webpack plugins create the client entries and the client-reference manifest.',
+      current: 'Still the --webpack path. Turbopack, the default since 16.0, does the same inside its unified graph and emits the same manifests.',
+      why: 'The step is the same in both bundlers; only the plugin name belongs to Webpack.'
+    },
+    sources: [{ label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
+  },
+  {
+    id: 'split-chunks', short: 'splitChunks', name: 'Chunk policy · splitChunks', region: 'build', glyph: 'machine', x: 1000, y: 540,
+    phase: ['build'], env: ['node'], role: 'bundler',
+    what: 'Decides how browser modules are grouped into files: one framework chunk for React and Next, lib chunks for large packages, a runtime chunk and one chunk per route segment.',
+    consumes: ['browser module graph'], produces: ['framework, lib, runtime and route chunks'],
+    exists: 'build', connects: ['browser-chunks'], reaches: 'no',
+    internals: ['optimization.splitChunks.cacheGroups: framework, lib (node_modules package > ~160 KB)', 'framework-a1b2c3.js · webpack-9c0d.js · app/dashboard/settings/page-5e6f.js'],
+    versionNote: {
+      article: 'optimization.splitChunks with framework / lib / runtime groups.',
+      current: 'That is the --webpack configuration. Turbopack applies its own chunking with the same goals: shared framework code, per-route chunks.',
+      why: 'Chunk names and boundaries differ between bundlers; the idea of route-level splitting does not.'
+    },
+    sources: [{ label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
+  },
+  {
+    id: 'flight-manifest-plugin', short: 'flight-manifest', name: 'Client reference writer · flight-manifest-plugin', region: 'build', glyph: 'machine', x: 1260, y: 540,
+    phase: ['build', 'dev'], env: ['node'], role: 'bundler',
+    what: 'Once chunks exist, writes one row per client module: its id, the chunk files that contain it and the export name. The RSC runtime will read these rows instead of running the module.',
+    consumes: ['client entries', 'chunk graph'], produces: ['page_client-reference-manifest.js per route'],
+    exists: 'build; per compilation in dev', connects: ['client-reference-manifest'], reaches: 'no',
+    internals: ['next/src/build/webpack/plugins/flight-manifest-plugin.ts', '{ id: "(app-pages-browser)/./components/ProfileForm.tsx", chunks: ["app/dashboard/settings/page-5e6f"], name: "default" }']
+  },
+  {
+    id: 'standalone', short: 'standalone', name: 'Standalone output · .next/standalone', region: 'build', glyph: 'server-chunk', x: 1650, y: 540, badge: 'Node',
+    phase: ['build'], env: ['node', 'storage'], role: 'artifact',
+    what: 'With output: "standalone", copies only the traced files, a minimal node_modules subset and its own server.js into one folder that runs with node server.js.',
+    consumes: ['traced file lists'], produces: ['.next/standalone/'],
+    exists: 'per deploy', connects: [], reaches: 'no',
+    internals: ['.next/standalone/server.js', 'public/ and .next/static are not copied; the deploy step adds them', 'custom server files are not traced'],
+    sources: [{ label: 'output: standalone', url: `${DOCS}/api-reference/config/next-config-js/output` }]
   },
 
   // ---------- Artifact shelf ----------
   {
-    id: 'routes-manifest', short: 'routes-manifest', name: 'routes-manifest.json', region: 'artifacts', glyph: 'manifest', x: 150, y: 740,
+    id: 'routes-manifest', short: 'routes-manifest', name: 'routes-manifest.json', region: 'artifacts', glyph: 'manifest', x: 110, y: 740,
     phase: ['build', 'startup'], env: ['storage', 'node'], role: 'manifest',
     what: 'Static and dynamic routes with regexes and priority, plus redirects, rewrites and headers from next.config.',
     consumes: ['route discovery', 'next.config'], produces: ['the routing table router-server loads at startup'],
     exists: 'per deploy', connects: ['routing-ladder'], reaches: 'no'
   },
   {
-    id: 'build-manifest', short: 'build-manifest', name: 'build-manifest.json', region: 'artifacts', glyph: 'manifest', x: 350, y: 740,
+    id: 'pages-manifest', short: 'pages-manifest', name: 'pages-manifest.json · app-paths-manifest.json', region: 'artifacts', glyph: 'manifest', x: 292, y: 740,
+    phase: ['build', 'request'], env: ['storage', 'node'], role: 'manifest',
+    what: 'Route → compiled server module path (or .html for a static page). render-server uses it to require the right route module.',
+    consumes: ['route map', 'server build'], produces: ['route module lookup'], exists: 'per deploy', connects: ['server-chunks'], reaches: 'no',
+    internals: ['"/products/[id]": "pages/products/[id].js"', '"/dashboard/settings/page": "app/dashboard/settings/page.js"']
+  },
+  {
+    id: 'build-manifest', short: 'build-manifest', name: 'build-manifest.json', region: 'artifacts', glyph: 'manifest', x: 474, y: 740,
     phase: ['build', 'request'], env: ['storage', 'node'], role: 'manifest',
     what: 'Route → browser chunk files. Used to emit <script> tags; a browser copy ships as _buildManifest.js.',
     consumes: ['client chunk graph'], produces: ['script tag lists'], exists: 'per deploy', connects: ['browser-chunks'], reaches: 'data'
   },
   {
-    id: 'prerender-manifest', short: 'prerender-manifest', name: 'prerender-manifest.json', region: 'artifacts', glyph: 'manifest', x: 550, y: 740,
+    id: 'prerender-manifest', short: 'prerender-manifest', name: 'prerender-manifest.json', region: 'artifacts', glyph: 'manifest', x: 656, y: 740,
     phase: ['build', 'startup'], env: ['storage', 'node'], role: 'manifest',
     what: 'Which routes were prerendered, their revalidate and expire seconds, fallback mode and data routes.',
     consumes: ['route analysis'], produces: ['ISR decisions'], exists: 'per deploy', connects: ['server-cache'], reaches: 'no'
   },
   {
-    id: 'middleware-manifest', short: 'middleware-manifest', name: 'middleware-manifest.json', region: 'artifacts', glyph: 'manifest', x: 750, y: 740,
+    id: 'middleware-manifest', short: 'middleware-manifest', name: 'middleware-manifest.json', region: 'artifacts', glyph: 'manifest', x: 838, y: 740,
     phase: ['build', 'startup'], env: ['storage', 'node'], role: 'manifest',
     what: 'Proxy matchers compiled to regexes plus header and cookie conditions.',
     consumes: ['proxy.ts config'], produces: ['ladder step 3 decision input'], exists: 'per deploy', connects: ['proxy'], reaches: 'no'
   },
   {
-    id: 'client-reference-manifest', short: 'client-ref manifest', name: 'page_client-reference-manifest.js', region: 'artifacts', glyph: 'manifest', x: 950, y: 740,
+    id: 'client-reference-manifest', short: 'client-ref manifest', name: 'page_client-reference-manifest.js', region: 'artifacts', glyph: 'manifest', x: 1020, y: 740,
     phase: ['build', 'request'], env: ['storage', 'node'], role: 'manifest',
     what: 'Client module id → browser chunks and export names. The RSC runtime reads it whenever it meets a "use client" boundary.',
     consumes: ['flight-client-entry-plugin output'], produces: ['{ id, chunks, name } references placed into Flight'],
@@ -150,28 +222,28 @@ export const ENTITIES: Entity[] = [
     internals: ['{ id: "(app-pages-browser)/./components/DashboardNav.tsx", chunks: ["app/dashboard/layout-3c4d"], name: "default" }']
   },
   {
-    id: 'server-reference-manifest', short: 'server-ref manifest', name: 'server-reference-manifest', region: 'artifacts', glyph: 'manifest', x: 1150, y: 740,
+    id: 'server-reference-manifest', short: 'server-ref manifest', name: 'server-reference-manifest', region: 'artifacts', glyph: 'manifest', x: 1202, y: 740,
     phase: ['build', 'request'], env: ['storage', 'node'], role: 'manifest',
     what: 'Action ID → server module and export. Unknown IDs from an old deploy are rejected before anything runs.',
     consumes: ['serverActions transform'], produces: ['action lookup'], exists: 'per deploy', connects: ['action-handler'], reaches: 'no'
   },
   {
-    id: 'server-chunks', short: 'server chunks', name: 'server chunks · .next/server/app/…', region: 'artifacts', glyph: 'server-chunk', x: 1350, y: 740, badge: 'Node',
+    id: 'server-chunks', short: 'server chunks', name: 'server chunks · .next/server/app/…', region: 'artifacts', glyph: 'server-chunk', x: 1384, y: 740, badge: 'Node',
     phase: ['build', 'request'], env: ['storage', 'node'], role: 'artifact',
     what: 'Executable route modules for the Node target, loaded with require by render-server.',
     consumes: ['server target build'], produces: ['route modules'], exists: 'per deploy; dev: evicted from the require cache on server edits', connects: ['loader-tree'], reaches: 'no'
   },
   {
-    id: 'browser-chunks', short: 'browser chunks', name: 'browser chunks · .next/static/chunks/…', region: 'artifacts', glyph: 'browser-chunk', x: 1550, y: 740, badge: 'browser',
+    id: 'browser-chunks', short: 'browser chunks', name: 'browser chunks · .next/static/chunks/…', region: 'artifacts', glyph: 'browser-chunk', x: 1566, y: 740, badge: 'browser',
     phase: ['build', 'browser'], env: ['storage', 'browser'], role: 'artifact',
     what: 'Framework, lib, runtime, route and dynamic-import chunks. Content-hashed and cached for a year. The only build output that executes in the browser.',
     consumes: ['client target build'], produces: ['executable modules in the browser'], exists: 'per deploy', connects: ['client-components'], reaches: 'code',
     internals: ['framework-a1b2c3.js', 'main-app-d4e5f6.js', 'app/dashboard/layout-3c4d.js (DashboardNav)', 'app/dashboard/settings/page-5e6f.js (ProfileForm)']
   },
   {
-    id: 'prerendered-outputs', short: 'prerendered', name: 'prerendered .html / .rsc / shells', region: 'artifacts', glyph: 'html', x: 1750, y: 740,
+    id: 'prerendered-outputs', short: 'prerendered', name: 'prerendered .html / .rsc / shells', region: 'artifacts', glyph: 'html', x: 1748, y: 740,
     phase: ['build', 'request'], env: ['storage'], role: 'artifact',
-    what: 'Per static route: HTML, RSC payload, prefetch payload and PPR static shell. Seeds the server cache.',
+    what: 'Per static route: HTML, RSC payload, per-segment prefetch files and PPR static shell. Seeds the server cache.',
     consumes: ['prerender'], produces: ['initial server cache entries'], exists: 'until ISR regenerates', connects: ['server-cache'], reaches: 'data'
   },
   {
@@ -448,8 +520,4 @@ export function entityById(id: string): Entity {
   const e = byId.get(id)
   if (!e) throw new Error(`unknown entity ${id}`)
   return e
-}
-
-export function entitiesInRegion(region: RegionId): Entity[] {
-  return ENTITIES.filter((e) => e.region === region)
 }
