@@ -150,20 +150,20 @@ list is in §Sources at the end.
 
 | Article | Section / concept | Visual scene | Interaction | Explanation layer | Verification source | Status |
 |---|---|---|---|---|---|---|
-| 6 | Valid use cases; serverless limitation | J10 step 3 caption | explain | L1 | A6 §Зачем | planned |
-| 6 | Minimal server: `next(options)`, `prepare()`, `getRequestHandler()`; options list | J10 step 2 | explain | L1–L3 | A6 §Минимальный сервер; docs: custom server | planned |
-| 6 | `server.js` outside compiler and bundler | J10 step 2; J9 step 16 | explain | L1 | A6 | planned |
-| 6 | `handle` = router-server handler; full ladder; Proxy only for what reaches `handle` | J10 steps 4, 6–7 | move / predict | L1 | A6 §Путь запроса в handle | planned |
-| 6 | Wrapper, not replacement: our server → handle → router-server → render-server | J10 step 1; central conclusion | wrap | L1 | A6 | planned |
-| 6 | Custom routing through `parsedUrl` (rebuilds `req.url`) | J10 step 5 | transform | L1–L3 (code) | A6 §Кастомная маршрутизация | planned |
-| 6 | Same `handle` for Pages and App; router choice inside render-server | J10 step 8 | explain | L1 | A6 §Pages Router и App Router | planned |
-| 6 | Deprecated `render`, `renderToHTML`, `renderError`, `render404` | J10 step 9 | explain | L1–L3 | A6 §Устаревшие способы; source: next-server custom | planned |
-| 6 | Modern `render()` delegates to the same `requestHandler` | J10 step 9 | explain | L3 | A6; source | planned |
-| 6 | NestJS/Express bridge story | J10 step 10 | explain (optional callout) | L3 | A6 | planned |
-| 6 | `output: 'standalone'` conflict (tracing skips `server.js`) | J10 step 11 | explain | L1–L2 | A6 §Ограничения; docs: output | planned |
-| 6 | `output: 'export'` conflict | J10 step 11 | explain | L1 | A6 | planned |
-| 6 | `useFileSystemPublicRoutes: false` and client-side caveat | J10 step 12 | explain | L1–L2 | A6; docs: useFileSystemPublicRoutes | planned |
-| 6 | Dev with custom server: restart and WebSocket caveats | J10 step 13; J9 step 16 | explain | L1 | A6 | planned |
+| 6 | Valid use cases; serverless limitation | J10 step 3 caption | explain | L1 | A6 §Зачем | implemented (J10) |
+| 6 | Minimal server: `next(options)`, `prepare()`, `getRequestHandler()`; options list | J10 step 2 | explain | L1–L3 | A6 §Минимальный сервер; docs: custom server | implemented (J10) |
+| 6 | `server.js` outside compiler and bundler | J10 step 2; J9 step 16 | explain | L1 | A6 | implemented (J9, J10) |
+| 6 | `handle` = router-server handler; full ladder; Proxy only for what reaches `handle` | J10 steps 4, 6–7 | move / predict | L1 | A6 §Путь запроса в handle | implemented (J10) |
+| 6 | Wrapper, not replacement: our server → handle → router-server → render-server | J10 step 1; central conclusion | wrap | L1 | A6 | implemented (J10) |
+| 6 | Custom routing through `parsedUrl` (rebuilds `req.url`) | J10 step 5 | transform | L1–L3 (code) | A6 §Кастомная маршрутизация | implemented (J10) |
+| 6 | Same `handle` for Pages and App; router choice inside render-server | J10 step 8 | explain | L1 | A6 §Pages Router и App Router | implemented (J10) |
+| 6 | Deprecated `render`, `renderToHTML`, `renderError`, `render404` | J10 step 9 | explain | L1–L3 | A6 §Устаревшие способы; source: next-server custom | implemented (J10) |
+| 6 | Modern `render()` delegates to the same `requestHandler` | J10 step 9 | explain | L3 | A6; source | implemented (J10) |
+| 6 | NestJS/Express bridge story | J10 step 10 | explain (optional callout) | L3 | A6 | implemented (J10) |
+| 6 | `output: 'standalone'` conflict (tracing skips `server.js`) | J10 step 11 | explain | L1–L2 | A6 §Ограничения; docs: output | implemented (J10) |
+| 6 | `output: 'export'` conflict | J10 step 11 | explain | L1 | A6 | implemented (J10) |
+| 6 | `useFileSystemPublicRoutes: false` and client-side caveat | J10 step 12 | explain | L1–L2 | A6; docs: useFileSystemPublicRoutes | implemented (J10) |
+| 6 | Dev with custom server: restart and WebSocket caveats | J10 step 13; J9 step 16 | explain | L1 | A6 | implemented (J9, J10) |
 
 ## Article 7 — Build internals
 
@@ -223,7 +223,7 @@ list is in §Sources at the end.
 | 8 | No Fast Refresh for server code | J9 step 13 | explain | L1 | A8 | implemented (J9) |
 | 8 | Server change classification; `require` cache cleared | J9 step 13 | transform | L1–L2 | A8 §Серверные изменения | implemented (J9) |
 | 8 | Client: `router.refresh()` in `startTransition`; error state → reload | J9 step 14 | move | L1–L2 | A8 | implemented (J9) |
-| 8 | Custom server: `upgrade` forwarding; unwatched `server.js` | J9 step 16; J10 step 13 | explain | L1 | A8 §Кастомный сервер в dev | planned |
+| 8 | Custom server: `upgrade` forwarding; unwatched `server.js` | J9 step 16; J10 step 13 | explain | L1 | A8 §Кастомный сервер в dev | implemented (J9, J10) |
 | 8 | Dev/prod differences: caching, viewport prefetch off, minification, chunking, source maps, dev React, Strict Mode | J9 step 17; C7 | compare | L1–L2 | A8 §Итого | implemented (J9) |
 | 8 | Dev performance is not production evidence | J9 step 18 | explain | L1 | A8 | implemented (J9) |
 

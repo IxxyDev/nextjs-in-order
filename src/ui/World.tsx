@@ -1,7 +1,7 @@
 // src/ui/World.tsx
 import { useEffect, useRef } from 'preact/hooks'
 import type { EntityState, TokenState } from '../domain/types'
-import { REGIONS, BANDS, WORLD } from '../domain/regions'
+import { REGIONS, BANDS, WORLD, CUSTOM_SERVER_RING as RING } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
 import { camera, viewport, transformFor } from './camera'
@@ -40,6 +40,8 @@ export function World({ entityStates, activeEdges, token, selected, onSelect }: 
   const tokenEntity = token ? entityById(token.at) : undefined
   /** a step that lists states focuses the scene: unrelated edges are hidden */
   const focused = Object.keys(entityStates).length > 0
+  const ring = entityStates['custom-server']
+  const ringOn = ring !== undefined && ring !== 'dimmed' && ring !== 'na'
   return (
     <div class="canvas-wrap" ref={ref}>
       <svg class="world" role="img" aria-label="System map of Next.js" viewBox={`0 0 ${vp.w} ${vp.h}`}>
@@ -63,6 +65,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect }: 
               <rect class={`region ${r.id.endsWith('-runtime') ? 'region-runtime' : ''}`} x={r.x} y={r.y} width={r.w} height={r.h} />
             </g>
           ))}
+          <rect class={`ring ${ringOn ? 'is-on' : ''}`} x={RING.x} y={RING.y} width={RING.w} height={RING.h} rx={18} />
           {EDGES.map((e) => {
             const active = activeEdges.has(e.id)
             const sa = entityStates[e.from], sb = entityStates[e.to]

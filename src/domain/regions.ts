@@ -11,6 +11,9 @@ export const BANDS = {
   browser: { y: 1520, h: 560 }
 } as const
 
+/** the custom-server ring: a frame around HTTP entry + router-server */
+export const CUSTOM_SERVER_RING: Rect = { x: 14, y: 828, w: 894, h: 502 }
+
 export const REGIONS: Region[] = [
   { id: 'source', title: 'Source code', band: 'build', x: 20, y: 30, w: 450, h: 630 },
   { id: 'build', title: 'Build pipeline', band: 'build', x: 490, y: 30, w: 1250, h: 630 },

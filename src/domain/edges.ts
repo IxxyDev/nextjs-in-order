@@ -35,6 +35,10 @@ export const EDGES: Edge[] = [
   // request
   { id: 'e-http-ladder', from: 'node-http', to: 'routing-ladder', kind: 'control', label: 'request' },
   { id: 'e-custom-ladder', from: 'custom-server', to: 'routing-ladder', kind: 'control', label: 'handle()' },
+  { id: 'e-custom-handle', from: 'custom-server', to: 'custom-handle', kind: 'control', label: 'handle()' },
+  { id: 'e-handle-ladder', from: 'custom-handle', to: 'routing-ladder', kind: 'control', label: 'same ladder' },
+  { id: 'e-custom-healthz', from: 'custom-server', to: 'custom-healthz', kind: 'data' },
+  { id: 'e-tracing-custom-server', from: 'tracing', to: 'custom-server', kind: 'lookup', label: 'not traced' },
   { id: 'e-manifest-ladder', from: 'routes-manifest', to: 'routing-ladder', kind: 'lookup', label: 'loaded at startup' },
   { id: 'e-ladder-proxy', from: 'routing-ladder', to: 'proxy', kind: 'control', label: 'step 3' },
   { id: 'e-ladder-exits', from: 'routing-ladder', to: 'early-exits', kind: 'control', label: 'step 5' },

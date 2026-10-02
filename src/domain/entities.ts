@@ -285,13 +285,32 @@ export const ENTITIES: Entity[] = [
     sources: [{ label: 'next start', url: `${DOCS}/api-reference/cli/next` }]
   },
   {
-    id: 'custom-server', short: 'server.js', name: 'server.js · custom server ring', region: 'http-entry', glyph: 'process', x: 170, y: 1180,
+    id: 'custom-server', short: 'server.js', name: 'server.js · custom server ring', region: 'http-entry', glyph: 'process', x: 220, y: 1180,
     phase: ['startup', 'request'], env: ['node'], role: 'process',
     what: 'Optional wrapper that owns the socket and calls handle(req, res, parsedUrl?). It wraps router-server; it never replaces it.',
-    consumes: ['req, res'], produces: ['handle() calls'], exists: 'process lifetime; not compiled or watched by Next', connects: ['routing-ladder'], reaches: 'no'
+    consumes: ['req, res'], produces: ['handle() calls'], exists: 'process lifetime; not compiled or watched by Next', connects: ['routing-ladder', 'custom-handle', 'custom-healthz'], reaches: 'no',
+    internals: ['const app = next({ dev }); await app.prepare(); const handle = app.getRequestHandler()', 'createServer((req, res) => handle(req, res, parse(req.url, true))).listen(3000)', 'not traced by output: \'standalone\'; output: \'export\' has no server'],
+    sources: [{ label: 'Custom server', url: `${DOCS}/guides/custom-server` }]
+  },
+  {
+    id: 'custom-healthz', short: '/healthz', name: 'GET /healthz · answered by server.js', region: 'http-entry', glyph: 'response', x: 75, y: 1180,
+    phase: ['request'], env: ['node'], role: 'transport',
+    what: 'A response server.js writes itself without calling handle. Next.js never sees the request: no ladder, no Proxy, no manifests.',
+    consumes: ['GET /healthz'], produces: ['200 ok'], exists: 'per request', connects: ['custom-server'], reaches: 'data',
+    internals: ['if (pathname === "/healthz") { res.statusCode = 200; return res.end("ok") }'],
+    sources: [{ label: 'Custom server', url: `${DOCS}/guides/custom-server` }]
   },
 
   // ---------- router-server ----------
+  {
+    id: 'custom-handle', short: 'handle()', name: 'handle(req, res, parsedUrl?) · app.getRequestHandler()', region: 'router-server', glyph: 'machine', x: 410, y: 920,
+    phase: ['startup', 'request'], env: ['node'], role: 'router',
+    what: 'The function a custom server gets from app.getRequestHandler(). It is router-server\'s own request handler: whatever is passed in climbs the same eight-step ladder as under next start.',
+    consumes: ['req, res from server.js', 'optional parsedUrl (pathname, query)'], produces: ['the request on the routing ladder'],
+    exists: 'created after app.prepare(); called per request', connects: ['custom-server', 'routing-ladder'], reaches: 'no',
+    internals: ['a passed parsedUrl rebuilds req.url before routing', 'deprecated app.render() normalizes its arguments and calls the same requestHandler', 'packages/next/src/server/next.ts: NextCustomServer'],
+    sources: [{ label: 'Custom server', url: `${DOCS}/guides/custom-server` }, { label: 'packages/next/src/server/next.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/next.ts' }]
+  },
   {
     id: 'routing-ladder', short: 'Routing ladder', name: 'Routing ladder · 8 steps', region: 'router-server', glyph: 'machine', x: 620, y: 920,
     phase: ['request'], env: ['node'], role: 'router',

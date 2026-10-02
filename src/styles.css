@@ -66,6 +66,8 @@ a { color: var(--accent); }
 .boundary-network { stroke: var(--accent-dim); stroke-width: 2; }
 .region { fill: var(--bg); fill-opacity: 0.35; stroke: var(--line); stroke-width: 1.5; rx: 2; }
 .region-runtime { stroke: var(--accent-dim); stroke-dasharray: 5 5; }
+.ring { fill: none; stroke: var(--mid); stroke-width: 1.2; stroke-dasharray: 2 6; opacity: 0.5; pointer-events: none; }
+.ring.is-on { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: none; opacity: 0.9; }
 .edge { fill: none; stroke: var(--mid); stroke-width: 1.2; opacity: 0.35; }
 .edge-transform { stroke-width: 1.6; } .edge-lookup { stroke-dasharray: 2 6; } .edge-control, .edge-dev, .edge-supervision { stroke-dasharray: 8 6; } .edge-dev { stroke: var(--accent-dim); }
 .edge.is-active { opacity: 1; stroke: var(--accent); stroke-width: 2.5; }
@@ -96,6 +98,7 @@ a { color: var(--accent); }
 .edge-label { position: absolute; transform: translate(-50%, -50%); font: 500 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--bg); border: 1px solid var(--accent-dim); padding: 2px 8px; white-space: nowrap; pointer-events: none; display: flex; gap: 8px; align-items: center; }
 .chip-crossing { color: var(--fg); }
 .region-label { position: absolute; font: 500 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; pointer-events: none; }
+.ring-label { color: var(--accent); transform: translate(-100%, -100%); }
 .label { position: absolute; transform: translate(-50%, 0); pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: transparent; padding: 0; cursor: pointer; }
 .label-row { display: flex; gap: 4px; align-items: center; }
 .label-name { font: 400 12px var(--font-mono); letter-spacing: 0.01em; color: var(--fg); background: var(--bg); padding: 2px 7px; border: 1px solid var(--line); white-space: nowrap; }

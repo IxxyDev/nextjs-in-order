@@ -2,7 +2,7 @@
 import type { EntityState, TokenState } from '../domain/types'
 import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
-import { REGIONS } from '../domain/regions'
+import { REGIONS, CUSTOM_SERVER_RING as RING } from '../domain/regions'
 import { camera, viewport, worldToScreen } from './camera'
 import { placeLabels, type LabelCandidate, type ScreenRect } from './labelLayout'
 
@@ -28,6 +28,8 @@ const CHIP: Partial<Record<EntityState, string>> = {
 export function Labels({ entityStates, activeEdges, token, selected, onSelect }: LabelsProps) {
   const cam = camera.value, vp = viewport.value
   const dense = cam.zoom < LABEL_ZOOM
+  const ring = entityStates['custom-server']
+  const ringAt = ring !== undefined && ring !== 'dimmed' && ring !== 'na' ? worldToScreen({ x: RING.x + RING.w - 10, y: RING.y + RING.h - 6 }, cam, vp) : undefined
   return (
     <div class="labels">
       {REGIONS.map((r) => {
@@ -35,6 +37,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect }:
         if (p.x < -300 || p.x > vp.w || p.y < -30 || p.y > vp.h) return null
         return <div key={r.id} class="region-label" style={{ left: `${p.x}px`, top: `${p.y}px` }} aria-hidden="true">{r.title}</div>
       })}
+      {ringAt && <div class="region-label ring-label" style={{ left: `${ringAt.x}px`, top: `${ringAt.y}px` }} aria-hidden="true">server.js · custom server ring</div>}
       {activeEdges && EDGES.filter((e) => activeEdges.has(e.id) && e.label).map((e) => {
         const a = entityById(e.from), b = entityById(e.to)
         const p = worldToScreen({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, cam, vp)
