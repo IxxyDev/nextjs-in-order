@@ -590,7 +590,7 @@ export const ENTITIES: Entity[] = [
     phase: ['build', 'request'], env: ['node'], role: 'renderer',
     what: 'Renders Pages Router routes such as pages/products/[id].tsx and pages/posts/[id].tsx: dispatches on the page exports (static file, getStaticProps entry, getServerSideProps or getInitialProps run), renders the page inside _app and _document, and produces HTML plus a JSON copy of the props.',
     consumes: ['page module from pages-manifest', 'data function result'], produces: ['HTML + props JSON (__NEXT_DATA__)'],
-    exists: 'per render: at build, on a cache miss, on ISR regeneration and on every getServerSideProps request', connects: ['server-cache', 'pages-manifest', 'db'], reaches: 'data',
+    exists: 'per render: at build, on a cache miss, on ISR regeneration and on every getServerSideProps request', connects: ['server-cache', 'pages-manifest', 'db', 'gssp', 'gip', 'pages-document'], reaches: 'data',
     internals: ['getStaticProps → { props, revalidate: 60 }', 'getStaticPaths → { paths, fallback: "blocking" }', 'stored as .next/server/pages/posts/7.html + 7.json', 'packages/next/src/server/render.tsx: renderToHTMLImpl'],
     sources: [{ label: 'getStaticProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-static-props' }, { label: 'ISR (Pages)', url: 'https://nextjs.org/docs/pages/guides/incremental-static-regeneration' }, { label: 'getServerSideProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-server-side-props' }]
   },
@@ -609,6 +609,70 @@ export const ENTITIES: Entity[] = [
     what: 'A boundary whose fallback shipped in the first HTML chunk. A later chunk carries the real content plus a tiny script that swaps it into place; React hydrates it selectively when its code is ready.',
     consumes: ['late HTML + Flight chunks'], produces: ['filled content, paint before the whole page is done'], exists: 'per document',
     connects: ['html', 'react-client'], reaches: 'data'
+  },
+
+  // ---------- Pages Router (J3, J4) ----------
+  {
+    id: 'gssp', short: 'getServerSideProps', name: 'getServerSideProps · pages/products/[id].tsx', region: 'render-server', glyph: 'machine', x: 1770, y: 1040, badge: 'Node',
+    phase: ['request'], env: ['node'], role: 'renderer',
+    what: 'Data function of /products/[id]. Runs on the server for every request with req, res, params and query, and returns { props: { product } }. The bundler removes it, and every import only it uses, from the browser chunk.',
+    consumes: ['req, res, params { id: "42" }, query', 'database'], produces: ['{ props } for the page'],
+    exists: 'per request: the document request and every /_next/data request for this page', connects: ['pages-renderer', 'db'], reaches: 'data',
+    internals: ['export async function getServerSideProps({ params, req, res, query }) → { props: { product } }', 'never cached by the framework; Cache-Control on res is up to the page', 'removed from the client build by the SWC next_ssg transform, together with imports only it uses'],
+    sources: [{ label: 'getServerSideProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-server-side-props' }]
+  },
+  {
+    id: 'gip', short: 'getInitialProps', name: 'getInitialProps · legacy data function', region: 'render-server', glyph: 'machine', x: 1770, y: 1150, badge: 'Node + browser',
+    phase: ['request', 'browser'], env: ['node', 'browser'], role: 'renderer',
+    what: 'The older data function, attached to the page component. It runs on the server for the first document and in the browser on every client navigation to the page, so its code ships inside the page chunk.',
+    consumes: ['context: pathname, query, asPath; req and res on the server only'], produces: ['props for the page'],
+    exists: 'per navigation, in whichever environment the navigation happens', connects: ['pages-renderer', 'pages-router', 'browser-chunks'], reaches: 'code',
+    internals: ['ProductPage.getInitialProps = async (ctx) => ({ product })', 'anything it imports (API keys, SDKs) lands in the browser chunk', '_app.getInitialProps turns off Automatic Static Optimization for pages without getStaticProps', 'with _app.getInitialProps, navigating to a getServerSideProps page runs _app.getInitialProps in the browser and getServerSideProps on the server'],
+    sources: [{ label: 'getInitialProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-initial-props' }, { label: 'Automatic Static Optimization', url: 'https://nextjs.org/docs/pages/building-your-application/rendering/automatic-static-optimization' }]
+  },
+  {
+    id: 'pages-document', short: '_document', name: '_document · <Html><Head/><Main/><NextScript/>', region: 'render-server', glyph: 'html', x: 1770, y: 1290, badge: 'Node',
+    phase: ['request', 'build'], env: ['node'], role: 'renderer',
+    what: 'The outer HTML shell of every Pages Router document. <Main/> is where the rendered app goes; <NextScript/> writes the script tags from build-manifest and the __NEXT_DATA__ script. It renders only on the server and never on client navigation.',
+    consumes: ['rendered app HTML', 'build-manifest chunk list', 'serialized props'], produces: ['the full document'],
+    exists: 'per document request (and at build for static pages)', connects: ['build-manifest', 'html', 'next-data'], reaches: 'data',
+    internals: ['pages/_document.tsx: <Html><Head/><body><Main/><NextScript/></body></Html>', 'event handlers and state in _document never run in the browser'],
+    sources: [{ label: 'Custom Document', url: 'https://nextjs.org/docs/pages/building-your-application/routing/custom-document' }]
+  },
+  {
+    id: 'next-data', short: '__NEXT_DATA__', name: '__NEXT_DATA__ · inline props JSON', region: 'browser', glyph: 'json', x: 200, y: 1990,
+    phase: ['request', 'browser'], env: ['node', 'network', 'browser'], role: 'protocol',
+    what: '<script id="__NEXT_DATA__" type="application/json"> with pageProps, page, query and buildId. It repeats data the HTML already shows, because hydration has to render the same tree with the same props.',
+    consumes: ['pageProps from the data function'], produces: ['hydration input in the browser'],
+    exists: 'per document', connects: ['pages-document', 'react-client'], reaches: 'data',
+    internals: ['{ "props": { "pageProps": { "product": { … } } }, "page": "/products/[id]", "query": { "id": "42" }, "buildId": "k7Qm2xLp9" }', 'warning when page data exceeds 128 kB (largePageDataBytes)'],
+    sources: [{ label: 'Large page data', url: 'https://nextjs.org/docs/messages/large-page-data' }]
+  },
+  {
+    id: 'pages-app', short: '_app', name: '_app · <App> with ThemeProvider', region: 'browser', glyph: 'component-client', x: 800, y: 1770,
+    phase: ['request', 'browser'], env: ['node', 'browser'], role: 'module',
+    what: 'pages/_app.tsx wraps every page: <App Component={ProductPage} pageProps={…} /> renders <ThemeProvider> around the page. It renders on the server for the document, hydrates in the browser and stays mounted across client navigations.',
+    consumes: ['Component', 'pageProps'], produces: ['the wrapped page tree'],
+    exists: 'per document on the server; for the whole tab in the browser', connects: ['pages-product-page', 'browser-chunks'], reaches: 'code',
+    internals: ['static/chunks/pages/_app chunk', 'state in _app (theme) survives every client navigation'],
+    sources: [{ label: 'Custom App', url: 'https://nextjs.org/docs/pages/building-your-application/routing/custom-app' }]
+  },
+  {
+    id: 'pages-product-page', short: 'ProductPage', name: 'ProductPage · pages/products/[id].tsx', region: 'browser', glyph: 'component-client', x: 800, y: 1880,
+    phase: ['request', 'browser'], env: ['node', 'browser'], role: 'module',
+    what: 'The page component of /products/42 and every component it renders. In the Pages Router all of it is browser code: it renders on the server for HTML and executes again in the browser to hydrate.',
+    consumes: ['pageProps.product'], produces: ['DOM', '<Link href="/posts/7">'],
+    exists: 'per document; replaced when the client router swaps Component', connects: ['pages-app', 'browser-chunks'], reaches: 'code',
+    internals: ['static/chunks/pages/products/[id] chunk: the component tree, without getServerSideProps']
+  },
+  {
+    id: 'pages-router', short: 'Pages router', name: 'Pages client router · next/router', region: 'client-router', glyph: 'machine', x: 1150, y: 1990,
+    phase: ['browser'], env: ['browser'], role: 'router',
+    what: 'Handles <Link> clicks and router.push in the Pages Router: fetches the target data (/_next/data, stored JSON, or getInitialProps in the tab), loads the page chunk, swaps Component inside the kept _app and pushes the URL to history.',
+    consumes: ['<Link>', 'router.push()', '_buildManifest.js'], produces: ['data requests', 'page chunk loads', 'Component swaps', 'history entries'],
+    exists: 'tab', connects: ['pages-app'], reaches: 'data',
+    internals: ['packages/next/src/shared/lib/router/router.ts: change() → getRouteInfo() → set()', 'router.isReady false on the first render of a statically optimized page with a dynamic route'],
+    sources: [{ label: 'useRouter (Pages)', url: 'https://nextjs.org/docs/pages/api-reference/functions/use-router' }]
   },
 
   // ---------- Dev ----------

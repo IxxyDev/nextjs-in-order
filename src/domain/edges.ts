@@ -127,7 +127,26 @@ export const EDGES: Edge[] = [
   { id: 'e-bundler-cache-dir', from: 'bundler', to: 'next-cache-dir', kind: 'data', label: 'persistent cache' },
   { id: 'e-prerender-ppr', from: 'prerender', to: 'ppr-shell', kind: 'transform', label: 'stop at Suspense' },
   { id: 'e-ppr-server-cache', from: 'ppr-shell', to: 'server-cache', kind: 'data', label: 'stored like a static route' },
-  { id: 'e-ppr-resume', from: 'ppr-shell', to: 'rsc-runtime-entity', kind: 'control', label: 'resume · real cookies' }
+  { id: 'e-ppr-resume', from: 'ppr-shell', to: 'rsc-runtime-entity', kind: 'control', label: 'resume · real cookies' },
+
+  // ---------- Pages Router initial request (J3) ----------
+  { id: 'e-dynamic-pages', from: 'rung-dynamic', to: 'pages-renderer', kind: 'control', label: 'handoff /products/42 · id=42' },
+  { id: 'e-pages-manifest-renderer', from: 'pages-manifest', to: 'pages-renderer', kind: 'lookup', label: 'route → module' },
+  { id: 'e-pages-gssp', from: 'pages-renderer', to: 'gssp', kind: 'control', label: 'run with req · res · params' },
+  { id: 'e-db-gssp', from: 'db', to: 'gssp', kind: 'data', label: 'product 42' },
+  { id: 'e-gssp-chunks-strip', from: 'gssp', to: 'browser-chunks', kind: 'control', label: '✂ not in the browser chunk' },
+  { id: 'e-pages-gip', from: 'pages-renderer', to: 'gip', kind: 'control', label: 'first load: run on the server' },
+  { id: 'e-gip-chunks', from: 'gip', to: 'browser-chunks', kind: 'data', label: 'bundled into the page chunk' },
+  { id: 'e-pages-ssr', from: 'pages-renderer', to: 'ssr-runtime-entity', kind: 'transform', label: '<App Component pageProps>' },
+  { id: 'e-document-html', from: 'pages-document', to: 'html', kind: 'transform', label: '<Main/> + <NextScript/>' },
+  { id: 'e-build-manifest-document', from: 'build-manifest', to: 'pages-document', kind: 'lookup', label: 'script tags' },
+  { id: 'e-html-next-data', from: 'html', to: 'next-data', kind: 'data', label: 'props again', crossing: 'data' },
+  { id: 'e-chunks-pages-app', from: 'browser-chunks', to: 'pages-app', kind: 'data', label: '_app chunk', crossing: 'code' },
+  { id: 'e-chunks-product-page', from: 'browser-chunks', to: 'pages-product-page', kind: 'data', label: 'whole page tree', crossing: 'code' },
+  { id: 'e-next-data-react', from: 'next-data', to: 'react-client', kind: 'data', label: 'pageProps' },
+  { id: 'e-react-pages-app', from: 'react-client', to: 'pages-app', kind: 'control', label: 'hydrate' },
+  { id: 'e-pages-app-product', from: 'pages-app', to: 'pages-product-page', kind: 'data', label: 'Component + pageProps' },
+  { id: 'e-pages-router-product', from: 'pages-router', to: 'pages-product-page', kind: 'data', label: 'router.query' }
 ]
 
 const byId = new Map(EDGES.map((e) => [e.id, e]))

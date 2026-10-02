@@ -17,9 +17,12 @@ describe('entities', () => {
       expect(e.y, e.id).toBeLessThanOrEqual(r.y + r.h)
     }
   })
-  it('only lets code cross the network for client modules and browser chunks', () => {
+  it('only lets code cross the network for client modules, Pages Router page code and browser chunks', () => {
     const code = ENTITIES.filter((e) => e.reaches === 'code').map((e) => e.id).sort()
-    expect(code).toEqual(['browser-chunks', 'client-components', 'layout-router', 'src-dashboard-nav', 'src-profile-form'])
+    expect(code).toEqual([
+      'browser-chunks', 'client-components', 'gip', 'layout-router', 'pages-app', 'pages-product-page', 'src-dashboard-nav',
+      'src-profile-form'
+    ])
   })
   it('resolves connects to existing ids', () => {
     for (const e of ENTITIES) for (const c of e.connects) expect(() => entityById(c), `${e.id} -> ${c}`).not.toThrow()

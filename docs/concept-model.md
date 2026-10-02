@@ -293,7 +293,7 @@ or dynamic API usage (cookies(), headers(), searchParams) / "use cache" / genera
 → static routes prerendered → .html / .json / .rsc + prerender-manifest entry + initial incremental cache entry
 → request time: render-server checks the incremental cache first
    miss → render and store; fresh → serve, no React; stale → serve stale, regenerate in background
-→ _app.getInitialProps present → Automatic Static Optimization disabled for every page
+→ _app.getInitialProps present → Automatic Static Optimization disabled for every page without getStaticProps
 ```
 
 ### 4.4 Segment structure

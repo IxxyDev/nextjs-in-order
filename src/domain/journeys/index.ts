@@ -8,6 +8,7 @@ export const JOURNEY_CATALOG: JourneyEntry[] = [
   { id: 'j0', slug: 'whole-lifecycle', title: 'The whole lifecycle', load: async () => WHOLE_LIFECYCLE },
   { id: 'j1', slug: 'production-build', title: 'Production build', load: () => import('./production-build').then((m) => m.PRODUCTION_BUILD) },
   { id: 'j2', slug: 'request-routing', title: 'Incoming request and server routing', load: () => import('./request-routing').then((m) => m.REQUEST_ROUTING) },
+  { id: 'j3', slug: 'pages-initial', title: 'Pages Router: the initial request', load: () => import('./pages-initial').then((m) => m.PAGES_INITIAL) },
   { id: 'j5', slug: 'app-initial', title: 'App Router: the initial request', load: () => import('./app-initial').then((m) => m.APP_INITIAL) },
   { id: 'j6', slug: 'app-navigation', title: 'App Router: prefetch and navigation', load: () => import('./app-navigation').then((m) => m.APP_NAVIGATION) },
   { id: 'j7', slug: 'server-actions', title: 'Server Actions', load: () => import('./server-actions').then((m) => m.SERVER_ACTIONS) },

@@ -23,13 +23,13 @@ list is in §Sources at the end.
 | 1 | Node vs Edge capabilities and limits | Atlas runtime badges; J2 step 5 | inspect | L2 | A1 §Серверный слой; docs: runtimes | implemented (J2) |
 | 1 | Middleware always on Edge | J2 step 5 (article snapshot chip vs current chip) | gate | L1 + version note | A1 §Серверный слой; docs: proxy runtime | implemented (J2) · version note |
 | 1 | Route manifests used by `BaseServer` | J1 step 12; J2 step 2 | connect | L1–L3 | A1 §Серверный слой; A2 §Манифесты | implemented (J1) |
-| 1 | Pages Router: page as rendering unit | J3 step 1 | explain | L1 | A1 §Страница как единица рендеринга | planned |
-| 1 | `_app` and `_document` roles | J3 steps 6, 8 | assemble | L1–L2 | A1, A2 §Рендеринг HTML | planned |
-| 1 | Pages data strategies (getStaticProps/ISR, getServerSideProps, getStaticPaths/fallback) | J3 steps 3–4 | transform / explain | L1–L2 | A1 §Стратегии получения данных | planned |
-| 1 | Automatic Static Optimization | J3 step 1, 14 | explain | L1–L2 | A1; A2 §Как определяется стратегия | planned |
-| 1 | Pages rendering + full-tree hydration limitation | J3 step 12; C5 | light-up | L1 | A1 §Рендеринг и гидратация | planned |
+| 1 | Pages Router: page as rendering unit | J3 step 1 | explain | L1 | A1 §Страница как единица рендеринга | implemented (J3) |
+| 1 | `_app` and `_document` roles | J3 steps 6, 8 | assemble | L1–L2 | A1, A2 §Рендеринг HTML | implemented (J3) |
+| 1 | Pages data strategies (getStaticProps/ISR, getServerSideProps, getStaticPaths/fallback) | J3 steps 3–4 | transform / explain | L1–L2 | A1 §Стратегии получения данных | implemented (J3) |
+| 1 | Automatic Static Optimization | J3 step 1, 14 | explain | L1–L2 | A1; A2 §Как определяется стратегия | implemented (J3) |
+| 1 | Pages rendering + full-tree hydration limitation | J3 step 12; C5 | light-up | L1 | A1 §Рендеринг и гидратация | implemented (J3) |
 | 1 | Pages client navigation summary | J4 | – | L1 | A1 | planned |
-| 1 | Limitations of Pages Router (page-level data, no nested layouts, whole bundle) | J3 step 15; C1 | compare | L1 | A1 §Ограничения Pages Router | planned |
+| 1 | Limitations of Pages Router (page-level data, no nested layouts, whole bundle) | J3 step 15; C1 | compare | L1 | A1 §Ограничения Pages Router | implemented (J3) |
 | 1 | App Router as a parallel architecture (13 → stable 13.4; RSC stable in React 19) | J5 step 1 caption | explain | L1, L3 | A1 §App Router: новая архитектура | implemented (J5) |
 | 1 | Component as rendering unit; `"use client"` | J5 steps 7–8; J0 step 2 | reference | L1 | A1 §Компонент как единица рендеринга | implemented (J5) |
 | 1 | Route-segment file conventions (page, layout, loading, error, not-found) | J5 step 3 | assemble | L1–L2 | A1; docs: file conventions | implemented (J5) |
@@ -53,20 +53,20 @@ list is in §Sources at the end.
 | 2 | `routes-manifest.json` (static/dynamic, priority, redirects/rewrites/headers, dataRoutes, rsc header) | J1 step 12; J2 step 2 | connect | L2–L3 (excerpt) | A2 §Манифесты | implemented (J1) |
 | 2 | Server files (`.next/server/pages`, prerendered `.html`/`.json`) vs client chunks (`.next/static/chunks`) | J1 step 14, 17; Atlas shelf | inspect | L1–L2 | A2 §Серверные и клиентские файлы | implemented (J1) |
 | 2 | Route-level code splitting | J1 step 10 | pack | L1 | A2 §Серверные и клиентские файлы | implemented (J1) |
-| 2 | Rendering-strategy detection from exports; `_app.getInitialProps` disables ASO | J3 step 1 | explain (toggle) | L1–L2 | A2 §Как определяется стратегия | planned |
+| 2 | Rendering-strategy detection from exports; `_app.getInitialProps` disables ASO | J3 step 1 | explain (toggle) | L1–L2 | A2 §Как определяется стратегия | implemented (J3) |
 | 2 | Build output symbols ○ ● ƒ | J1 step 17 | explain | L1 | A2 | implemented (J1) |
 | 2 | Route matching priority (static → dynamic → catch-all) | J3 step 2; J2 step 7 | gate | L1–L2 | A2 §Матчинг маршрута | implemented (J2) |
 | 2 | `getStaticProps`: file read, ISR stale-while-revalidate | J3 step 4; J8 steps 5–8 | stale-serve | L1–L2 | A2 §getStaticProps; docs: ISR | implemented (J8) |
-| 2 | `getStaticPaths` fallback `false` / `true` / `'blocking'` | J3 step 4 (three exits) | gate | L1–L2 | A2 §getStaticProps; docs: getStaticPaths | planned |
-| 2 | `getServerSideProps`: per request, stripped from client bundle, context | J3 step 3 | transform | L1–L2 | A2 §getServerSideProps | planned |
+| 2 | `getStaticPaths` fallback `false` / `true` / `'blocking'` | J3 step 4 (three exits) | gate | L1–L2 | A2 §getStaticProps; docs: getStaticPaths | implemented (J3) |
+| 2 | `getServerSideProps`: per request, stripped from client bundle, context | J3 step 3 | transform | L1–L2 | A2 §getServerSideProps | implemented (J3) |
 | 2 | `getInitialProps`: server + client, code in bundle, security; `_app.getInitialProps` + gSSP context-switch nuance | J3 step 5; J4 step 6 | transform | L1–L3 | A2 §getInitialProps | planned |
-| 2 | HTML rendering pipeline: `_app` wrap, `renderToReadableStream`, streaming limitation | J3 steps 6–7; C1 ruler | transform | L1–L3 | A2 §Рендеринг HTML; source: pages render | planned |
-| 2 | `_document`, `<Main/>`, `<NextScript/>`; server-only, not re-rendered on navigation | J3 step 8 | assemble | L1–L2 | A2 §Рендеринг HTML | planned |
-| 2 | `__NEXT_DATA__` contents and duplication cost (128 KB warning) | J3 step 9 | transform | L1–L3 (excerpt) | A2 §NEXT_DATA | planned |
-| 2 | Hydration sequence: chunks → read `__NEXT_DATA__` → `hydrateRoot` → attach | J3 steps 11–12 | light-up | L1–L2 | A2 §Гидратация | planned |
-| 2 | Hydration mismatch causes | J3 step 13 | explain | L1–L2 | A2 §Гидратация | planned |
+| 2 | HTML rendering pipeline: `_app` wrap, `renderToReadableStream`, streaming limitation | J3 steps 6–7; C1 ruler | transform | L1–L3 | A2 §Рендеринг HTML; source: pages render | implemented (J3) |
+| 2 | `_document`, `<Main/>`, `<NextScript/>`; server-only, not re-rendered on navigation | J3 step 8 | assemble | L1–L2 | A2 §Рендеринг HTML | implemented (J3) |
+| 2 | `__NEXT_DATA__` contents and duplication cost (128 KB warning) | J3 step 9 | transform | L1–L3 (excerpt) | A2 §NEXT_DATA | implemented (J3) |
+| 2 | Hydration sequence: chunks → read `__NEXT_DATA__` → `hydrateRoot` → attach | J3 steps 11–12 | light-up | L1–L2 | A2 §Гидратация | implemented (J3) |
+| 2 | Hydration mismatch causes | J3 step 13 | explain | L1–L2 | A2 §Гидратация | implemented (J3) |
 | 2 | Whole-tree hydration vs App Router | C5 | compare | L1 | A2 §Гидратация | planned |
-| 2 | ASO empty `query` and `router.isReady` | J3 step 14 | explain | L1–L2 | A2 §Гидратация | planned |
+| 2 | ASO empty `query` and `router.isReady` | J3 step 14 | explain | L1–L2 | A2 §Гидратация | implemented (J3) |
 | 2 | Client navigation entry (`<Link>`, `router.push`) | J4 | – | L1 | A2 §Клиентская навигация | planned |
 | 2 | Viewport prefetch: SSG chunk+JSON, SSR chunk only, `Set` dedupe | J4 step 1 | move | L1–L2 | A2 §Prefetch | planned · version note |
 | 2 | Hover prefetch repeats; `prefetch={false}` viewport-only; `<a>` escape | J4 step 2 | move | L1–L2 | A2 §Prefetch; source: next/link (pages) | planned · version note |
