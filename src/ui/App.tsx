@@ -6,6 +6,7 @@ import { entryBySlug, JOURNEY_CATALOG, loadJourney, peekJourney } from '../domai
 import { clampStep } from '../domain/worldState'
 import { JourneyView } from './JourneyView'
 import { AtlasView } from './AtlasView'
+import { MenuSelect } from './MenuSelect'
 
 const VERSION_NOTE = 'Articles: Next.js 15→16 era (2025) · verified against Next.js 16.3 (Sept 2026)'
 
@@ -48,11 +49,7 @@ export function App() {
       <header class="app-header">
         <h1>Next.js <em>Under the Hood</em></h1>
         <nav aria-label="Modes">
-          <label class="visually-hidden" for="journey-select">Journey</label>
-          <select id="journey-select" value={slug ?? ''} onChange={(e) => { const slug = (e.currentTarget as HTMLSelectElement).value; if (slug) go({ mode: 'journey', slug, step: 0 }) }}>
-            <option value="" disabled>Journeys…</option>
-            {JOURNEY_CATALOG.map((j) => <option key={j.id} value={j.slug}>J{j.id.slice(1)} · {j.title}</option>)}
-          </select>
+          <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={slug} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: `J${j.id.slice(1)}`, title: j.title }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} />
           <a href={formatRoute({ mode: 'atlas' })} aria-current={route.mode === 'atlas' ? 'page' : undefined}>System Atlas</a>
         </nav>
         <span class="version-chip">{VERSION_NOTE}</span>

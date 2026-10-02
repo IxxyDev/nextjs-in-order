@@ -40,7 +40,17 @@ a { color: var(--accent); }
 .app-header nav { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .app-header nav a { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); text-decoration: none; padding: 8px 12px; border: 1px solid transparent; }
 .app-header nav a[aria-current="page"] { border-color: var(--line); background: var(--surface); color: var(--fg); }
-.app-header nav select { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--hi); border-radius: 0; }
+.menu { position: relative; }
+.menu-trigger { display: flex; align-items: center; gap: 10px; min-height: 36px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--hi); border-radius: 0; cursor: pointer; }
+.menu-trigger:hover, .menu-trigger[aria-expanded="true"] { color: var(--fg); border-color: var(--mid); }
+.menu-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-caret { margin-left: auto; color: var(--muted); }
+.menu-list { position: absolute; top: calc(100% + 4px); z-index: 20; max-height: min(70vh, 520px); overflow-y: auto; margin: 0; padding: 4px 0; list-style: none; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25); outline: none; }
+.menu-option { display: flex; align-items: baseline; gap: 10px; padding: 8px 12px; border-left: 2px solid transparent; font-family: var(--font-serif); font-size: 14px; letter-spacing: 0; text-transform: none; line-height: 1.35; color: var(--fg); cursor: pointer; }
+.menu-option.is-active { background: var(--surface-2); }
+.menu-option[aria-selected="true"] { border-left-color: var(--accent); }
+.menu-option[aria-selected="true"] .menu-title { color: var(--accent); }
+.menu-code { flex: none; min-width: 2.6em; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
 .version-chip { margin-left: auto; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 6px 12px; }
 .journey { display: grid; grid-template-columns: minmax(0, 62fr) minmax(320px, 38fr); grid-template-rows: minmax(0, 1fr) auto; height: 100%; min-height: 0; }
 .stage { position: relative; grid-column: 1; grid-row: 1; min-height: 0; height: 100%; }
@@ -166,7 +176,8 @@ a { color: var(--accent); }
 @media (max-width: 767px) {
   .app-header { flex-wrap: wrap; gap: 8px; padding: 8px 12px; }
   .app-header nav { flex-wrap: wrap; gap: 8px; min-width: 0; max-width: 100%; }
-  .app-header nav a, .app-header nav select { padding: 6px 8px; }
+  .app-header nav a, .menu-trigger { padding: 6px 8px; min-height: 44px; display: flex; align-items: center; }
+  .menu-option { min-height: 44px; align-items: center; }
   .version-chip { display: none; }
   .journey { grid-template-rows: minmax(40vh, 1fr) auto auto; }
   .panel { max-height: 36vh; padding: 14px 16px; }
