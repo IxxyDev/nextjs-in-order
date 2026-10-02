@@ -191,7 +191,7 @@ list is in §Sources at the end.
 | 7 | Chunk policy: framework, lib > ~160 KB, runtime | J1 step 10; J11 step 4 | pack | L1–L2 | A7 §Разделение на чанки; source: webpack-config splitChunks | planned |
 | 7 | Turbopack default in 16; Webpack via flag | J1 step 9 version chip | explain | version note | A7 §Turbopack; docs | implemented (J1) · version note |
 | 7 | `turbo-tasks`: functions, tasks, values, `Vc`; dependency graph | J1 step 9 L3; C6 | inspect | L3 | A7 §Устройство Turbopack | implemented (J1) |
-| 7 | Bottom-up invalidation; affected subgraph only | C6; J9 step 6 | explain | L1–L2 | A7 | planned |
+| 7 | Bottom-up invalidation; affected subgraph only | C6; J9 step 6 | explain | L1–L2 | A7 | implemented (J9) |
 | 7 | Persistent filesystem cache across builds | J8 step 12 | explain | L1–L2 | A7; docs: turbopack cache | implemented (J8) |
 | 7 | Crates: core, ecmascript, css, resolve, node | J1 step 9 L3 | inspect | L3 | A7 | implemented (J1) |
 | 7 | Unified graph vs separate compilers | C6 | compare | L1 | A7 | planned |
@@ -204,28 +204,28 @@ list is in §Sources at the end.
 
 | Article | Section / concept | Visual scene | Interaction | Explanation layer | Verification source | Status |
 |---|---|---|---|---|---|---|
-| 8 | Parent and child processes; restart on config change (exit code) | J9 steps 1–2 | move | L1–L2 | A8 §Процессы внутри dev | planned |
-| 8 | Bundler embedded in the child runtime (between router-server and render-server) | J9 step 1; C7 | explain | L1 | A8 | planned |
-| 8 | Isolated workers for `getStaticPaths` / `generateStaticParams` | J9 step 7 | explain | L1–L2 | A8 | planned |
-| 8 | Watcher-built route map replaces manifests; watched set | J9 step 3; C7 | explain | L1–L2 | A8 §Маршруты без манифестов | planned |
-| 8 | Conflicts (`app/` vs `pages/`), generated `.next/types`, route-change message | J9 step 3 | explain | L1–L2 | A8 | planned |
-| 8 | On-demand compilation: entry map with statuses, last-active, dispose flag | J9 step 4 | gate | L1–L3 | A8 §Компиляция по требованию | planned |
-| 8 | Invalidation scope: changed modules only, but chunk graph/codegen/hashing whole | J9 step 4 L3 | inspect | L3 | A8 | planned |
-| 8 | Eviction: 6 s timer, 60 s idle, dropped at next compile; rationale | J9 step 5 | explain | L1–L2 | A8 | planned |
-| 8 | Browser pings keep entries alive (pathname / router tree) | J9 step 5 | explain | L2 | A8 | planned |
-| 8 | Turbopack: demand-driven, nothing to evict | J9 step 6 | explain | L1 | A8 | planned |
-| 8 | HMR WebSocket owned by router-server; `/_next/hmr`; other paths continue routing | J9 step 8 | connect | L1–L2 | A8 §Канал обновлений | planned |
-| 8 | Origin validation | J9 step 8 | explain | L2 | A8; docs: allowedDevOrigins | planned |
-| 8 | Message categories: build lifecycle, route map, change classification, reload | J9 step 8 L3 | inspect | L3 | A8 | planned |
-| 8 | HMR vs Fast Refresh | J9 step 15; concept pair | explain | L1 | A8 §Fast Refresh | planned |
-| 8 | `react-refresh` runtime; SWC registers component IDs + hook signatures (client layer only) | J9 step 11 | refresh | L1–L3 | A8 | planned |
-| 8 | State-preservation rules (components-only export, signature change, other exports) | J9 steps 11–12 | explain | L1–L2 | A8 | planned |
-| 8 | No Fast Refresh for server code | J9 step 13 | explain | L1 | A8 | planned |
-| 8 | Server change classification; `require` cache cleared | J9 step 13 | transform | L1–L2 | A8 §Серверные изменения | planned |
-| 8 | Client: `router.refresh()` in `startTransition`; error state → reload | J9 step 14 | move | L1–L2 | A8 | planned |
+| 8 | Parent and child processes; restart on config change (exit code) | J9 steps 1–2 | move | L1–L2 | A8 §Процессы внутри dev | implemented (J9) |
+| 8 | Bundler embedded in the child runtime (between router-server and render-server) | J9 step 1; C7 | explain | L1 | A8 | implemented (J9) |
+| 8 | Isolated workers for `getStaticPaths` / `generateStaticParams` | J9 step 7 | explain | L1–L2 | A8 | implemented (J9) |
+| 8 | Watcher-built route map replaces manifests; watched set | J9 step 3; C7 | explain | L1–L2 | A8 §Маршруты без манифестов | implemented (J9) |
+| 8 | Conflicts (`app/` vs `pages/`), generated `.next/types`, route-change message | J9 step 3 | explain | L1–L2 | A8 | implemented (J9) |
+| 8 | On-demand compilation: entry map with statuses, last-active, dispose flag | J9 step 4 | gate | L1–L3 | A8 §Компиляция по требованию | implemented (J9) |
+| 8 | Invalidation scope: changed modules only, but chunk graph/codegen/hashing whole | J9 step 4 L3 | inspect | L3 | A8 | implemented (J9) |
+| 8 | Eviction: 6 s timer, 60 s idle, dropped at next compile; rationale | J9 step 5 | explain | L1–L2 | A8 | implemented (J9) |
+| 8 | Browser pings keep entries alive (pathname / router tree) | J9 step 5 | explain | L2 | A8 | implemented (J9) |
+| 8 | Turbopack: demand-driven, nothing to evict | J9 step 6 | explain | L1 | A8 | implemented (J9) |
+| 8 | HMR WebSocket owned by router-server; `/_next/hmr`; other paths continue routing | J9 step 8 | connect | L1–L2 | A8 §Канал обновлений | implemented (J9) |
+| 8 | Origin validation | J9 step 8 | explain | L2 | A8; docs: allowedDevOrigins | implemented (J9) |
+| 8 | Message categories: build lifecycle, route map, change classification, reload | J9 step 8 L3 | inspect | L3 | A8 | implemented (J9) |
+| 8 | HMR vs Fast Refresh | J9 step 15; concept pair | explain | L1 | A8 §Fast Refresh | implemented (J9) |
+| 8 | `react-refresh` runtime; SWC registers component IDs + hook signatures (client layer only) | J9 step 11 | refresh | L1–L3 | A8 | implemented (J9) |
+| 8 | State-preservation rules (components-only export, signature change, other exports) | J9 steps 11–12 | explain | L1–L2 | A8 | implemented (J9) |
+| 8 | No Fast Refresh for server code | J9 step 13 | explain | L1 | A8 | implemented (J9) |
+| 8 | Server change classification; `require` cache cleared | J9 step 13 | transform | L1–L2 | A8 §Серверные изменения | implemented (J9) |
+| 8 | Client: `router.refresh()` in `startTransition`; error state → reload | J9 step 14 | move | L1–L2 | A8 | implemented (J9) |
 | 8 | Custom server: `upgrade` forwarding; unwatched `server.js` | J9 step 16; J10 step 13 | explain | L1 | A8 §Кастомный сервер в dev | planned |
-| 8 | Dev/prod differences: caching, viewport prefetch off, minification, chunking, source maps, dev React, Strict Mode | J9 step 17; C7 | compare | L1–L2 | A8 §Итого | planned |
-| 8 | Dev performance is not production evidence | J9 step 18 | explain | L1 | A8 | planned |
+| 8 | Dev/prod differences: caching, viewport prefetch off, minification, chunking, source maps, dev React, Strict Mode | J9 step 17; C7 | compare | L1–L2 | A8 §Итого | implemented (J9) |
+| 8 | Dev performance is not production evidence | J9 step 18 | explain | L1 | A8 | implemented (J9) |
 
 ## Article 9 — Optimization mechanisms
 

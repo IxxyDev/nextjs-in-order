@@ -717,40 +717,112 @@ export const ENTITIES: Entity[] = [
 
   // ---------- Dev ----------
   {
-    id: 'dev-parent', short: 'Parent', name: 'Parent process', region: 'dev', glyph: 'process', x: 2210, y: 150,
+    id: 'dev-parent', short: 'Parent', name: 'Parent process · supervisor', region: 'dev', glyph: 'process', x: 2210, y: 110,
     phase: ['dev'], env: ['node'], role: 'process',
-    what: 'Supervises the child and restarts it when next.config changes (the child exits with a special code).',
-    consumes: ['child exit codes'], produces: ['restarts'], exists: 'dev session', connects: ['dev-child'], reaches: 'no'
+    what: 'The process next dev starts first. It does no serving itself: it spawns the child and restarts it with the same options when the child exits because next.config changed.',
+    consumes: ['child exit codes'], produces: ['a fresh child process'], exists: 'dev session', connects: ['dev-child'], reaches: 'no',
+    internals: ['cli/next-dev.ts: forks server/lib/start-server.ts as the child', 'child exits with RESTART_EXIT_CODE (77, server/lib/utils.ts) → parent forks again'],
+    sources: [{ label: 'next dev (CLI)', url: `${DOCS}/api-reference/cli/next` }]
   },
   {
-    id: 'dev-child', short: 'Child', name: 'Child process · server + bundler', region: 'dev', glyph: 'process', x: 2210, y: 360,
+    id: 'dev-child', short: 'Child', name: 'Child process · server + bundler', region: 'dev', glyph: 'process', x: 2300, y: 370,
     phase: ['dev'], env: ['node'], role: 'process',
-    what: 'Runs router-server, render-server and the bundler as one long-lived object; compiles routes on demand.',
-    consumes: ['requests', 'file changes'], produces: ['responses', 'HMR messages'], exists: 'until config change', connects: ['dev-watcher', 'dev-hmr', 'bundler'], reaches: 'no'
+    what: 'Runs the HTTP server, router-server, render-server and the bundler as one long-lived object; compiles routes when they are first requested.',
+    consumes: ['requests', 'file changes'], produces: ['responses', 'HMR messages'], exists: 'until next.config changes', connects: ['dev-watcher', 'dev-hmr', 'dev-turbopack', 'dev-static-workers'], reaches: 'no',
+    internals: ['server/lib/start-server.ts', 'server/lib/router-server.ts creates the dev bundler: dev-bundler-service.ts', 'output in .next/dev since 16.0, so next dev and next build can run side by side'],
+    versionNote: {
+      article: 'Dev writes into .next like a build.',
+      current: '16.0: next dev writes to .next/dev and holds a lockfile against a second instance.',
+      why: 'A dev session and a production build no longer overwrite each other.'
+    },
+    sources: [{ label: 'Upgrading to 16', url: `${DOCS}/guides/upgrading/version-16` }]
   },
   {
-    id: 'dev-watcher', short: 'Watcher', name: 'File watcher · live route map', region: 'dev', glyph: 'watcher', x: 2210, y: 600,
+    id: 'dev-static-workers', short: 'Static-params worker', name: 'Static-params worker · per call', region: 'dev', glyph: 'process', x: 2120, y: 370,
+    phase: ['dev'], env: ['node-worker'], role: 'process',
+    what: 'A fresh worker started for each generateStaticParams / getStaticPaths call and killed afterwards, so the call runs with clean module state, as it would in a build.',
+    consumes: ['one generateStaticParams / getStaticPaths call'], produces: ['a path list'], exists: 'one call', connects: ['dev-child'], reaches: 'no',
+    internals: ['server/dev/static-paths-worker.ts: next-dev-server.ts starts a jest-worker (one worker) per static-paths call and ends it afterwards'],
+    sources: [{ label: 'generateStaticParams', url: `${DOCS}/api-reference/functions/generate-static-params` }]
+  },
+  {
+    id: 'dev-watcher', short: 'Watcher', name: 'File watcher · live route map', region: 'dev', glyph: 'watcher', x: 2210, y: 560,
     phase: ['dev'], env: ['node'], role: 'route-description',
-    what: 'Replaces production manifests: rebuilds page lists, matchers, slots and .next/types on every change; detects app/ vs pages/ conflicts.',
-    consumes: ['app/, pages/, proxy, .env, tsconfig'], produces: ['in-memory route tables'], exists: 'dev session', connects: ['routing-ladder'], reaches: 'no'
+    what: 'Replaces the production manifests: rebuilds page lists, handlers, layouts, slots and matchers on every change, detects app/ vs pages/ conflicts and writes .next/types.',
+    consumes: ['app/', 'pages/', 'proxy.ts', '.env*', 'tsconfig.json'], produces: ['in-memory route tables', '.next/types', 'route-change messages'], exists: 'dev session', connects: ['routing-ladder', 'dev-turbopack'], reaches: 'no',
+    internals: ['server/lib/router-utils/setup-dev-bundler.ts: watcher callback rebuilds the route tables', 'conflicting app and page error when one path exists in both routers'],
+    sources: [{ label: 'Project structure', url: `${DOCS}/getting-started/project-structure` }]
   },
   {
-    id: 'dev-entries', short: 'On-demand entries', name: 'On-demand entries', region: 'dev', glyph: 'machine', x: 2210, y: 900,
+    id: 'dev-entries', short: 'On-demand entries', name: 'On-demand entries · --webpack', region: 'dev', glyph: 'machine', x: 2090, y: 860,
     phase: ['dev'], env: ['node'], role: 'bundler',
-    what: 'Webpack: entries added → building → built, evicted after idle time unless the browser pings. Turbopack: demand-driven graph, nothing to evict.',
-    consumes: ['requested pages', 'client pings'], produces: ['compiled entries'], exists: 'dev session', connects: ['bundler'], reaches: 'no'
+    what: 'The Webpack path: one record per requested page with status added → building → built, a last-active time and a dispose flag. Every rebuild includes every live entry.',
+    consumes: ['requested pages', 'browser pings'], produces: ['compiled entries'], exists: 'dev session', connects: ['dev-eviction', 'dev-hmr'], reaches: 'no',
+    internals: ['server/dev/on-demand-entry-handler.ts: ensurePage(), entries map, ADDED / BUILDING / BUILT'],
+    sources: [{ label: 'on-demand-entry-handler.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/dev/on-demand-entry-handler.ts' }]
   },
   {
-    id: 'dev-hmr', short: 'HMR socket', name: 'HMR WebSocket · /_next/hmr', region: 'dev', glyph: 'machine', x: 2210, y: 1300,
-    phase: ['dev'], env: ['node', 'network', 'browser'], role: 'transport',
-    what: 'Owned by router-server via the upgrade event; origin-checked. Carries build lifecycle, route-map changes, change classification and reload commands.',
-    consumes: ['compilation events'], produces: ['messages to the browser'], exists: 'dev session', connects: ['dev-fast-refresh', 'app-router'], reaches: 'data'
+    id: 'dev-eviction', short: 'Eviction timer', name: 'Entry eviction · --webpack', region: 'dev', glyph: 'machine', x: 2330, y: 860,
+    phase: ['dev'], env: ['node'], role: 'process',
+    what: 'A timer that marks entries idle longer than the inactive age; the next compilation drops them. Browser pings reset the clock for the page that is open.',
+    consumes: ['entry last-active times'], produces: ['dispose flags'], exists: 'dev session', connects: ['dev-entries'], reaches: 'no',
+    internals: ['setInterval(…, pingIntervalTime + 1000), pingIntervalTime = clamp(maxInactiveAge, 1000, 5000)', 'maxInactiveAge default 60 s (onDemandEntries config)'],
+    versionNote: {
+      article: 'Sweep every 6 s, dispose after 60 s idle.',
+      current: 'Same defaults; 60 s is the configurable maxInactiveAge and the sweep interval is derived from it. Applies to the --webpack path only.',
+      why: 'With Turbopack, the default since 16.0, there are no entries to evict.'
+    },
+    sources: [{ label: 'onDemandEntries', url: `${DOCS}/api-reference/config/next-config-js/onDemandEntries` }, { label: 'on-demand-entry-handler.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/dev/on-demand-entry-handler.ts' }]
   },
   {
-    id: 'dev-fast-refresh', short: 'Fast Refresh', name: 'Fast Refresh · react-refresh', region: 'dev', glyph: 'machine', x: 2210, y: 1700,
-    phase: ['dev'], env: ['browser'], role: 'runtime',
-    what: 'Swaps Client Component implementations in place using IDs and hook signatures registered by SWC. Exists only for the client layer; server edits trigger an RSC refresh instead.',
-    consumes: ['client change messages'], produces: ['state-preserving updates'], exists: 'dev session', connects: ['client-components'], reaches: 'no'
+    id: 'dev-turbopack', short: 'Turbopack (dev)', name: 'Turbopack in dev · demand-driven graph', region: 'dev', glyph: 'machine', x: 2210, y: 990, badge: 'Rust',
+    phase: ['dev'], env: ['rust'], role: 'bundler',
+    what: 'The default dev bundler. Only the work a request asks for is computed; a file change marks the affected tasks dirty and only that subgraph is recomputed, so there is nothing to evict.',
+    consumes: ['requests from the child', 'file changes'], produces: ['server chunks', 'browser chunks', 'HMR updates'], exists: 'dev session; persistent cache across restarts', connects: ['dev-hmr', 'server-chunks', 'next-cache-dir'], reaches: 'no',
+    internals: ['turbo-tasks: functions, tasks, Vc cells; dirty propagation bottom-up', 'filesystem cache in .next on by default for dev (16.3)'],
+    versionNote: {
+      article: 'Turbopack as the fast alternative to Webpack in dev.',
+      current: 'Default for next dev and next build since 16.0; persistent filesystem cache on by default (16.3). Opt out with --webpack.',
+      why: 'On-demand entries and eviction describe the opt-in Webpack path.'
+    },
+    sources: [{ label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }, { label: 'turbopackFileSystemCache', url: `${DOCS}/api-reference/config/next-config-js/turbopackFileSystemCache` }]
+  },
+  {
+    id: 'dev-module-cache', short: 'require cache', name: 'Server module cache · require', region: 'dev', glyph: 'cache', x: 2090, y: 1220,
+    phase: ['dev'], env: ['node'], role: 'cache',
+    what: 'Node keeps every required server chunk in memory. On a server edit the entries for the replaced chunks are deleted, so the next render loads the new code.',
+    consumes: ['server change notifications'], produces: ['fresh module loads'], exists: 'child process', connects: ['server-chunks', 'rsc-runtime-entity'], reaches: 'no',
+    internals: ['server/dev/require-cache.ts: deleteCache() (calls the internal deleteFromRequireCache)', 'server/dev/hot-reloader-turbopack.ts clears server chunks before sending serverComponentChanges'],
+    sources: [{ label: 'server/dev', url: 'https://github.com/vercel/next.js/tree/canary/packages/next/src/server/dev' }]
+  },
+  {
+    id: 'dev-hmr', short: 'HMR socket', name: 'HMR WebSocket · /_next/hmr', region: 'dev', glyph: 'machine', x: 2210, y: 1320,
+    phase: ['dev'], env: ['node', 'network'], role: 'transport',
+    what: 'router-server takes the upgrade event for /_next/hmr, checks the origin and hands the socket to the bundler. It carries build lifecycle, route-map changes, change classification and reload commands.',
+    consumes: ['compilation events', 'browser pings'], produces: ['messages to the browser'], exists: 'dev session', connects: ['dev-hmr-client', 'routing-ladder', 'dev-entries'], reaches: 'data',
+    internals: ['messages: building · built · sync · addedPage · removedPage · serverComponentChanges · reloadPage · serverOnlyChanges', 'other upgrade paths continue through normal routing'],
+    versionNote: {
+      article: 'Origins checked against a list from the config.',
+      current: 'allowedDevOrigins: cross-origin dev requests are blocked by default; hostname matching with * and ** wildcards.',
+      why: 'Opening the dev server from another host needs that host listed.'
+    },
+    sources: [{ label: 'allowedDevOrigins', url: `${DOCS}/api-reference/config/next-config-js/allowedDevOrigins` }]
+  },
+  {
+    id: 'dev-hmr-client', short: 'HMR client', name: 'HMR client · in the tab', region: 'dev', glyph: 'runtime', x: 2210, y: 1600,
+    phase: ['dev', 'browser'], env: ['browser'], role: 'runtime',
+    what: 'Dev-only code in the page that holds the socket, applies module updates, pings with the open route and decides what each message means: Fast Refresh, a router refresh or a full reload.',
+    consumes: ['HMR messages'], produces: ['module updates', 'router refreshes', 'pings'], exists: 'tab, dev only', connects: ['dev-hmr', 'dev-fast-refresh', 'app-router'], reaches: 'no',
+    internals: ['client/dev/hot-reloader/app/hot-reloader-app.tsx and pages/hot-reloader-pages.ts: the two HMR clients', 'ping: pathname (pages) / router tree (app)'],
+    sources: [{ label: 'Fast Refresh', url: `${DOCS}/architecture/fast-refresh` }]
+  },
+  {
+    id: 'dev-fast-refresh', short: 'Fast Refresh', name: 'Fast Refresh · react-refresh', region: 'dev', glyph: 'machine', x: 2210, y: 1800,
+    phase: ['dev', 'browser'], env: ['browser'], role: 'runtime',
+    what: 'Swaps Client Component implementations in place using IDs and hook signatures registered by SWC. Exists only for the client layer; server edits trigger a router refresh instead.',
+    consumes: ['client change updates', 'registered component IDs + hook signatures'], produces: ['state-preserving updates', 'remounts'], exists: 'tab, dev only', connects: ['client-components'], reaches: 'no',
+    internals: ['SWC react-refresh transform: $RefreshReg$(Component, id), $RefreshSig$() per hook list', 'non-component export → update bubbles to importers → full reload if nothing accepts it'],
+    sources: [{ label: 'Fast Refresh', url: `${DOCS}/architecture/fast-refresh` }]
   }
 ]
 

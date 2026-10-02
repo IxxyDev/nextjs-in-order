@@ -13,7 +13,8 @@ export const JOURNEY_CATALOG: JourneyEntry[] = [
   { id: 'j5', slug: 'app-initial', title: 'App Router: the initial request', load: () => import('./app-initial').then((m) => m.APP_INITIAL) },
   { id: 'j6', slug: 'app-navigation', title: 'App Router: prefetch and navigation', load: () => import('./app-navigation').then((m) => m.APP_NAVIGATION) },
   { id: 'j7', slug: 'server-actions', title: 'Server Actions', load: () => import('./server-actions').then((m) => m.SERVER_ACTIONS) },
-  { id: 'j8', slug: 'caching', title: 'Caching, ISR, Cache Components and PPR', load: () => import('./caching').then((m) => m.CACHING) }
+  { id: 'j8', slug: 'caching', title: 'Caching, ISR, Cache Components and PPR', load: () => import('./caching').then((m) => m.CACHING) },
+  { id: 'j9', slug: 'dev-mode', title: 'Development mode', load: () => import('./dev-mode').then((m) => m.DEV_MODE) }
 ]
 
 const catalog = createLazyCatalog(JOURNEY_CATALOG, [[WHOLE_LIFECYCLE.slug, WHOLE_LIFECYCLE]])

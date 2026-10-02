@@ -11,7 +11,8 @@ const EXPECTED: { slug: string; id: string; steps: number; predictAt?: number[];
   { slug: 'app-initial', id: 'j5', steps: 22, predictAt: [7], checkAt: 22 },
   { slug: 'app-navigation', id: 'j6', steps: 18, predictAt: [7], checkAt: 18 },
   { slug: 'server-actions', id: 'j7', steps: 17, predictAt: [11], checkAt: 17 },
-  { slug: 'caching', id: 'j8', steps: 20, predictAt: [6, 16], checkAt: 20 }
+  { slug: 'caching', id: 'j8', steps: 20, predictAt: [6, 16], checkAt: 20 },
+  { slug: 'dev-mode', id: 'j9', steps: 20, predictAt: [10], checkAt: 20 }
 ]
 
 describe('journeys', () => {

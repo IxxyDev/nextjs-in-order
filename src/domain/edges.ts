@@ -86,11 +86,32 @@ export const EDGES: Edge[] = [
   { id: 'e-image-cache', from: 'image-optimizer', to: 'image-cache', kind: 'data', label: 'url · w · q · format' },
   { id: 'e-filesystem-route-handler', from: 'rung-filesystem', to: 'route-handler', kind: 'control', label: 'handler route' },
   // dev
-  { id: 'e-dev-parent-child', from: 'dev-parent', to: 'dev-child', kind: 'supervision', label: 'restart on config change' },
+  { id: 'e-dev-parent-child', from: 'dev-parent', to: 'dev-child', kind: 'supervision', label: 'supervise · restart' },
   { id: 'e-dev-child-bundler', from: 'dev-child', to: 'bundler', kind: 'dev', label: 'embedded' },
   { id: 'e-dev-watcher-ladder', from: 'dev-watcher', to: 'routing-ladder', kind: 'dev', label: 'live route map' },
   { id: 'e-dev-hmr-refresh', from: 'dev-hmr', to: 'dev-fast-refresh', kind: 'dev', label: 'client change' },
   { id: 'e-dev-hmr-router', from: 'dev-hmr', to: 'app-router', kind: 'dev', label: 'server change → hmrRefresh()', crossing: 'data' },
+
+  // ---------- Development mode (J9) ----------
+  { id: 'e-dev-child-exit', from: 'dev-child', to: 'dev-parent', kind: 'supervision', label: 'exit code: config changed' },
+  { id: 'e-dev-child-workers', from: 'dev-child', to: 'dev-static-workers', kind: 'supervision', label: 'spawn per call' },
+  { id: 'e-dev-child-turbopack', from: 'dev-child', to: 'dev-turbopack', kind: 'dev', label: 'embedded (default)' },
+  { id: 'e-dev-nav-watcher', from: 'src-dashboard-nav', to: 'dev-watcher', kind: 'dev', label: 'save' },
+  { id: 'e-dev-summary-watcher', from: 'src-account-summary', to: 'dev-watcher', kind: 'dev', label: 'save' },
+  { id: 'e-dev-watcher-turbopack', from: 'dev-watcher', to: 'dev-turbopack', kind: 'dev', label: 'changed file → dirty tasks' },
+  { id: 'e-dev-ladder-entries', from: 'routing-ladder', to: 'dev-entries', kind: 'dev', label: 'ensure page compiled' },
+  { id: 'e-dev-eviction-entries', from: 'dev-eviction', to: 'dev-entries', kind: 'control', label: 'dispose idle' },
+  { id: 'e-dev-hmr-entries', from: 'dev-hmr', to: 'dev-entries', kind: 'dev', label: 'ping keeps alive' },
+  { id: 'e-dev-ladder-hmr', from: 'routing-ladder', to: 'dev-hmr', kind: 'dev', label: 'upgrade /_next/hmr' },
+  { id: 'e-dev-hmr-client', from: 'dev-hmr', to: 'dev-hmr-client', kind: 'dev', label: 'messages' },
+  { id: 'e-dev-turbopack-hmr', from: 'dev-turbopack', to: 'dev-hmr', kind: 'dev', label: 'built · change class' },
+  { id: 'e-dev-turbopack-server-chunks', from: 'dev-turbopack', to: 'server-chunks', kind: 'transform', label: 'replace server chunk' },
+  { id: 'e-dev-turbopack-browser-chunks', from: 'dev-turbopack', to: 'browser-chunks', kind: 'transform', label: 'update browser chunk' },
+  { id: 'e-dev-module-cache-rsc', from: 'dev-module-cache', to: 'rsc-runtime-entity', kind: 'dev', label: 'cleared → fresh require' },
+  { id: 'e-dev-client-refresh', from: 'dev-hmr-client', to: 'dev-fast-refresh', kind: 'dev', label: 'client change' },
+  { id: 'e-dev-refresh-components', from: 'dev-fast-refresh', to: 'client-components', kind: 'dev', label: 'swap implementation', crossing: 'code' },
+  { id: 'e-dev-client-router', from: 'dev-hmr-client', to: 'app-router', kind: 'dev', label: 'server change → refresh', crossing: 'data' },
+  { id: 'e-dev-custom-upgrade', from: 'custom-server', to: 'dev-hmr', kind: 'dev', label: 'forward upgrade' },
 
   // ---------- Navigation (J6) ----------
   { id: 'e-client-scheduler', from: 'client-components', to: 'prefetch-scheduler', kind: 'control', label: '<Link> in viewport / hover' },
