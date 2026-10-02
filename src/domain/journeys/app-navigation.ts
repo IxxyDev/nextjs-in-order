@@ -31,19 +31,19 @@ export const APP_NAVIGATION: Journey = {
     },
     {
       id: 'j6-4', kind: 'move', title: 'Only the missing segments',
-      story: 'With the tree in hand the scheduler compares it with the Segment Cache. The root layout and the dashboard layout are already there from the current page, so they are marked kept. Only billing is missing: one request per missing segment, each with Next-Router-Segment-Prefetch set to that segment path. Billing is a dynamic page (InvoiceList reads cookies), so what arrives is its static shell up to the Suspense boundary; the hole stays empty until the click. Small, parallel, HTTP/2-friendly.',
+      story: 'The scheduler compares the tree with the Segment Cache. The root and dashboard layouts are already cached from the current page, so they are kept. Only billing is missing, so only billing is requested. Billing is dynamic (InvoiceList reads cookies), so what arrives is its static shell up to the Suspense boundary; the hole stays empty until the click.',
       camera: { kind: 'entities', ids: ['prefetch-scheduler', 'segment-cache', 'flight'] },
       token: { at: 'segment-cache', glyph: 'segment', label: 'billing shell · fetched; "" and dashboard · kept' },
       states: { 'prefetch-scheduler': 'active', 'segment-cache': 'current', flight: 'active', 'src-root-layout': 'kept', 'src-dashboard-layout': 'kept', 'src-billing-page': 'new' },
       edges: ['e-scheduler-ladder', 'e-flight-segment-cache'],
-      internals: ['Next-Router-Segment-Prefetch: /dashboard/billing', 'article-era model: one request up to the first loading.tsx; now: tree first, then per-segment']
+      internals: ['Next-Router-Segment-Prefetch: /dashboard/billing', 'one request per missing segment: small, parallel, HTTP/2-friendly', 'article-era model: one request up to the first loading.tsx; now: tree first, then per-segment']
     },
     {
       id: 'j6-5', kind: 'explain', title: 'What the server is willing to prefetch',
-      story: 'The articles describe a rule: without cacheComponents only static routes get per-segment prefetch; the dynamic part of billing is hatched n/a and is fetched on click, which is why step 6 still goes to the server. Next.js 16.3 refines it: with partialPrefetching the default prefetch is one reusable App Shell per route, and prefetch={true} additionally pulls URL-dependent cached content. The mechanism did not change; the granularity did.',
+      story: 'The articles give the rule: without cacheComponents only static routes get per-segment prefetch, so the dynamic part of billing is hatched n/a and fetched on click, which is why step 6 still goes to the server. Next.js 16.3 refines the granularity, not the mechanism: with partialPrefetching the default prefetch is one reusable App Shell per route.',
       camera: { kind: 'entities', ids: ['segment-cache', 'src-billing-page', 'prefetch-scheduler'] },
       states: { 'segment-cache': 'active', 'src-billing-page': 'na', 'prefetch-scheduler': 'kept' }, edges: [],
-      internals: ['article: cacheComponents: true enables per-segment prefetch for dynamic routes', '16.3: experimental.partialPrefetching → App Shell prefetch by default', 'prefetch={true}: shell + cached dynamic content'],
+      internals: ['article: cacheComponents: true enables per-segment prefetch for dynamic routes', '16.3: experimental.partialPrefetching → App Shell prefetch by default', 'prefetch={true}: shell + URL-dependent cached content'],
       sources: [{ label: 'Link prefetching', url: 'https://nextjs.org/docs/app/api-reference/components/link#prefetch' }]
     },
     {
@@ -112,7 +112,7 @@ export const APP_NAVIGATION: Journey = {
     },
     {
       id: 'j6-13', kind: 'move', title: 'The cache-hit path',
-      story: 'Now the user presses Back. The history entry for /dashboard/settings holds its tree, and the segments the page was built from are still in the client cache, so the navigation completes with no request and no server work: the router restores the tree and swaps the slot. A Link click to a dynamic page would refetch instead, because dynamic entries are stale immediately by default (step 15).',
+      story: 'Now the user presses Back. The history entry for /dashboard/settings holds its tree, and its segments are still in the client cache, so the navigation completes with no request and no server work. A Link click to a dynamic page would refetch instead, because dynamic entries are stale immediately by default (step 15).',
       camera: { kind: 'entities', ids: ['route-cache', 'segment-cache', 'app-router', 'routing-ladder'] },
       token: { at: 'app-router', glyph: 'segment', label: 'Back → settings · from history + cache' },
       states: { 'route-cache': 'active', 'segment-cache': 'active', 'app-router': 'current', 'routing-ladder': 'na', 'rsc-runtime-entity': 'na' }, edges: ['e-route-cache-router', 'e-segment-cache-router']

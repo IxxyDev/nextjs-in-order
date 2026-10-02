@@ -159,8 +159,8 @@ Two synchronized world instances (`visual-language.md` §9). Pairs, each with it
 
 ### 3.4 Predict the machine
 
-A scenario quiz separate from the journeys: 12 scenario questions (one per journey theme), each
-answered by choosing entities or outcomes on the world map ("which regions does this request
+A quiz separate from the journeys: 22 questions, the brief's ten reviewer questions (r1–r10) plus
+one scenario question per journey (s0–s11, J0 to J11), each answered by choosing entities or outcomes on the world map ("which regions does this request
 touch?", "which segments are re-rendered?"). Feedback replays the relevant journey steps.
 
 ## 4. Progressive disclosure
@@ -241,11 +241,11 @@ What should click: *the compiler sees one file; the bundler sees the whole graph
 11. Bundler · reference · `ProfileForm` collapses into a reference; `flight-manifest-plugin` writes the row into `page_client-reference-manifest.js`.
 12. Shelf · connect · every manifest is written: routes, pages, build, prerender, middleware, client-reference, server-reference; each pinned to its consumer below.
 13. Route analysis · explain · `/dashboard/settings` marked with `"use cache"` data → static shell possible; `/dashboard/billing` reads `cookies()` inside Suspense → PPR shell + postponed; `/products/42` ƒ; `/posts/[id]` ● with revalidate 60.
-14. Prerender · transform · static routes rendered now: `.html`, `.rsc`, `.prefetch.rsc`, `posts/7.json`; PPR shell stored with a postponed-state glyph.
+14. Prerender · transform · static routes rendered now: `.html`, `.rsc`, per-segment prefetch files (`.segments/…/*.segment.rsc`), `posts/7.json`; PPR shell stored with a postponed-state glyph.
 15. Tracing · explain · file tracing draws the minimal file set for the settings server entry.
 16. Standalone · pack · `.next/standalone/` assembled with its own `server.js`.
 17. Summary · explain · the ○ ● ƒ tree printed; artifact families named.
-18. check · "SWC decides which chunk a module lands in" (false); "Turbopack replaces SWC" (false: it embeds it); "Manifests are read by the browser" (partly: build-manifest has a browser copy; the rest are server-only).
+18. check · "SWC decides which chunk a module lands in" (false); "Turbopack replaces SWC" (false: it embeds it); "Every manifest is sent to the browser" (false: only build-manifest's client copy and the references inside Flight reach it).
 
 ### J2 Incoming request and server routing (14 steps)
 
@@ -305,7 +305,7 @@ What should click: *`_app` stays, the page swaps, data comes from `/_next/data` 
 9. History · explain · `pushState`; back button replays the mechanism.
 10. Shallow · explain · `router.push(url, as, { shallow: true })`: URL changes, no data function, same page only.
 11. Version note · explain · article model vs current prefetch behavior (from the verification table).
-12. check · "Shallow routing works across pages" (false); "SSR pages prefetch their data on viewport" (false).
+12. check · "Shallow routing works across pages" (false); "SSR pages prefetch their data on viewport" (false); "A client navigation renders `_document` again" (false).
 
 ### J5 App Router initial request (22 steps, the golden path)
 
@@ -380,7 +380,7 @@ What should click: *an action is a POST to an ID; invalidation is a separate ste
 14. Response · move · `text/x-component` with `a` and `f` crosses.
 15. Merge · swap · client router applies `f` like a navigation patch; `useActionState` receives `a`.
 16. `redirect()` · move · alternative branch: redirect path travels instead.
-17. check · "`.bind()` arguments are encrypted" (false); "Every action re-renders the page" (false); "`revalidateTag(tag, 'max')` makes the same response carry fresh UI" (false: that is `updateTag`); "Unknown action IDs execute a fallback" (false).
+17. check · "`.bind()` arguments are encrypted" (false); "Every action re-renders the page" (false); "`revalidateTag(tag, 'max')` makes the same response carry fresh UI" (false: that is `updateTag`).
 
 ### J8 Caching, ISR, Cache Components and PPR (20 steps)
 
@@ -426,7 +426,7 @@ What should click: *dev builds on demand and pushes results over a socket; Fast 
 11. reveal · refresh · Fast Refresh: `react-refresh` registered IDs + hook signature; same signature → state kept.
 12. Signature change · explain · adding a hook → remount; non-component export → bubble → full reload.
 13. Edit 2 · transform · save `AccountSummary.tsx` (Server Component) → server chunk replaced, `require` cache cleared → `server components change` message.
-14. Refresh · move · the HMR client calls the router's `hmrRefresh()` (internal counterpart of `router.refresh()`, header `next-hmr-refresh`) inside `startTransition`; new Flight crosses and merges; a full `location.reload()` happens only after a prior runtime error.
+14. Refresh · move · the HMR client calls the router's `hmrRefresh()` (internal counterpart of `router.refresh()`, header `next-hmr-refresh`) inside `startTransition`; new Flight crosses and merges; a full `location.reload()` happens only after a runtime error or on the error page.
 15. HMR vs Fast Refresh · explain · the channel vs the React mechanism (pair from concept model §5).
 16. Custom server in dev · explain · `upgrade` must be forwarded; `server.js` outside watcher and compiler.
 17. Dev vs prod · explain · caching mostly off, viewport prefetch off, no minification, dev chunking, source maps, dev React, Strict Mode double render.
@@ -452,7 +452,7 @@ What should click: *a custom server wraps Next.js; it does not replace router-se
 11. `standalone` · explain · tracing ignores `server.js` → runtime module-not-found; `export` has no server.
 12. `useFileSystemPublicRoutes: false` · explain · server hides file routes; client-side navigation still can reach them.
 13. Dev · explain · HMR `upgrade` forwarding.
-14. check · "A custom server can skip Proxy by calling `handle` with a modified URL" (false: modifies input, still runs the ladder); "A custom server replaces render-server" (false).
+14. check · "A custom server can skip Proxy by calling `handle` with a modified URL" (false: modifies input, still runs the ladder); "A custom server replaces render-server" (false); "A request `server.js` answers without calling `handle` is invisible to Next.js" (true).
 
 ### J11 Built-in optimizations (16 steps)
 
@@ -474,7 +474,7 @@ What should click: *each optimization moves work earlier (build) or narrower (fe
 13. predict · "Which of these speeds up the React render itself?"
 14. reveal · none of image/font/script/tracing; static/ISR/PPR avoid it; chunking reduces download.
 15. Summary · explain · levers placed on the map.
-16. check · "Tracing makes rendering faster" (false); "`next/font/google` fetches at request time" (false).
+16. check · "Tracing makes rendering faster" (false); "`next/font/google` fetches at request time" (false); "The image optimizer resizes the same image again on every request" (false).
 
 ## 8. Understanding checks
 
@@ -482,8 +482,8 @@ What should click: *each optimization moves work earlier (build) or narrower (fe
   the reveal step explains the result from the architecture and shows changed vs kept.
 - **Misconception checks** (2–3 per journey) are true/false statements with a one-line why and a
   link to the step that shows it.
-- **Predict the machine** (mode 3.4) holds the brief's ten reviewer questions plus two scenario
-  questions per journey, answered on the map.
+- **Predict the machine** (mode 3.4) holds 22 questions: the brief's ten reviewer questions
+  (r1–r10) plus one scenario question per journey (s0–s11), answered on the map.
 - Progress (answered, correct) is stored in `localStorage` only; it never gates content.
 
 ## 9. Desktop and mobile behavior

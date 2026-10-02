@@ -40,11 +40,11 @@ export const SERVER_ACTIONS: Journey = {
     },
     {
       id: 'j7-5', kind: 'explain', title: 'One form, two paths',
-      story: 'ProfileForm calls useActionState(updateProfile, null) and renders <form action={formAction}>: a real form whose action is the proxy from step 3. With JavaScript, React intercepts submit and sends a fetch. Without JavaScript, the browser does a native POST to the current URL with the action ID in a hidden field, and the server responds with a new document. Both paths reach the same function.',
+      story: 'ProfileForm renders <form action={formAction}> from useActionState: a real form whose action is the proxy from step 3. With JavaScript, React intercepts submit and sends a fetch. Without JavaScript, the browser does a native POST to the current URL with the action ID in a hidden field, and the server answers with a new document. Both paths reach the same function.',
       camera: { kind: 'entities', ids: ['client-components', 'dom'] },
       token: { at: 'client-components', glyph: 'component-client', label: '<form action={formAction}> · useActionState(updateProfile)' },
       states: { 'client-components': 'current', dom: 'active' }, edges: ['e-react-client-components'],
-      internals: ['hydrated: fetch(currentUrl, { method: "POST", headers: { "Next-Action": id } })', 'no JS: multipart POST with $ACTION_ID_<id> field; response is HTML']
+      internals: ['const [state, formAction] = useActionState(updateProfile, null)', 'hydrated: fetch(currentUrl, { method: "POST", headers: { "Next-Action": id } })', 'no JS: multipart POST with $ACTION_ID_<id> field; response is HTML']
     },
     {
       id: 'j7-6', kind: 'move', title: 'The POST envelope',
@@ -103,7 +103,7 @@ export const SERVER_ACTIONS: Journey = {
     },
     {
       id: 'j7-12', kind: 'reveal', title: 'Invalidation is its own step',
-      story: 'Field f is empty: the page did not update. Now run the same action with updateTag("profile"). The tag hatch sweeps every "use cache" entry and every server cache entry carrying that tag, immediately, in this request. revalidatePath expires by path instead of by tag; refresh() and a cookie write do not touch caches but also make the handler re-render. redirect() takes a different branch (step 16).',
+      story: 'Field f is empty: the page did not update. Now run the same action with updateTag("profile"). The tag hatch sweeps every "use cache" and server cache entry carrying that tag, immediately, in this request. revalidatePath expires by path instead; refresh() and a cookie write touch no cache but also force a re-render. redirect() branches off (step 16).',
       camera: { kind: 'entities', ids: ['action-handler', 'data-cache', 'server-cache'] },
       token: { at: 'data-cache', glyph: 'cache', label: 'tag "profile" · swept' },
       states: { 'action-handler': 'active', 'data-cache': 'invalid', 'server-cache': 'invalid', db: 'fresh' }, edges: ['e-action-data-cache', 'e-action-server-cache'],
@@ -111,7 +111,7 @@ export const SERVER_ACTIONS: Journey = {
     },
     {
       id: 'j7-13', kind: 'transform', title: 'Rerender rides in the same response',
-      story: 'Because something was invalidated, the handler renders the current route again inside the same request: the RSC runtime runs SettingsPage, getProfile misses the swept cache and reads the fresh row. That Flight goes into f; the return value goes into a. The alternative lane, revalidateTag("profile", "max"), only marks the tag stale-while-revalidate: f stays empty and a later read refreshes in the background.',
+      story: 'Because something was invalidated, the handler renders the current route again inside the same request: SettingsPage runs, getProfile misses the swept cache and reads the fresh row. That Flight goes into f; the return value goes into a. The alternative, revalidateTag("profile", "max"), only marks the tag stale: f stays empty and a later read refreshes in the background.',
       camera: { kind: 'entities', ids: ['action-handler', 'rsc-runtime-entity', 'data-cache', 'flight'] },
       token: { at: 'rsc-runtime-entity', glyph: 'component-server', label: 'SettingsPage (re-rendering)' },
       states: { 'action-handler': 'active', 'rsc-runtime-entity': 'current', 'data-cache': 'fresh', flight: 'new', db: 'active' }, edges: ['e-action-rsc', 'e-data-cache-rsc', 'e-db-rsc', 'e-action-flight'],
@@ -149,8 +149,7 @@ export const SERVER_ACTIONS: Journey = {
       checks: [
         { statement: '.bind() arguments are encrypted before they reach the browser.', isTrue: false, why: 'Only captured closure variables are encrypted. Bound arguments travel as plain JSON and can be read and altered by the client.' },
         { statement: 'Every action re-renders the page.', isTrue: false, why: 'The f field is filled only when the action invalidated or refreshed something (updateTag, revalidatePath, refresh, a cookie write). Otherwise only the return value comes back; a redirect() replaces f with a navigation.' },
-        { statement: 'revalidateTag("profile", "max") makes the same response carry fresh UI.', isTrue: false, why: 'That form marks the tag stale-while-revalidate; the next read refreshes in the background. updateTag("profile") is the call that expires now and re-renders in the same response.' },
-        { statement: 'An unknown action ID executes a fallback handler.', isTrue: false, why: 'IDs that are not in server-reference-manifest are rejected before any code runs. There is no fallback.' }
+        { statement: 'revalidateTag("profile", "max") makes the same response carry fresh UI.', isTrue: false, why: 'That form marks the tag stale-while-revalidate; the next read refreshes in the background. updateTag("profile") is the call that expires now and re-renders in the same response.' }
       ]
     }
   ]

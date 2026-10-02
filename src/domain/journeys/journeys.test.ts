@@ -42,7 +42,9 @@ describe('journeys', () => {
       }
       expect(j.steps.filter((s) => s.kind === 'predict')).toHaveLength(e.predictAt?.length ?? 0)
       expect(j.steps[e.checkAt - 1].kind).toBe('check')
+      /** spec §8: 2–3 misconception checks per journey */
       expect(j.steps[e.checkAt - 1].checks!.length).toBeGreaterThanOrEqual(2)
+      expect(j.steps[e.checkAt - 1].checks!.length).toBeLessThanOrEqual(3)
       for (const s of j.steps) expect(s.id.startsWith(`${e.id}-`), s.id).toBe(true)
     })
   }

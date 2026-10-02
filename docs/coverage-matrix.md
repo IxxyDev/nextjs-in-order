@@ -332,3 +332,17 @@ Journey 5 (22 steps) plays end to end. Verified at 1440 × 900: predict step (fo
 ## Milestone 3 QA (2026-10-02)
 
 Journey 6 (18 steps) and Journey 7 (17 steps) play end to end. Verified at 1440 × 900 with ArrowRight through every step: the URL hash advances by one and the panel title changes on each step. J6 predict (step 7) and check (step 18, three statements) and J7 predict (step 11) and check (step 17, four statements) show the reveal or per-statement feedback with explanations. Spot check at 390 × 844 on steps 1, 7, 12 and 18 of J6 and steps 1, 6, 11, 16 and 17 of J7. No console errors or warnings. Defects found at 390 × 844 and fixed in `src/styles.css`: the header grid column grew to the width of the journey select (page scrollWidth 474 > 390), and the transport and panel buttons were 40 px. The app grid column is now `minmax(0, 1fr)`, the header nav wraps, and transport and panel buttons are at least 44 px on narrow screens (scrollWidth now 390). 34 tests pass. `vite build`: 137 kB JS / 12.8 kB CSS before compression.
+
+## Final QA (2026-10-02)
+
+Content pass after the milestone QA. Facts re-checked against the Next.js canary source and the v16.0.0 and v16.3.8 tags (concept-model.md §7, V34–V37): `.prefetch.rsc` replaced by per-segment `.segments/*.segment.rsc` files, the build-summary legend (◐ "Partial Prerender"), the dev-mode file names (`RESTART_EXIT_CODE`, `static-paths-worker.ts`, `require-cache.ts`, `hot-reloader-*.ts`) and the `hmrRefresh()` / `next-hmr-refresh` refresh path. Every Level 1 story is at most 60 words (guarded by `src/domain/journeys/stories.test.ts`, journeys and compare pairs). Every closing check has 2–3 statements, each cleanly true or false.
+
+Implemented:
+
+| Kind | Items |
+|---|---|
+| Journeys | J0 whole-lifecycle (10 steps), J1 production-build (18), J2 request-routing (14), J3 pages-initial (16), J4 pages-navigation (12), J5 app-initial (22), J6 app-navigation (18), J7 server-actions (17), J8 caching (20), J9 dev-mode (20), J10 custom-server (14), J11 optimizations (16) |
+| Compare pairs | C1 initial-load (8 steps), C2 client-navigation (8), C3 runtimes (7), C4 responses (6), C5 hydration (6), C6 bundlers (7), C7 prod-vs-dev (8), C8 rendering-strategies (5), C9 caches (6) |
+| Predict the machine | 22 questions: the brief's ten reviewer questions (r1–r10) plus one scenario per journey (s0–s11) |
+
+`vite build`: index chunk 181.53 kB (55.06 kB gzip), CSS 20.68 kB (4.74 kB gzip). Lazy chunks (one per journey except J0, one per compare pair, one for the quiz) range from 2.96 kB (1.10 kB gzip, caches pair) to 22.32 kB (7.04 kB gzip, caching journey). `tsc --noEmit` clean, `vitest run` 108 tests in 16 files pass, `playwright test` 107 pass and 7 skip by design (touch tests outside phone-390, minimap test on phone where the minimap is hidden). Canvas supports drag-pan, wheel/trackpad zoom, touch pinch, double-click region fit and `+`/`-`; manual camera is written to `cam=` and restored on reload.
