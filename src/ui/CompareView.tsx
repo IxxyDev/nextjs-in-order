@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
+import { useEffect, useMemo, useState } from 'preact/hooks'
 import type { CompareLane, CompareWorld, LaneWorld, ResolvedPair } from '../domain/types'
 import { deriveCompareState } from '../domain/compareState'
-import { clampIndex, formatRoute } from '../domain/route'
+import { formatRoute } from '../domain/route'
 import { World } from './World'
 import { Labels } from './Labels'
 import { Transport } from './Transport'
 import { Inspector } from './Inspector'
 import { createRig, goTo, type CameraRig } from './camera'
 import { reducedMotion } from './useReducedMotion'
+import { useStepControls } from './useStepControls'
 
-const AUTOPLAY_MS = 6000
 /** ruler times closer than this count as in step */
 const TIE = 0.02
 
@@ -69,34 +69,7 @@ export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: 
   const [showText, setShowText] = useState(false)
   const [selected, setSelected] = useState<{ lane: number; id: string } | undefined>()
 
-  const [playing, setPlaying] = useState(false)
-  useEffect(() => {
-    if (!playing) return
-    if (step >= pair.steps.length - 1) { setPlaying(false); return }
-    const t = setTimeout(() => onStep(step + 1), AUTOPLAY_MS)
-    return () => clearTimeout(t)
-  }, [playing, step, pair])
-
-  /** bound once and reading the latest props, so a fast second press never sees a stale step */
-  const latest = useRef({ step, onStep, last: pair.steps.length - 1 })
-  latest.current = { step, onStep, last: pair.steps.length - 1 }
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement
-      if (t.isContentEditable || t.closest?.('input, textarea, select, [role=option], [role=listbox]')) return
-      const { step, onStep, last } = latest.current
-      if (e.key === 'ArrowRight') { setPlaying(false); onStep(step + 1) }
-      else if (e.key === 'ArrowLeft') { setPlaying(false); onStep(step - 1) }
-      else if (e.key === ' ') { e.preventDefault(); setPlaying((p) => !p) }
-      else if (e.key === 'Home') onStep(0)
-      else if (e.key === 'End') onStep(last)
-      else if (e.key === 'Escape') { setSelected(undefined); setFollow(false) }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-
-  const stepTo = (n: number) => { setPlaying(false); onStep(clampIndex(n, pair.steps.length)) }
+  const { playing, setPlaying, stepTo } = useStepControls({ count: pair.steps.length, step, onStep, onEscape: () => { setSelected(undefined); setFollow(false) } })
   const lane = (i: number) => (
     <Lane key={pair.lanes[i].title} meta={pair.lanes[i]} world={world.lanes[i]} rig={rigs[i]} follow={follow}
       selected={selected?.lane === i ? selected.id : undefined}

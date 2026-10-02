@@ -53,3 +53,18 @@ test('keyboard only: Escape closes the Journeys menu without changing the route'
   await expect(page.getByRole('listbox', { name: 'Journey' })).toHaveCount(0)
   await expect(page).toHaveURL(/#\/journey\/app-initial\/1$/)
 })
+
+test('keyboard only: Space on a focused predict option answers it and does not start autoplay', async ({ page }) => {
+  await page.goto('/#/journey/app-initial/7')
+  await expect(eyebrow(page)).toContainText('step 7 of 22')
+  const option = page.locator('.predict button').first()
+  for (let i = 0; i < 200 && !(await option.evaluate((el) => el === document.activeElement)); i++) await page.keyboard.press('Tab')
+  await expect(option).toBeFocused()
+
+  await page.keyboard.press('Space')
+  await expect(option).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.predict .why')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Play' })).toHaveAttribute('aria-pressed', 'false')
+  await expect(eyebrow(page)).toContainText('step 7 of 22')
+  await expect(page).toHaveURL(/#\/journey\/app-initial\/7$/)
+})
