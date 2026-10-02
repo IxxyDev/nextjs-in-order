@@ -5,6 +5,7 @@ import { JOURNEY_CATALOG, loadAllJourneys, loadJourney } from './index'
 const EXPECTED: { slug: string; id: string; steps: number; predictAt?: number; checkAt: number }[] = [
   { slug: 'whole-lifecycle', id: 'j0', steps: 10, checkAt: 10 },
   { slug: 'production-build', id: 'j1', steps: 18, predictAt: 6, checkAt: 18 },
+  { slug: 'request-routing', id: 'j2', steps: 14, predictAt: 10, checkAt: 14 },
   { slug: 'app-initial', id: 'j5', steps: 22, predictAt: 7, checkAt: 22 },
   { slug: 'app-navigation', id: 'j6', steps: 18, predictAt: 7, checkAt: 18 },
   { slug: 'server-actions', id: 'j7', steps: 17, predictAt: 11, checkAt: 17 }

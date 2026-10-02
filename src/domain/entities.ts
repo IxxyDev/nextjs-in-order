@@ -61,6 +61,14 @@ export const ENTITIES: Entity[] = [
     consumes: ['serialized form data'], produces: ['return value', 'cache invalidation'],
     exists: 'build; executed per POST', connects: ['server-reference-manifest', 'action-handler'], reaches: 'no'
   },
+  {
+    id: 'public-dir', short: 'public/', name: 'public/ · files served as-is', region: 'source', glyph: 'source-module', x: 420, y: 625,
+    phase: ['build', 'startup', 'request'], env: ['storage'], role: 'artifact',
+    what: 'Static files such as public/logo.svg and public/hero.jpg. They are not compiled; router-server lists them at startup and serves a match straight from disk at the filesystem step.',
+    consumes: ['files copied at deploy'], produces: ['bytes served under the same path (/logo.svg)'],
+    exists: 'per deploy', connects: ['early-exits'], reaches: 'data',
+    sources: [{ label: 'public folder', url: `${DOCS}/api-reference/file-conventions/public-folder` }]
+  },
 
   // ---------- Build ----------
   {
@@ -262,6 +270,14 @@ export const ENTITIES: Entity[] = [
     consumes: ['socket'], produces: ['calls into router-server'], exists: 'process lifetime', connects: ['routing-ladder'], reaches: 'no'
   },
   {
+    id: 'request-queue', short: 'Early requests', name: 'Early requests · queued until ready', region: 'http-entry', glyph: 'request', x: 170, y: 1060,
+    phase: ['startup'], env: ['node'], role: 'transport',
+    what: 'The socket accepts connections before router-server has finished loading. Requests that arrive in that window wait and are handled once initialization completes.',
+    consumes: ['requests during startup'], produces: ['the same requests, released to router-server'], exists: 'startup only', connects: ['node-http', 'routing-ladder'], reaches: 'no',
+    internals: ['packages/next/src/server/lib/start-server.ts: listen first, then await the request handler'],
+    sources: [{ label: 'next start', url: `${DOCS}/api-reference/cli/next` }]
+  },
+  {
     id: 'custom-server', short: 'server.js', name: 'server.js · custom server ring', region: 'http-entry', glyph: 'process', x: 170, y: 1180,
     phase: ['startup', 'request'], env: ['node'], role: 'process',
     what: 'Optional wrapper that owns the socket and calls handle(req, res, parsedUrl?). It wraps router-server; it never replaces it.',
@@ -270,7 +286,7 @@ export const ENTITIES: Entity[] = [
 
   // ---------- router-server ----------
   {
-    id: 'routing-ladder', short: 'Routing ladder', name: 'Routing ladder · 8 steps', region: 'router-server', glyph: 'machine', x: 620, y: 960,
+    id: 'routing-ladder', short: 'Routing ladder', name: 'Routing ladder · 8 steps', region: 'router-server', glyph: 'machine', x: 620, y: 920,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'headers → redirects → Proxy → beforeFiles rewrites → filesystem check → afterFiles rewrites → dynamic routes → fallback rewrites. Most requests leave before React.',
     consumes: ['raw request', 'routing manifests loaded at startup'], produces: ['an early response or a resolved route for render-server'],
@@ -278,7 +294,22 @@ export const ENTITIES: Entity[] = [
     sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
   },
   {
-    id: 'proxy', short: 'Proxy', name: 'Proxy (formerly Middleware)', region: 'router-server', glyph: 'machine', x: 470, y: 1200, badge: 'Node',
+    id: 'rung-headers', short: '1 headers', name: 'Ladder step 1 · config headers', region: 'router-server', glyph: 'machine', x: 410, y: 1040,
+    phase: ['request'], env: ['node'], role: 'router',
+    what: 'Headers from next.config.js whose source matches the path are added to the response. Nothing exits here; the request always climbs on.',
+    consumes: ['request path'], produces: ['response headers (X-Frame-Options on /:path*)'], exists: 'per request', connects: ['routes-manifest', 'rung-redirects'], reaches: 'no',
+    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+  },
+  {
+    id: 'rung-redirects', short: '2 redirects', name: 'Ladder step 2 · config redirects', region: 'router-server', glyph: 'machine', x: 550, y: 1040,
+    phase: ['request'], env: ['node'], role: 'router',
+    what: 'Redirects from next.config.js. A match ends the request here with a 307/308 and a Location header; Proxy never runs for it.',
+    consumes: ['request path'], produces: ['redirect response, or continue'], exists: 'per request', connects: ['routes-manifest', 'proxy'], reaches: 'no',
+    internals: ['redirects: /old-settings → /dashboard/settings (permanent: true → 308)'],
+    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+  },
+  {
+    id: 'proxy', short: '3 Proxy', name: 'Proxy (formerly Middleware)', region: 'router-server', glyph: 'machine', x: 690, y: 1040, badge: 'Node',
     phase: ['request'], env: ['node'], role: 'router',
     what: 'Ladder step 3. Runs proxy.ts for paths matching the manifest, encodes its decision (redirect, rewrite, headers, next) in response headers that router-server reads back.',
     consumes: ['matched request'], produces: ['decision headers'], exists: 'per matched request', connects: ['middleware-manifest'], reaches: 'no',
@@ -290,10 +321,59 @@ export const ENTITIES: Entity[] = [
     sources: [{ label: 'proxy.js', url: `${DOCS}/api-reference/file-conventions/proxy` }]
   },
   {
-    id: 'early-exits', short: 'Early exits', name: 'Early exits · static, public/, image, handlers', region: 'router-server', glyph: 'machine', x: 780, y: 1200,
+    id: 'rung-before-files', short: '4 beforeFiles', name: 'Ladder step 4 · beforeFiles rewrites', region: 'router-server', glyph: 'machine', x: 830, y: 1040,
+    phase: ['request'], env: ['node'], role: 'router',
+    what: 'Rewrites listed under beforeFiles run before any file or page is checked, so they can shadow both.',
+    consumes: ['request path'], produces: ['rewritten path, or unchanged'], exists: 'per request', connects: ['routes-manifest', 'rung-filesystem'], reaches: 'no',
+    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+  },
+  {
+    id: 'rung-filesystem', short: '5 filesystem', name: 'Ladder step 5 · filesystem check', region: 'router-server', glyph: 'machine', x: 410, y: 1150,
+    phase: ['request'], env: ['node'], role: 'router',
+    what: 'Checks the path against what is known to exist: build chunks under /_next/static, files in public/, the image endpoint and every page and handler route. A match exits here or is handed to render-server.',
+    consumes: ['request path', 'page and file lists loaded at startup'], produces: ['static file, image request, or a resolved route'], exists: 'per request', connects: ['early-exits', 'image-optimizer', 'loader-tree', 'route-handler', 'public-dir'], reaches: 'no',
+    internals: ['static routes match before dynamic ones: /dashboard/settings before /products/[id]', 'packages/next/src/server/lib/router-utils/filesystem.ts'],
+    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+  },
+  {
+    id: 'rung-after-files', short: '6 afterFiles', name: 'Ladder step 6 · afterFiles rewrites', region: 'router-server', glyph: 'machine', x: 550, y: 1150,
+    phase: ['request'], env: ['node'], role: 'router',
+    what: 'Rewrites that apply only when no file or static page matched. They map the path to another one and the filesystem check is repeated.',
+    consumes: ['unmatched path'], produces: ['rewritten path'], exists: 'per request', connects: ['routes-manifest', 'rung-dynamic'], reaches: 'no',
+    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+  },
+  {
+    id: 'rung-dynamic', short: '7 dynamic', name: 'Ladder step 7 · dynamic routes', region: 'router-server', glyph: 'machine', x: 690, y: 1150,
+    phase: ['request'], env: ['node'], role: 'router',
+    what: 'Dynamic routes such as /products/[id] are tried in priority order, using regexes from the routes manifest.',
+    consumes: ['unmatched path'], produces: ['route + params'], exists: 'per request', connects: ['routes-manifest', 'rung-fallback'], reaches: 'no',
+    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+  },
+  {
+    id: 'rung-fallback', short: '8 fallback', name: 'Ladder step 8 · fallback rewrites', region: 'router-server', glyph: 'machine', x: 830, y: 1150,
+    phase: ['request'], env: ['node'], role: 'router',
+    what: 'The last chance: fallback rewrites run after every page and dynamic route failed, typically to proxy to another app. After this comes the 404.',
+    consumes: ['unmatched path'], produces: ['rewritten path, or 404'], exists: 'per request', connects: ['routes-manifest'], reaches: 'no',
+    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+  },
+  {
+    id: 'early-exits', short: 'Early exits', name: 'Early exits · static, public/, image, handlers', region: 'router-server', glyph: 'machine', x: 410, y: 1265,
     phase: ['request'], env: ['node'], role: 'router',
     what: '/_next/static/* and public/* files are served from disk; /_next/image goes to the optimizer; Route Handlers and API Routes render without React.',
-    consumes: ['filesystem check result'], produces: ['responses that never touch React'], exists: 'per request', connects: ['browser-chunks', 'image-cache'], reaches: 'data'
+    consumes: ['filesystem check result'], produces: ['responses that never touch React'], exists: 'per request', connects: ['browser-chunks', 'public-dir', 'image-optimizer', 'route-handler'], reaches: 'data'
+  },
+  {
+    id: 'image-optimizer', short: 'Image optimizer', name: 'Image optimizer · /_next/image', region: 'router-server', glyph: 'machine', x: 590, y: 1265, badge: 'sharp',
+    phase: ['request'], env: ['node'], role: 'renderer',
+    what: 'GET /_next/image?url=/hero.jpg&w=640&q=75 is answered here: the source is read, resized and re-encoded for the Accept header, and the result is cached on disk. React is never involved.',
+    consumes: ['url, w, q', 'Accept header'], produces: ['resized, re-encoded image'], exists: 'per request; cache persists', connects: ['image-cache', 'public-dir'], reaches: 'data',
+    internals: ['cache key /hero.jpg|640|75|webp in .next/cache/images', '16.0 defaults: minimumCacheTTL 4 h, qualities [75], local IPs blocked'],
+    versionNote: {
+      article: 'Cache keyed by url + width + quality.',
+      current: 'Format is part of the key; 16.0 changed defaults (minimumCacheTTL 4 h, qualities [75], local IPs blocked, maximumRedirects 3).',
+      why: 'The same URL can produce several cached files, one per format the browsers ask for.'
+    },
+    sources: [{ label: 'Image component', url: `${DOCS}/api-reference/components/image` }, { label: 'Upgrading to 16', url: `${DOCS}/guides/upgrading/version-16` }]
   },
 
   // ---------- render-server ----------
@@ -351,6 +431,13 @@ export const ENTITIES: Entity[] = [
     what: 'POST with Next-Action: looks the ID up in the server-reference manifest, decodes arguments, decrypts closures, runs the function, then may re-render the route in the same response.',
     consumes: ['Next-Action POST'], produces: ['Flight with a (return value) and optional f (re-rendered route)'],
     exists: 'per action', connects: ['server-reference-manifest', 'flight', 'data-cache'], reaches: 'data'
+  },
+  {
+    id: 'route-handler', short: 'Route Handler', name: 'Route Handler and API Route wrappers', region: 'render-server', glyph: 'action', x: 1030, y: 1100,
+    phase: ['request'], env: ['node', 'edge'], role: 'renderer',
+    what: 'For router-server an endpoint is the same kind of exit as a page: render-server loads the module. A Route Handler gets a method table (GET, POST…) from route.ts; pages/api/hello.ts gets (req, res) with body parsing and res.json(). Neither runs React.',
+    consumes: ['resolved route', 'Request or (req, res)'], produces: ['Response, e.g. { ok: true }'], exists: 'per request', connects: ['server-chunks', 'pages-manifest'], reaches: 'data',
+    sources: [{ label: 'Route Handlers', url: `${DOCS}/api-reference/file-conventions/route` }, { label: 'API Routes', url: 'https://nextjs.org/docs/pages/building-your-application/routing/api-routes' }]
   },
 
   // ---------- Data sources and server caches ----------

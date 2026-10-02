@@ -19,9 +19,9 @@ list is in §Sources at the end.
 | 1 | Brief history: SSR wrapper → getInitialProps → 9.3 split → 12 SWC → 13 App Router → today | Atlas timeline strip in the Source region header; J0 step 1 caption | inspect | L2 (history field on `next build`), L3 | A1 §Краткая история; docs: release notes | planned |
 | 1 | SWC as compiler (single file, N-API, no graph knowledge) | J1 steps 3–5 | transform | L1–L3 | A1 §SWC; A7 §SWC; docs: next/compiler | implemented (J1) |
 | 1 | Turbopack as bundler: incremental graph, lazy bundling in dev, unified graph, crates location | J1 step 9; C6; J9 step 6 | explain / compare | L1–L3 | A1 §Turbopack; A7 §Turbopack; docs: turbopack | implemented (J1) · version note (default status) |
-| 1 | `BaseServer`, `NextNodeServer`, `NextWebServer` | J2 step 9 inspector; Atlas render-server | inspect | L2, L3 | A1 §Серверный слой; source: packages/next/src/server | planned |
-| 1 | Node vs Edge capabilities and limits | Atlas runtime badges; J2 step 5 | inspect | L2 | A1 §Серверный слой; docs: runtimes | planned |
-| 1 | Middleware always on Edge | J2 step 5 (article snapshot chip vs current chip) | gate | L1 + version note | A1 §Серверный слой; docs: proxy runtime | planned · version note |
+| 1 | `BaseServer`, `NextNodeServer`, `NextWebServer` | J2 step 9 inspector; Atlas render-server | inspect | L2, L3 | A1 §Серверный слой; source: packages/next/src/server | implemented (J2) |
+| 1 | Node vs Edge capabilities and limits | Atlas runtime badges; J2 step 5 | inspect | L2 | A1 §Серверный слой; docs: runtimes | implemented (J2) |
+| 1 | Middleware always on Edge | J2 step 5 (article snapshot chip vs current chip) | gate | L1 + version note | A1 §Серверный слой; docs: proxy runtime | implemented (J2) · version note |
 | 1 | Route manifests used by `BaseServer` | J1 step 12; J2 step 2 | connect | L1–L3 | A1 §Серверный слой; A2 §Манифесты | implemented (J1) |
 | 1 | Pages Router: page as rendering unit | J3 step 1 | explain | L1 | A1 §Страница как единица рендеринга | planned |
 | 1 | `_app` and `_document` roles | J3 steps 6, 8 | assemble | L1–L2 | A1, A2 §Рендеринг HTML | planned |
@@ -55,7 +55,7 @@ list is in §Sources at the end.
 | 2 | Route-level code splitting | J1 step 10 | pack | L1 | A2 §Серверные и клиентские файлы | implemented (J1) |
 | 2 | Rendering-strategy detection from exports; `_app.getInitialProps` disables ASO | J3 step 1 | explain (toggle) | L1–L2 | A2 §Как определяется стратегия | planned |
 | 2 | Build output symbols ○ ● ƒ | J1 step 17 | explain | L1 | A2 | implemented (J1) |
-| 2 | Route matching priority (static → dynamic → catch-all) | J3 step 2; J2 step 7 | gate | L1–L2 | A2 §Матчинг маршрута | planned |
+| 2 | Route matching priority (static → dynamic → catch-all) | J3 step 2; J2 step 7 | gate | L1–L2 | A2 §Матчинг маршрута | implemented (J2) |
 | 2 | `getStaticProps`: file read, ISR stale-while-revalidate | J3 step 4; J8 steps 5–8 | stale-serve | L1–L2 | A2 §getStaticProps; docs: ISR | planned |
 | 2 | `getStaticPaths` fallback `false` / `true` / `'blocking'` | J3 step 4 (three exits) | gate | L1–L2 | A2 §getStaticProps; docs: getStaticPaths | planned |
 | 2 | `getServerSideProps`: per request, stripped from client bundle, context | J3 step 3 | transform | L1–L2 | A2 §getServerSideProps | planned |
@@ -130,21 +130,21 @@ list is in §Sources at the end.
 
 | Article | Section / concept | Visual scene | Interaction | Explanation layer | Verification source | Status |
 |---|---|---|---|---|---|---|
-| 5 | Plain Node HTTP server with one `(req, res)` callback | J2 step 1 | explain | L1 | A5 §Колбэк на HTTP-сервере | planned |
-| 5 | Listening before initialization; early requests wait | J2 step 1 | explain | L1–L2 | A5; source: start-server | planned |
-| 5 | router-server vs render-server roles | J2 steps 1, 9; Atlas | explain | L1 | A5 §Два слоя | planned |
-| 5 | Exact ladder order (headers → redirects → middleware → beforeFiles → fs → afterFiles → dynamic → fallback) | J2 steps 3–8 | gate | L1–L2 | A5 §Порядок обработки; docs: proxy matching order | planned |
-| 5 | Minimal mode on serverless platforms | J2 step 13 | explain | L1–L2 | A5 | planned |
-| 5 | Startup reads buildId, page lists, handlers, `public/`, proxy rules from manifests | J2 step 2 | connect | L1–L2 | A5 §Что сервер отдаёт сам | planned |
-| 5 | Direct static delivery `/_next/static`, `public/` | J2 step 11 | exit | L1 | A5 | planned |
+| 5 | Plain Node HTTP server with one `(req, res)` callback | J2 step 1 | explain | L1 | A5 §Колбэк на HTTP-сервере | implemented (J2) |
+| 5 | Listening before initialization; early requests wait | J2 step 1 | explain | L1–L2 | A5; source: start-server | implemented (J2) |
+| 5 | router-server vs render-server roles | J2 steps 1, 9; Atlas | explain | L1 | A5 §Два слоя | implemented (J2) |
+| 5 | Exact ladder order (headers → redirects → middleware → beforeFiles → fs → afterFiles → dynamic → fallback) | J2 steps 3–8 | gate | L1–L2 | A5 §Порядок обработки; docs: proxy matching order | implemented (J2) |
+| 5 | Minimal mode on serverless platforms | J2 step 13 | explain | L1–L2 | A5 | implemented (J2) |
+| 5 | Startup reads buildId, page lists, handlers, `public/`, proxy rules from manifests | J2 step 2 | connect | L1–L2 | A5 §Что сервер отдаёт сам | implemented (J2) |
+| 5 | Direct static delivery `/_next/static`, `public/` | J2 step 11 | exit | L1 | A5 | implemented (J2) |
 | 5 | Image optimizer branch | J2 step 12; J11 step 7 | exit | L1–L2 | A5 | planned |
-| 5 | Route Handlers (method table) | J2 step 12 | exit | L1–L2 | A5 §API-эндпоинты; docs: route handlers | planned |
-| 5 | Pages API Routes (`(req, res)` + helpers) | J2 step 12 | exit | L1–L2 | A5 | planned |
-| 5 | Endpoint and page are the same exit type for router-server | J2 step 12 | explain | L1 | A5 | planned |
-| 5 | Proxy matcher → `middleware-manifest` regexes; header/cookie conditions | J2 step 5 | gate | L1–L3 | A5 §Middleware (proxy); docs: proxy matcher | planned · version note (name) |
-| 5 | Decision encoded in response headers and read back | J2 step 5 | gate | L2–L3 | A5 | planned |
-| 5 | "Always on Edge" rationale | J2 step 5 version chip | explain | version note | A5; docs: proxy runtime | planned · version note |
-| 5 | Handoff with resolved metadata; render-server may decline and the ladder continues | J2 step 9 | move | L1–L2 | A5 §Передача в рендер | planned |
+| 5 | Route Handlers (method table) | J2 step 12 | exit | L1–L2 | A5 §API-эндпоинты; docs: route handlers | implemented (J2) |
+| 5 | Pages API Routes (`(req, res)` + helpers) | J2 step 12 | exit | L1–L2 | A5 | implemented (J2) |
+| 5 | Endpoint and page are the same exit type for router-server | J2 step 12 | explain | L1 | A5 | implemented (J2) |
+| 5 | Proxy matcher → `middleware-manifest` regexes; header/cookie conditions | J2 step 5 | gate | L1–L3 | A5 §Middleware (proxy); docs: proxy matcher | implemented (J2) · version note (name) |
+| 5 | Decision encoded in response headers and read back | J2 step 5 | gate | L2–L3 | A5 | implemented (J2) |
+| 5 | "Always on Edge" rationale | J2 step 5 version chip | explain | version note | A5; docs: proxy runtime | implemented (J2) · version note |
+| 5 | Handoff with resolved metadata; render-server may decline and the ladder continues | J2 step 9 | move | L1–L2 | A5 §Передача в рендер | implemented (J2) |
 
 ## Article 6 — Custom server
 

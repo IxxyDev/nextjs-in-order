@@ -77,7 +77,7 @@ Stable scenarios:
 | Pages comparison `GET /products/42` (SSR) and `/posts/7` (SSG + ISR) | J3, J4, Compare |
 | Dev edit: `DashboardNav.tsx`, then `AccountSummary.tsx` | J9 |
 | Custom server: `server.js` intercepts `/healthz`, rewrites `/legacy/settings` | J10 |
-| Static asset `GET /_next/static/chunks/framework-a1b2c3.js`, image `GET /_next/image?url=/logo.svg&w=640&q=75` | J2, J11 |
+| Static asset `GET /_next/static/chunks/framework-a1b2c3.js`, image `GET /_next/image?url=/hero.jpg&w=640&q=75` | J2, J11 |
 
 Stable artifact values:
 
@@ -88,7 +88,7 @@ Stable artifact values:
 | Server chunks | `.next/server/app/layout.js`, `.next/server/app/dashboard/layout.js`, `.next/server/app/dashboard/settings/page.js`, `.next/server/app/dashboard/billing/page.js`, `.next/server/app/dashboard/settings/page_client-reference-manifest.js` |
 | Client reference for `DashboardNav` | `{ id: "(app-pages-browser)/./components/DashboardNav.tsx", chunks: ["app/dashboard/layout-3c4d"], name: "default" }` |
 | Action ID | `7f3a9c1e2b44…` (truncated on canvas, full in inspector) |
-| Cache keys | server cache (prerendered HTML + RSC): `/dashboard/settings`; `"use cache"` entry `getProfile()` with tag `profile`; image: `/logo.svg|640|75|webp` |
+| Cache keys | server cache (prerendered HTML + RSC): `/dashboard/settings`; `"use cache"` entry `getProfile()` with tag `profile`; image: `/hero.jpg|640|75|webp` |
 | Navigation headers | `RSC: 1`, `Next-Router-State-Tree: %5B%22%22%2C%7B%22children%22…`, `Next-Url: /dashboard/settings`, `?_rsc=1a2b3` |
 | Prefetch headers | `Next-Router-Prefetch: 1`, `Next-Router-Segment-Prefetch: /_tree` then `/dashboard/billing` |
 | Action request | `POST /dashboard/settings`, `Next-Action: 7f3a9c1e2b44…` |
@@ -263,7 +263,7 @@ What should click: *most requests never reach React; router-server decides, rend
 9. Handoff · move · request handed to render-server with resolved path + params; render-server may answer "cannot" and the ladder continues (dashed return edge).
 10. predict · "`GET /_next/static/chunks/framework-a1b2c3.js`: which regions does it touch?"
 11. reveal · exit · static chunk served at step 5, never reaches render-server; same for `public/logo.svg`.
-12. exit · `GET /_next/image?url=/logo.svg&w=640&q=75` leaves to the image optimizer; `GET /api/hello` and a Route Handler go to render-server but never to React.
+12. exit · `GET /_next/image?url=/hero.jpg&w=640&q=75` leaves to the image optimizer; `GET /api/hello` and a Route Handler go to render-server but never to React.
 13. Minimal mode · explain · on serverless platforms most ladder steps are done by the platform (steps hatched `n/a`).
 14. check · "Proxy runs after redirects from `next.config`" (true); "Every request reaches render-server" (false); "router-server renders HTML" (false).
 
@@ -397,7 +397,7 @@ What should click: *every cache has a location, a key and an invalidator; ISR de
 8. Miss branch · transform · render, store with `revalidate`.
 9. Terminology · explain · "Full Route Cache" / "Data Cache" / "Router Cache" names as used in docs of each era (verification table).
 10. Browser caches · explain · Route Cache and Segment Cache drawers, populated by J6.
-11. Image cache · explain · key `/logo.svg|640|75|webp` in `.next/cache/images`.
+11. Image cache · explain · key `/hero.jpg|640|75|webp` in `.next/cache/images`.
 12. Build cache · explain · `.next/cache` + Turbopack persistent cache: across builds.
 13. PPR build · transform · build render of `/dashboard/billing` stops at the Suspense boundary; shell stored; postponed state stored.
 14. PPR request · move · shell leaves immediately.
