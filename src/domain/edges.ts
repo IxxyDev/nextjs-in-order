@@ -146,7 +146,22 @@ export const EDGES: Edge[] = [
   { id: 'e-next-data-react', from: 'next-data', to: 'react-client', kind: 'data', label: 'pageProps' },
   { id: 'e-react-pages-app', from: 'react-client', to: 'pages-app', kind: 'control', label: 'hydrate' },
   { id: 'e-pages-app-product', from: 'pages-app', to: 'pages-product-page', kind: 'data', label: 'Component + pageProps' },
-  { id: 'e-pages-router-product', from: 'pages-router', to: 'pages-product-page', kind: 'data', label: 'router.query' }
+  { id: 'e-pages-router-product', from: 'pages-router', to: 'pages-product-page', kind: 'data', label: 'router.query' },
+
+  // ---------- Pages Router navigation (J4) ----------
+  { id: 'e-product-prefetch', from: 'pages-product-page', to: 'pages-prefetch', kind: 'control', label: '<Link> in viewport / hover' },
+  { id: 'e-chunks-prefetch', from: 'browser-chunks', to: 'pages-prefetch', kind: 'data', label: 'posts/[id] chunk', crossing: 'code' },
+  { id: 'e-prefetch-endpoint', from: 'pages-prefetch', to: 'pages-data-endpoint', kind: 'data', label: 'GET posts/7.json', crossing: 'data' },
+  { id: 'e-pages-router-ladder', from: 'pages-router', to: 'routing-ladder', kind: 'data', label: 'GET /_next/data/k7Qm2xLp9/…json', crossing: 'data' },
+  { id: 'e-ladder-data-endpoint', from: 'routing-ladder', to: 'pages-data-endpoint', kind: 'control', label: 'data route' },
+  { id: 'e-endpoint-gssp', from: 'pages-data-endpoint', to: 'gssp', kind: 'control', label: 'run getServerSideProps' },
+  { id: 'e-server-cache-endpoint', from: 'server-cache', to: 'pages-data-endpoint', kind: 'data', label: 'stored posts/7.json' },
+  { id: 'e-endpoint-router', from: 'pages-data-endpoint', to: 'pages-router', kind: 'data', label: '{ pageProps }', crossing: 'data' },
+  { id: 'e-router-gip', from: 'pages-router', to: 'pages-product-page', kind: 'control', label: 'getInitialProps(ctx) in the tab' },
+  { id: 'e-chunks-post-page', from: 'browser-chunks', to: 'pages-post-page', kind: 'data', label: 'posts/[id] chunk', crossing: 'code' },
+  { id: 'e-router-pages-app', from: 'pages-router', to: 'pages-app', kind: 'control', label: 'set Component' },
+  { id: 'e-pages-app-post', from: 'pages-app', to: 'pages-post-page', kind: 'data' },
+  { id: 'e-pages-router-history', from: 'pages-router', to: 'browser-history', kind: 'control', label: 'pushState' }
 ]
 
 const byId = new Map(EDGES.map((e) => [e.id, e]))

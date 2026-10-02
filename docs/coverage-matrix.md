@@ -28,7 +28,7 @@ list is in §Sources at the end.
 | 1 | Pages data strategies (getStaticProps/ISR, getServerSideProps, getStaticPaths/fallback) | J3 steps 3–4 | transform / explain | L1–L2 | A1 §Стратегии получения данных | implemented (J3) |
 | 1 | Automatic Static Optimization | J3 step 1, 14 | explain | L1–L2 | A1; A2 §Как определяется стратегия | implemented (J3) |
 | 1 | Pages rendering + full-tree hydration limitation | J3 step 12; C5 | light-up | L1 | A1 §Рендеринг и гидратация | implemented (J3) |
-| 1 | Pages client navigation summary | J4 | – | L1 | A1 | planned |
+| 1 | Pages client navigation summary | J4 | – | L1 | A1 | implemented (J4) |
 | 1 | Limitations of Pages Router (page-level data, no nested layouts, whole bundle) | J3 step 15; C1 | compare | L1 | A1 §Ограничения Pages Router | implemented (J3) |
 | 1 | App Router as a parallel architecture (13 → stable 13.4; RSC stable in React 19) | J5 step 1 caption | explain | L1, L3 | A1 §App Router: новая архитектура | implemented (J5) |
 | 1 | Component as rendering unit; `"use client"` | J5 steps 7–8; J0 step 2 | reference | L1 | A1 §Компонент как единица рендеринга | implemented (J5) |
@@ -59,7 +59,7 @@ list is in §Sources at the end.
 | 2 | `getStaticProps`: file read, ISR stale-while-revalidate | J3 step 4; J8 steps 5–8 | stale-serve | L1–L2 | A2 §getStaticProps; docs: ISR | implemented (J8) |
 | 2 | `getStaticPaths` fallback `false` / `true` / `'blocking'` | J3 step 4 (three exits) | gate | L1–L2 | A2 §getStaticProps; docs: getStaticPaths | implemented (J3) |
 | 2 | `getServerSideProps`: per request, stripped from client bundle, context | J3 step 3 | transform | L1–L2 | A2 §getServerSideProps | implemented (J3) |
-| 2 | `getInitialProps`: server + client, code in bundle, security; `_app.getInitialProps` + gSSP context-switch nuance | J3 step 5; J4 step 6 | transform | L1–L3 | A2 §getInitialProps | planned |
+| 2 | `getInitialProps`: server + client, code in bundle, security; `_app.getInitialProps` + gSSP context-switch nuance | J3 step 5; J4 step 6 | transform | L1–L3 | A2 §getInitialProps | implemented (J3, J4) |
 | 2 | HTML rendering pipeline: `_app` wrap, `renderToReadableStream`, streaming limitation | J3 steps 6–7; C1 ruler | transform | L1–L3 | A2 §Рендеринг HTML; source: pages render | implemented (J3) |
 | 2 | `_document`, `<Main/>`, `<NextScript/>`; server-only, not re-rendered on navigation | J3 step 8 | assemble | L1–L2 | A2 §Рендеринг HTML | implemented (J3) |
 | 2 | `__NEXT_DATA__` contents and duplication cost (128 KB warning) | J3 step 9 | transform | L1–L3 (excerpt) | A2 §NEXT_DATA | implemented (J3) |
@@ -67,13 +67,13 @@ list is in §Sources at the end.
 | 2 | Hydration mismatch causes | J3 step 13 | explain | L1–L2 | A2 §Гидратация | implemented (J3) |
 | 2 | Whole-tree hydration vs App Router | C5 | compare | L1 | A2 §Гидратация | planned |
 | 2 | ASO empty `query` and `router.isReady` | J3 step 14 | explain | L1–L2 | A2 §Гидратация | implemented (J3) |
-| 2 | Client navigation entry (`<Link>`, `router.push`) | J4 | – | L1 | A2 §Клиентская навигация | planned |
-| 2 | Viewport prefetch: SSG chunk+JSON, SSR chunk only, `Set` dedupe | J4 step 1 | move | L1–L2 | A2 §Prefetch | planned · version note |
-| 2 | Hover prefetch repeats; `prefetch={false}` viewport-only; `<a>` escape | J4 step 2 | move | L1–L2 | A2 §Prefetch; source: next/link (pages) | planned · version note |
-| 2 | `/_next/data/{buildId}/…json` for gSSP; static JSON for gSP; in-browser `getInitialProps` | J4 steps 4–6 | move | L1–L3 | A2 §Запрос данных | planned |
-| 2 | New-page reconciliation: `_app` kept, `Component` swapped | J4 step 8; C2 | swap | L1 | A2 §Рендер новой страницы | planned |
-| 2 | History API, back button | J4 step 9 | explain | L1 | A2 | planned |
-| 2 | Shallow routing and its single-page boundary | J4 step 10 | explain | L1–L2 | A2 §Shallow routing; docs: shallow routing | planned |
+| 2 | Client navigation entry (`<Link>`, `router.push`) | J4 | – | L1 | A2 §Клиентская навигация | implemented (J4) |
+| 2 | Viewport prefetch: SSG chunk+JSON, SSR chunk only, `Set` dedupe | J4 step 1 | move | L1–L2 | A2 §Prefetch | implemented (J4) · version note |
+| 2 | Hover prefetch repeats; `prefetch={false}` viewport-only; `<a>` escape | J4 step 2 | move | L1–L2 | A2 §Prefetch; source: next/link (pages) | implemented (J4) · version note |
+| 2 | `/_next/data/{buildId}/…json` for gSSP; static JSON for gSP; in-browser `getInitialProps` | J4 steps 4–6 | move | L1–L3 | A2 §Запрос данных | implemented (J4) |
+| 2 | New-page reconciliation: `_app` kept, `Component` swapped | J4 step 8; C2 | swap | L1 | A2 §Рендер новой страницы | implemented (J4) |
+| 2 | History API, back button | J4 step 9 | explain | L1 | A2 | implemented (J4) |
+| 2 | Shallow routing and its single-page boundary | J4 step 10 | explain | L1–L2 | A2 §Shallow routing; docs: shallow routing | implemented (J4) |
 
 ## Article 3 — App Router from request to hydration
 
