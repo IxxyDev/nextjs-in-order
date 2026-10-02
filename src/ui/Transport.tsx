@@ -12,9 +12,12 @@ export interface TransportProps {
   onPlay: (p: boolean) => void
   onFollow: (f: boolean) => void
   onShowText: (t: boolean) => void
+  /** 'toggle' presses Whole system against Follow; 'overlay' opens it over the page instead (phones); 'none' leaves it out (tablets lock Follow) */
+  whole?: 'toggle' | 'overlay' | 'none'
+  onWhole?: () => void
 }
 
-export function Transport({ journey, step, playing, follow, showText, onStep, onPlay, onFollow, onShowText }: TransportProps) {
+export function Transport({ journey, step, playing, follow, showText, onStep, onPlay, onFollow, onShowText, whole = 'toggle', onWhole }: TransportProps) {
   const last = journey.steps.length - 1
   return (
     <div class="transport" role="toolbar" aria-label="Journey controls">
@@ -24,7 +27,8 @@ export function Transport({ journey, step, playing, follow, showText, onStep, on
       <input type="range" min={0} max={last} value={step} aria-label="Step" aria-valuetext={`Step ${step + 1} of ${last + 1}: ${journey.steps[step].title}`} onInput={(e) => onStep(Number((e.currentTarget as HTMLInputElement).value))} list={`ticks-${journey.id}`} />
       <datalist id={`ticks-${journey.id}`}>{journey.steps.map((s, i) => <option key={s.id} value={i} label={s.title} />)}</datalist>
       <button onClick={() => onFollow(true)} aria-pressed={follow}>Follow</button>
-      <button onClick={() => onFollow(false)} aria-pressed={!follow}>Whole system</button>
+      {whole === 'toggle' && <button onClick={() => onFollow(false)} aria-pressed={!follow}>Whole system</button>}
+      {whole === 'overlay' && <button onClick={onWhole} aria-haspopup="dialog">Whole system</button>}
       <button onClick={() => onShowText(!showText)} aria-pressed={showText}>Read as text</button>
     </div>
   )

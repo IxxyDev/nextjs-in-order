@@ -1,7 +1,7 @@
 // src/ui/camera.ts
 import { signal, type Signal } from '@preact/signals'
 import type { Camera, CameraTarget, Rect } from '../domain/types'
-import { WORLD, regionById } from '../domain/regions'
+import { WORLD, bandRect, regionById } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
 import type { ScreenRect } from './labelLayout'
 import { withCam } from '../domain/route'
@@ -13,11 +13,14 @@ export const MAX_ZOOM = 4
 const ENTITY_MARGIN = 140
 const DURATION = 500
 
-/** One camera with its viewport; journey and atlas share MAIN_RIG, each compare lane owns one. */
-export interface CameraRig { camera: Signal<Camera>; viewport: Signal<Viewport>; frame: number }
+/**
+ * One camera with its viewport; journey and atlas share MAIN_RIG, each compare lane owns one.
+ * sheet: the share of the viewport height a bottom sheet keeps covered at peek (the tablet journey), 0 for none.
+ */
+export interface CameraRig { camera: Signal<Camera>; viewport: Signal<Viewport>; frame: number; sheet: Signal<number> }
 
 export function createRig(): CameraRig {
-  return { camera: signal<Camera>({ x: WORLD.w / 2, y: WORLD.h / 2, zoom: 0.5 }), viewport: signal<Viewport>({ w: 1200, h: 800 }), frame: 0 }
+  return { camera: signal<Camera>({ x: WORLD.w / 2, y: WORLD.h / 2, zoom: 0.5 }), viewport: signal<Viewport>({ w: 1200, h: 800 }), frame: 0, sheet: signal(0) }
 }
 
 export const MAIN_RIG = createRig()
@@ -44,14 +47,17 @@ export function minimapRect(vp: Viewport): ScreenRect | undefined {
   return { x: 0, y: vp.h - MINIMAP.bottom - MINIMAP.h - MINIMAP_GAP, w: MINIMAP.left + MINIMAP.w + MINIMAP_GAP, h: MINIMAP.bottom + MINIMAP.h + MINIMAP_GAP }
 }
 
-/** screen zones a rig's labels and framing keep clear: the minimap on the main rig */
+/** screen zones a rig's labels and framing keep clear: the sheet's peek when there is one (the minimap sits in it), else the minimap */
 export function reservedFor(rig: CameraRig): ScreenRect[] {
-  const r = rig === MAIN_RIG ? minimapRect(rig.viewport.value) : undefined
+  const vp = rig.viewport.value, sheet = rig.sheet.value
+  if (sheet) return [{ x: 0, y: vp.h * (1 - sheet), w: vp.w, h: vp.h * sheet }]
+  const r = rig === MAIN_RIG ? minimapRect(vp) : undefined
   return r ? [r] : []
 }
 
 export function targetToRect(target: CameraTarget): Rect {
   if (target.kind === 'world') return WORLD
+  if (target.kind === 'band') return bandRect(target.id)
   if (target.kind === 'region') {
     const r = regionById(target.id)
     return { x: r.x, y: r.y, w: r.w, h: r.h }
@@ -210,9 +216,10 @@ export function clampToWorld(cam: Camera, vp: Viewport): Camera {
   return { ...cam, x: clampAxis(cam.x, halfW, WORLD.x, WORLD.x + WORLD.w), y: clampAxis(cam.y, halfH, WORLD.y, WORLD.y + WORLD.h) }
 }
 
-/** the rig's framing of a target, with its reserved zones kept clear */
+/** the rig's framing of a target: reserved zones kept clear, and the fit inset by a sheet's peek */
 export function frameFor(target: CameraTarget, rig = MAIN_RIG): Camera {
-  return frame(target, rig.viewport.value, reservedFor(rig))
+  const vp = rig.viewport.value
+  return frame(target, vp, reservedFor(rig), { left: 0, bottom: vp.h * rig.sheet.value })
 }
 
 /** moves the rig's camera to the target and returns where it lands */

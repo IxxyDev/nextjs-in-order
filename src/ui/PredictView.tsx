@@ -7,9 +7,11 @@ import { entryBySlug } from '../domain/journeys'
 import { answerIds, scoreQuestion } from '../domain/predict'
 import { formatRoute } from '../domain/route'
 import { progress, quizId } from '../domain/progress'
+import { breadcrumbFor } from '../domain/breadcrumb'
 import { World } from './World'
 import { Labels, MARK_CHIP } from './Labels'
 import { Minimap } from './Minimap'
+import { Breadcrumb } from './Breadcrumb'
 import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useCameraGestures } from './useCameraGestures'
@@ -100,6 +102,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
 
   return (
     <div class="journey predict-mode">
+      <Breadcrumb crumbs={breadcrumbFor({ target: cameraFor(q) })} onGo={(t) => onManual(goTo(t, reducedMotion.value))} />
       <div class="stage" ref={stage}>
         <World entityStates={entityStates} activeEdges={new Set()} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} />
         <Labels entityStates={entityStates} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} verb={q.type === 'choice' ? 'No pick in this question' : 'Toggle pick'} />

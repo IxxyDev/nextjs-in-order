@@ -1,5 +1,5 @@
 // src/domain/regions.ts
-import type { Rect, Region, RegionId } from './types'
+import type { Band, Rect, Region, RegionId } from './types'
 
 export const WORLD: Rect = { x: 0, y: 0, w: 2400, h: 2080 }
 
@@ -36,4 +36,26 @@ export function regionById(id: RegionId): Region {
   const r = byId.get(id)
   if (!r) throw new Error(`unknown region ${id}`)
   return r
+}
+
+export const BAND_TITLES: Record<Band, string> = { build: 'Build', server: 'Server', browser: 'Browser', dev: 'Dev column' }
+
+/** the band backgrounds as World draws them: build takes in the shelf, server the network */
+const BAND_RECTS: Record<Band, Rect> = {
+  build: { x: 0, y: BANDS.build.y, w: 2020, h: BANDS.build.h + BANDS.artifacts.h },
+  server: { x: 0, y: BANDS.server.y, w: 2020, h: BANDS.server.h + BANDS.network.h },
+  browser: { x: 0, y: BANDS.browser.y, w: 2020, h: BANDS.browser.h },
+  dev: { x: 2020, y: 0, w: WORLD.w - 2020, h: WORLD.h }
+}
+
+export const bandRect = (band: Band): Rect => BAND_RECTS[band]
+
+const contains = (a: Rect, b: Rect) => a.x <= b.x && a.y <= b.y && a.x + a.w >= b.x + b.w && a.y + a.h >= b.y + b.h
+/** a region drawn inside another (the two runtimes inside render-server) has the smallest such one as parent */
+const parent = new Map(REGIONS.map((r) => [r.id, REGIONS.filter((o) => o !== r && contains(o, r)).sort((a, b) => a.w * a.h - b.w * b.h)[0]?.id]))
+
+/** the region and the regions it sits in, outermost first */
+export function regionChain(id: RegionId): RegionId[] {
+  const up = parent.get(id)
+  return up ? [...regionChain(up), id] : [id]
 }

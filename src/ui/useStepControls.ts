@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
+import type { RefObject } from 'preact'
 import { clampIndex } from '../domain/route'
+import { phone } from './layout'
 
 const AUTOPLAY_MS = 6000
 /** focus here owns every key */
@@ -38,4 +40,41 @@ export function useStepControls({ count, step, onStep, onEscape }: { count: numb
 
   const stepTo = (n: number) => { setPlaying(false); onStep(clampIndex(n, count)) }
   return { playing, setPlaying, stepTo }
+}
+
+/** horizontal travel that makes a swipe, in px; it must also be more than twice the vertical travel */
+const SWIPE = 50
+
+/**
+ * Phones: a one-finger horizontal swipe that starts on the step panel steps (left = next, right = previous).
+ * The rule is panel only: on the canvas a one-finger drag already pans the camera (useCameraGestures), so a
+ * flick there could not be told from a short pan. The panel keeps vertical scrolling (touch-action: pan-y).
+ */
+export function useSwipeSteps(root: RefObject<HTMLElement>, onSwipe: (dir: 1 | -1) => void) {
+  const latest = useRef(onSwipe)
+  latest.current = onSwipe
+  useEffect(() => {
+    const el = root.current!
+    let start: { x: number; y: number } | undefined
+    const onStart = (e: TouchEvent) => {
+      const t = e.touches[0]
+      start = e.touches.length === 1 && phone.value && (e.target as Element).closest('.panel') ? { x: t.clientX, y: t.clientY } : undefined
+    }
+    const onEnd = (e: TouchEvent) => {
+      const t = e.changedTouches[0], s = start
+      start = undefined
+      if (!s || !t || e.touches.length) return
+      const dx = t.clientX - s.x, dy = t.clientY - s.y
+      if (Math.abs(dx) >= SWIPE && Math.abs(dx) > 2 * Math.abs(dy)) latest.current(dx < 0 ? 1 : -1)
+    }
+    const onCancel = () => { start = undefined }
+    el.addEventListener('touchstart', onStart, { passive: true })
+    el.addEventListener('touchend', onEnd)
+    el.addEventListener('touchcancel', onCancel)
+    return () => {
+      el.removeEventListener('touchstart', onStart)
+      el.removeEventListener('touchend', onEnd)
+      el.removeEventListener('touchcancel', onCancel)
+    }
+  }, [])
 }

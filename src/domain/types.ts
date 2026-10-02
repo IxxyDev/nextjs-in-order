@@ -82,6 +82,7 @@ export interface TokenState {
 
 export type CameraTarget =
   | { kind: 'world' }
+  | { kind: 'band'; id: Band }
   | { kind: 'region'; id: RegionId }
   | { kind: 'entities'; ids: string[] }
 

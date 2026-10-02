@@ -7,10 +7,13 @@ import { JOURNEY_CATALOG, loadAllJourneys, peekJourney } from '../domain/journey
 import { appearancesOf } from '../domain/appearances'
 import type { Journey } from '../domain/types'
 import { formatRoute } from '../domain/route'
+import { INSPECTOR_INTERNALS_KEY, sessionFlags } from '../domain/sessionFlags'
 
 export function Inspector({ id, onClose }: { id: string; onClose: () => void }) {
   const e = entityById(id)
-  const [internals, setInternals] = useState(false)
+  /** collapsed by default; the open state holds for the session */
+  const [internals, setInternals] = useState(() => sessionFlags.get(INSPECTOR_INTERNALS_KEY) ?? false)
+  const toggleInternals = () => { sessionFlags.set(INSPECTOR_INTERNALS_KEY, !internals); setInternals(!internals) }
   /** journeys already loaded are used at once; otherwise the catalog loads each chunk once and keeps it */
   const [journeys, setJourneys] = useState<Journey[] | undefined>(() => { const js = JOURNEY_CATALOG.map((e) => peekJourney(e.slug)); return js.every(Boolean) ? js as Journey[] : undefined })
   const [failed, setFailed] = useState(false)
@@ -48,7 +51,7 @@ export function Inspector({ id, onClose }: { id: string; onClose: () => void }) 
         </div>
       )}
       {(e.internals?.length || e.sources?.length) && (
-        <button aria-expanded={internals} onClick={() => setInternals(!internals)}>{internals ? 'Hide internals' : 'Show internals'}</button>
+        <button aria-expanded={internals} onClick={toggleInternals}>{internals ? 'Hide internals' : 'Show internals'}</button>
       )}
       {internals && (
         <div>

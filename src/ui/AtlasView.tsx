@@ -1,22 +1,22 @@
 // src/ui/AtlasView.tsx
 import { useEffect, useRef, useState } from 'preact/hooks'
-import type { Camera, CameraTarget, EntityState, Phase, Reaches } from '../domain/types'
+import type { Camera, CameraTarget, EntityState } from '../domain/types'
 import { ENTITIES } from '../domain/entities'
+import { REGIONS } from '../domain/regions'
+import { ENVS, PHASES, REACHES, isFiltering, matchesFilter, type AtlasFilter } from '../domain/atlasFilter'
+import { breadcrumbFor } from '../domain/breadcrumb'
 import { World } from './World'
 import { Labels } from './Labels'
 import { Minimap } from './Minimap'
 import { Inspector } from './Inspector'
+import { Breadcrumb } from './Breadcrumb'
 import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useCameraGestures } from './useCameraGestures'
 
-const PHASES: Phase[] = ['build', 'startup', 'request', 'browser', 'dev']
-const REACHES: Reaches[] = ['code', 'data', 'data+refs', 'no']
-
 /** a URL camera, or one the user moved, holds until the route changes; until then framing leaves it alone */
 export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Camera; onSelect: (id?: string) => void }) {
-  const [phase, setPhase] = useState<Phase | ''>('')
-  const [reaches, setReaches] = useState<Reaches | ''>('')
+  const [filter, setFilter] = useState<AtlasFilter>({})
   const vp = viewport.value
   const camKey = cam && `${cam.x},${cam.y},${cam.zoom}`
   useEffect(() => { if (cam) restoreCamera(cam) }, [camKey])
@@ -27,19 +27,27 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
   useEffect(() => { manual.current = false }, [entity])
   const target: CameraTarget = entity ? { kind: 'entities', ids: [entity] } : { kind: 'world' }
   useEffect(() => { if (!cam && !manual.current) goTo(target, reducedMotion.value) }, [entity, camKey, vp.w, vp.h])
+  const filtering = isFiltering(filter)
   const states: Record<string, EntityState> = {}
-  if (phase || reaches) for (const e of ENTITIES) {
-    const ok = (!phase || e.phase.includes(phase)) && (!reaches || e.reaches === reaches)
-    states[e.id] = ok ? 'active' : 'dimmed'
+  let matching = 0
+  for (const e of ENTITIES) {
+    const ok = matchesFilter(e, filter)
+    if (ok) matching++
+    if (filtering) states[e.id] = ok ? 'active' : 'dimmed'
   }
   if (entity) states[entity] = 'current'
+  const set = (k: keyof AtlasFilter) => (e: Event) => setFilter({ ...filter, [k]: (e.currentTarget as HTMLSelectElement).value || undefined })
   return (
     <div class="atlas">
       <div class="atlas-filters">
-        <label>Phase <select value={phase} onChange={(e) => setPhase((e.currentTarget as HTMLSelectElement).value as Phase | '')}><option value="">all</option>{PHASES.map((p) => <option key={p} value={p}>{p}</option>)}</select></label>
-        <label>Reaches the browser <select value={reaches} onChange={(e) => setReaches((e.currentTarget as HTMLSelectElement).value as Reaches | '')}><option value="">all</option>{REACHES.map((r) => <option key={r} value={r}>{r}</option>)}</select></label>
-        <span>{ENTITIES.length} entities. Click any to inspect. Press Escape to return to the whole system.</span>
+        <label>Phase <select value={filter.phase ?? ''} onChange={set('phase')}><option value="">all</option>{PHASES.map((p) => <option key={p} value={p}>{p}</option>)}</select></label>
+        <label>Environment <select value={filter.env ?? ''} onChange={set('env')}><option value="">all</option>{ENVS.map((v) => <option key={v} value={v}>{v}</option>)}</select></label>
+        <label>Region <select value={filter.region ?? ''} onChange={set('region')}><option value="">all</option>{REGIONS.map((r) => <option key={r.id} value={r.id}>{r.title.split(' · ')[0]}</option>)}</select></label>
+        <label>Reaches the browser <select value={filter.reaches ?? ''} onChange={set('reaches')}><option value="">all</option>{REACHES.map((r) => <option key={r} value={r}>{r}</option>)}</select></label>
+        <button type="button" onClick={() => setFilter({})} disabled={!filtering}>Clear</button>
+        <span aria-live="polite"><strong class="atlas-count">{matching} of {ENTITIES.length}</strong> entities. Click any to inspect. Press Escape to return to the whole system.</span>
       </div>
+      <Breadcrumb crumbs={breadcrumbFor({ target, entity })} onGo={(t) => onManual(goTo(t, reducedMotion.value))} />
       <div class="stage" ref={stage}>
         <World entityStates={states} activeEdges={new Set()} selected={entity} onSelect={(id) => onSelect(id)} />
         <Labels entityStates={states} selected={entity} onSelect={(id) => onSelect(id)} />
