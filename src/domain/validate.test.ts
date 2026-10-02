@@ -1,14 +1,15 @@
 // src/domain/validate.test.ts
 import { describe, it, expect } from 'vitest'
 import { validateJourney } from './validate'
-import { JOURNEYS } from './journeys'
+import { loadAllJourneys } from './journeys'
+import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'
 
 describe('validateJourney', () => {
-  it('accepts every registered journey', () => {
-    for (const j of JOURNEYS) expect(validateJourney(j), j.slug).toEqual([])
+  it('accepts every registered journey', async () => {
+    for (const j of await loadAllJourneys()) expect(validateJourney(j), j.slug).toEqual([])
   })
   it('reports unknown ids and missing questions', () => {
-    const j = JOURNEYS[0]
+    const j = WHOLE_LIFECYCLE
     const broken = {
       ...j,
       steps: [
