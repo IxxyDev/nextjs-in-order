@@ -33,11 +33,11 @@ a { color: var(--accent); }
 .kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 
 /* app frame */
-.app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
-.app-header { display: flex; gap: 20px; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.app { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; height: 100%; }
+.app-header { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--bg); }
 .app-header h1 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; letter-spacing: -0.01em; margin: 0; }
 .app-header h1 em { font-style: normal; color: var(--accent); }
-.app-header nav { display: flex; align-items: center; gap: 12px; }
+.app-header nav { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .app-header nav a { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); text-decoration: none; padding: 8px 12px; border: 1px solid transparent; }
 .app-header nav a[aria-current="page"] { border-color: var(--line); background: var(--surface); color: var(--fg); }
 .app-header nav select { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--hi); border-radius: 0; }
@@ -162,6 +162,7 @@ a { color: var(--accent); }
 }
 @media (max-width: 767px) {
   .app-header { flex-wrap: wrap; gap: 8px; padding: 8px 12px; }
+  .app-header nav { flex-wrap: wrap; gap: 8px; min-width: 0; max-width: 100%; }
   .app-header nav a, .app-header nav select { padding: 6px 8px; }
   .version-chip { display: none; }
   .journey { grid-template-rows: minmax(40vh, 1fr) auto auto; }
@@ -169,5 +170,5 @@ a { color: var(--accent); }
   .panel h2 { font-size: 22px; }
   .minimap { display: none; }
   .transport { gap: 6px; padding: 8px; }
-  .transport button { padding: 6px 8px; }
+  .transport button, .panel button { min-height: 44px; min-width: 44px; padding: 6px 8px; }
 }

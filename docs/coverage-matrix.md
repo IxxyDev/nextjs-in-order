@@ -328,3 +328,7 @@ Checks: `tsc --noEmit` clean, `vitest run` 25 tests green, `vite build` succeeds
 ## Milestone 2 QA (2026-09-20)
 
 Journey 5 (22 steps) plays end to end. Verified at 1440 × 900: predict step (four options, reveal with explanation), check step (three statements with feedback), overlay edge labels with crossing chips, journeys menu. Spot check at 390 × 844 on the streaming step. No console errors. `vite build`: 104 kB JS / 9.5 kB CSS before compression.
+
+## Milestone 3 QA (2026-10-02)
+
+Journey 6 (18 steps) and Journey 7 (17 steps) play end to end. Verified at 1440 × 900 with ArrowRight through every step: the URL hash advances by one and the panel title changes on each step. J6 predict (step 7) and check (step 18, three statements) and J7 predict (step 11) and check (step 17, four statements) show the reveal or per-statement feedback with explanations. Spot check at 390 × 844 on steps 1, 7, 12 and 18 of J6 and steps 1, 6, 11, 16 and 17 of J7. No console errors or warnings. Defects found at 390 × 844 and fixed in `src/styles.css`: the header grid column grew to the width of the journey select (page scrollWidth 474 > 390), and the transport and panel buttons were 40 px. The app grid column is now `minmax(0, 1fr)`, the header nav wraps, and transport and panel buttons are at least 44 px on narrow screens (scrollWidth now 390). 34 tests pass. `vite build`: 137 kB JS / 12.8 kB CSS before compression.
