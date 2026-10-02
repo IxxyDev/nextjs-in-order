@@ -4,9 +4,11 @@ import { clampIndex, parseRoute, formatRoute } from '../domain/route'
 import type { Route } from '../domain/types'
 import { entryBySlug, JOURNEY_CATALOG, loadJourney, peekJourney } from '../domain/journeys'
 import { COMPARE_CATALOG, compareBySlug, loadCompare, peekCompare } from '../domain/compare'
+import { loadQuiz, peekQuiz } from '../domain/predict'
 import { JourneyView } from './JourneyView'
 import { AtlasView } from './AtlasView'
 import { CompareView } from './CompareView'
+import { PredictView } from './PredictView'
 import { MenuSelect } from './MenuSelect'
 
 const VERSION_NOTE = 'Articles: Next.js 15→16 era (2025) · verified against Next.js 16.3 (Sept 2026)'
@@ -32,6 +34,7 @@ export function App() {
   const journey = slug ? peekJourney(slug) : undefined
   const pairSlug = route.mode === 'compare' ? (compareBySlug(route.slug) ?? COMPARE_CATALOG[0]).slug : undefined
   const pair = pairSlug ? peekCompare(pairSlug) : undefined
+  const quiz = route.mode === 'predict' ? peekQuiz() : undefined
   const [, setLoaded] = useState(0)
   /** the key of the load that failed last, cleared when it is tried again */
   const [failed, setFailed] = useState<string>()
@@ -48,6 +51,12 @@ export function App() {
     if (pairSlug && !pair) load(`compare:${pairSlug}`, () => loadCompare(pairSlug))
   }, [pairSlug])
   useEffect(() => {
+    if (route.mode === 'predict' && !quiz) load('predict', loadQuiz)
+  }, [route.mode])
+  useEffect(() => {
+    if (route.mode === 'predict' && quiz && clampIndex(route.n, quiz.length) !== route.n) go({ mode: 'predict', n: clampIndex(route.n, quiz.length) })
+  }, [route, quiz])
+  useEffect(() => {
     if (route.mode === 'compare' && pair && (pair.slug !== route.slug || clampIndex(route.step, pair.steps.length) !== route.step)) go({ mode: 'compare', slug: pair.slug, step: clampIndex(route.step, pair.steps.length) })
   }, [route, pair])
   useEffect(() => {
@@ -61,10 +70,13 @@ export function App() {
           <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={slug} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: `J${j.id.slice(1)}`, title: j.title }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} />
           <MenuSelect id="compare-select" label="Compare" placeholder="Compare…" value={pairSlug} options={COMPARE_CATALOG.map((c) => ({ value: c.slug, code: `C${c.id.slice(1)}`, title: c.title }))} onChange={(slug) => go({ mode: 'compare', slug, step: 0 })} />
           <a href={formatRoute({ mode: 'atlas' })} aria-current={route.mode === 'atlas' ? 'page' : undefined}>System Atlas</a>
+          <a href={formatRoute({ mode: 'predict', n: 0 })} aria-current={route.mode === 'predict' ? 'page' : undefined}>Predict</a>
         </nav>
         <span class="version-chip">{VERSION_NOTE}</span>
       </header>
-      {route.mode === 'compare'
+      {route.mode === 'predict'
+        ? quiz ? <PredictView quiz={quiz} n={clampIndex(route.n, quiz.length)} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} /> : loadOr('predict', 'the questions', 'Loading questions…', loadQuiz)
+        : route.mode === 'compare'
         ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : loadOr(`compare:${pairSlug}`, 'this comparison', 'Loading comparison…', () => loadCompare(pairSlug!))
         : route.mode === 'journey'
         ? journey ? <JourneyView journey={journey} step={clampIndex(route.step, journey.steps.length)} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} /> : loadOr(`journey:${slug}`, 'this journey', 'Loading journey…', () => loadJourney(slug!))

@@ -1,12 +1,12 @@
 // src/domain/validate.ts
-import type { ComparePair, Journey, LaneScene, StepRef } from './types'
+import type { ComparePair, Journey, LaneScene, QuizQuestion, StepRef } from './types'
 import { ENTITIES } from './entities'
 import { EDGES } from './edges'
 import { REGIONS } from './regions'
 
 const entityIds = new Set(ENTITIES.map((e) => e.id))
 const edgeIds = new Set(EDGES.map((e) => e.id))
-const regionIds = new Set(REGIONS.map((r) => r.id))
+const regionIds: ReadonlySet<string> = new Set(REGIONS.map((r) => r.id))
 
 function refError(ref: StepRef, journey: (slug: string) => Journey | undefined): string | undefined {
   const j = journey(ref.journey)
@@ -61,5 +61,38 @@ export function validateCompare(pair: ComparePair, journey: (slug: string) => Jo
       }
     })
   })
+  return errors
+}
+
+/** every pick and highlight names an existing entity or region, answers are non-empty and every replay resolves */
+export function validateQuiz(questions: QuizQuestion[], journey: (slug: string) => Journey | undefined): string[] {
+  const errors: string[] = []
+  const seen = new Set<string>()
+  for (const q of questions) {
+    const where = `quiz ${q.id}`
+    if (seen.has(q.id)) errors.push(`${where}: duplicate id`)
+    seen.add(q.id)
+    if (!q.title.trim() || !q.prompt.trim() || !q.why.trim()) errors.push(`${where}: empty text`)
+    if (q.source === 'scenario' && !(q.journey && journey(q.journey))) errors.push(`${where}: scenario without a known journey`)
+    if (q.type === 'choice') {
+      if (q.options.length < 2 || q.options.length > 4) errors.push(`${where}: needs 2–4 options`)
+      if (!Number.isInteger(q.answer) || q.answer < 0 || q.answer >= q.options.length) errors.push(`${where}: answer out of range`)
+      if (!q.highlight.length) errors.push(`${where}: nothing to highlight`)
+      for (const id of q.highlight) if (!entityIds.has(id)) errors.push(`${where}: unknown entity ${id}`)
+    } else {
+      const known = q.type === 'entities' ? entityIds : regionIds
+      const candidates: string[] = q.candidates, answer: string[] = q.answer
+      for (const id of candidates) if (!known.has(id)) errors.push(`${where}: unknown ${q.type === 'entities' ? 'entity' : 'region'} ${id}`)
+      if (new Set(candidates).size !== candidates.length) errors.push(`${where}: duplicate candidates`)
+      if (!answer.length) errors.push(`${where}: empty answer`)
+      for (const id of answer) if (!candidates.includes(id)) errors.push(`${where}: answer ${id} is not a candidate`)
+      if (candidates.length <= answer.length) errors.push(`${where}: no distractors`)
+    }
+    if (!q.replays.length) errors.push(`${where}: no replay`)
+    for (const r of q.replays) {
+      const e = refError(r, journey)
+      if (e) errors.push(`${where}: ${e}`)
+    }
+  }
   return errors
 }

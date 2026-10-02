@@ -25,12 +25,23 @@ describe('routes', () => {
     expect(parseRoute('#/compare/caches/0')).toEqual({ mode: 'compare', slug: 'caches', step: 0 })
     expect(formatRoute({ mode: 'compare', slug: 'bundlers', step: 2 })).toBe('#/compare/bundlers/3')
   })
+  it('parses predict questions as 1-based in the URL and clamps below 1', () => {
+    expect(parseRoute('#/predict/3')).toEqual({ mode: 'predict', n: 2 })
+    expect(parseRoute('#/predict')).toEqual({ mode: 'predict', n: 0 })
+    expect(parseRoute('#/predict/0')).toEqual({ mode: 'predict', n: 0 })
+    expect(parseRoute('#/predict/-4')).toEqual({ mode: 'predict', n: 0 })
+    expect(parseRoute('#/predict/abc')).toEqual({ mode: 'predict', n: 0 })
+    expect(parseRoute('#/predict/99')).toEqual({ mode: 'predict', n: 98 })
+    expect(formatRoute({ mode: 'predict', n: 2 })).toBe('#/predict/3')
+  })
   it('round-trips', () => {
     for (const r of [
       { mode: 'journey', slug: 'whole-lifecycle', step: 6 },
       { mode: 'atlas' },
       { mode: 'compare', slug: 'caches', step: 4 },
-      { mode: 'atlas', entity: 'swc', cam: { x: 1, y: 2, zoom: 3 } }
+      { mode: 'atlas', entity: 'swc', cam: { x: 1, y: 2, zoom: 3 } },
+      { mode: 'predict', n: 11 },
+      { mode: 'predict', n: 0, cam: { x: 7, y: 8, zoom: 0.5 } }
     ] as const) expect(parseRoute(formatRoute(r))).toEqual(r)
   })
 })

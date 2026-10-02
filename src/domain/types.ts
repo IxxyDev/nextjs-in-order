@@ -204,8 +204,36 @@ export interface CompareWorld {
   text: string
 }
 
+/** how an entity or region is marked on the map in predict mode */
+export type PickMark = 'candidate' | 'picked' | 'correct' | 'missed' | 'extra' | 'answer'
+
+interface QuizBase {
+  id: string
+  /** reviewer: one of the brief's ten reviewer questions; scenario: one per journey theme */
+  source: 'reviewer' | 'scenario'
+  /** scenario questions: the slug of the journey whose theme they test */
+  journey?: string
+  title: string
+  prompt: string
+  /** the answer explained from the architecture, shown with the feedback */
+  why: string
+  /** journey steps that show the answer; step is 1-based, as in the URL */
+  replays: StepRef[]
+}
+
+/** entities and regions are picked on the map and scored as an exact set; a choice is one outcome */
+export type QuizQuestion = QuizBase & (
+  | { type: 'entities'; candidates: string[]; answer: string[] }
+  | { type: 'regions'; candidates: RegionId[]; answer: RegionId[] }
+  | { type: 'choice'; options: string[]; answer: number; highlight: string[] }
+)
+
+export interface QuizResult { correct: boolean; hits: string[]; missed: string[]; extra: string[] }
+
 export type Route =
   | { mode: 'journey'; slug: string; step: number; cam?: Camera }
   | { mode: 'atlas'; entity?: string; cam?: Camera }
   /** no cam: a comparison has one camera per lane, so a single URL camera has nothing to restore */
   | { mode: 'compare'; slug: string; step: number }
+  /** n is 0-based; the URL is 1-based */
+  | { mode: 'predict'; n: number; cam?: Camera }

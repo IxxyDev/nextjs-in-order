@@ -1,6 +1,6 @@
 // src/ui/World.tsx
 import { useEffect, useRef } from 'preact/hooks'
-import type { EntityState, TokenState } from '../domain/types'
+import type { EntityState, PickMark, RegionId, TokenState } from '../domain/types'
 import { REGIONS, BANDS, WORLD, CUSTOM_SERVER_RING as RING } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
@@ -15,6 +15,10 @@ export interface WorldProps {
   selected?: string
   onSelect: (id: string) => void
   rig?: CameraRig
+  /** predict mode: how each entity and region is marked, and region picking */
+  marks?: Record<string, PickMark>
+  regionMarks?: Partial<Record<RegionId, PickMark>>
+  onRegion?: (id: RegionId) => void
 }
 
 function edgePath(from: { x: number; y: number }, to: { x: number; y: number }): string {
@@ -27,7 +31,7 @@ function edgePath(from: { x: number; y: number }, to: { x: number; y: number }):
   return `M${from.x} ${from.y} C${from.x} ${from.y + Math.sign(dy) * c} ${to.x} ${to.y - Math.sign(dy) * c} ${to.x} ${to.y}`
 }
 
-export function World({ entityStates, activeEdges, token, selected, onSelect, rig = MAIN_RIG }: WorldProps) {
+export function World({ entityStates, activeEdges, token, selected, onSelect, rig = MAIN_RIG, marks, regionMarks, onRegion }: WorldProps) {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const el = ref.current!
@@ -63,7 +67,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
           <line class="boundary-network" x1={0} y1={BANDS.network.y + 42} x2={2020} y2={BANDS.network.y + 42} />
           {REGIONS.map((r) => (
             <g key={r.id}>
-              <rect class={`region ${r.id.endsWith('-runtime') ? 'region-runtime' : ''}`} x={r.x} y={r.y} width={r.w} height={r.h} />
+              <rect class={`region ${r.id.endsWith('-runtime') ? 'region-runtime' : ''} ${onRegion ? 'is-pickable' : ''} ${regionMarks?.[r.id] ? `mark-${regionMarks[r.id]}` : ''}`} x={r.x} y={r.y} width={r.w} height={r.h} onClick={onRegion && (() => onRegion(r.id))} />
             </g>
           ))}
           <rect class={`ring ${ringOn ? 'is-on' : ''}`} x={RING.x} y={RING.y} width={RING.w} height={RING.h} rx={18} />
@@ -77,7 +81,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
             return <path key={e.id} class={`edge edge-${e.kind} ${active ? 'is-active' : ''}`} d={edgePath(a, b)} marker-end={active ? 'url(#arrow)' : undefined} />
           })}
           {ENTITIES.map((e) => (
-            <g key={e.id} transform={`translate(${e.x} ${e.y})`} onClick={() => onSelect(e.id)}>
+            <g key={e.id} class={marks?.[e.id] ? `mark-${marks[e.id]}` : undefined} transform={`translate(${e.x} ${e.y})`} onClick={() => onSelect(e.id)}>
               <Glyph kind={e.glyph} state={entityStates[e.id]} selected={selected === e.id}><title>{e.name}</title></Glyph>
             </g>
           ))}

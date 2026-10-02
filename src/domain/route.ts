@@ -35,6 +35,10 @@ export function parseRoute(hash: string): Route {
     const step = Math.max(0, (parseInt(parts[2] ?? '1', 10) || 1) - 1)
     return { mode: 'compare', slug: parts[1] ?? DEFAULT_COMPARE, step }
   }
+  if (parts[0] === 'predict') {
+    const n = Math.max(0, (parseInt(parts[1] ?? '1', 10) || 1) - 1)
+    return { mode: 'predict', n, ...(cam ? { cam } : {}) }
+  }
   return DEFAULT_ROUTE
 }
 
@@ -44,5 +48,6 @@ export function formatRoute(route: Route): string {
     const q = [route.entity ? `entity=${encodeURIComponent(route.entity)}` : '', cam].filter(Boolean).join('&')
     return `#/atlas${q ? `?${q}` : ''}`
   }
+  if (route.mode === 'predict') return `#/predict/${route.n + 1}${cam ? `?${cam}` : ''}`
   return `#/${route.mode}/${route.slug}/${route.step + 1}${cam ? `?${cam}` : ''}`
 }

@@ -1,0 +1,142 @@
+// src/ui/PredictView.tsx
+import { useEffect, useState } from 'preact/hooks'
+import type { CameraTarget, EntityState, PickMark, QuizQuestion, RegionId } from '../domain/types'
+import { ENTITIES, entityById } from '../domain/entities'
+import { regionById } from '../domain/regions'
+import { entryBySlug } from '../domain/journeys'
+import { answerIds, scoreQuestion } from '../domain/predict'
+import { formatRoute } from '../domain/route'
+import { World } from './World'
+import { Labels, MARK_CHIP } from './Labels'
+import { Minimap } from './Minimap'
+import { goTo, viewport } from './camera'
+import { reducedMotion } from './useReducedMotion'
+
+const short = (id: string) => { const e = entityById(id); return e.short ?? e.name.split(' · ')[0] }
+const HINT = {
+  entities: 'Pick every entity that applies, on the map or in the list. Picks are scored as an exact set.',
+  regions: 'Pick every region that applies: click a region or its title, or use the list.',
+  choice: 'Choose one outcome.'
+}
+
+function cameraFor(q: QuizQuestion): CameraTarget {
+  if (q.type === 'entities') return { kind: 'entities', ids: q.candidates }
+  if (q.type === 'choice') return { kind: 'entities', ids: q.highlight }
+  return { kind: 'world' }
+}
+
+/** pick marks before Check, result marks after it */
+function markFor(id: string, picked: boolean, checked: boolean, answer: ReadonlySet<string>, candidate: boolean): PickMark | undefined {
+  if (!checked) return picked ? 'picked' : candidate ? 'candidate' : undefined
+  if (answer.has(id)) return picked ? 'correct' : 'missed'
+  return picked ? 'extra' : undefined
+}
+
+export function PredictView({ quiz, n, onGo }: { quiz: QuizQuestion[]; n: number; onGo: (n: number) => void }) {
+  const q = quiz[n]
+  const [state, setState] = useState({ id: q.id, picks: [] as string[], checked: false })
+  const { picks, checked } = state.id === q.id ? state : { picks: [] as string[], checked: false }
+  const set = (next: { picks: string[]; checked: boolean }) => setState({ id: q.id, ...next })
+  const result = checked ? scoreQuestion(q, picks) : undefined
+
+  const vp = viewport.value
+  useEffect(() => { goTo(cameraFor(q), reducedMotion.value) }, [q.id, vp.w, vp.h])
+
+  const toggle = (id: string) => {
+    if (q.type === 'choice') { set({ picks: [id], checked: false }); return }
+    set({ picks: picks.includes(id) ? picks.filter((p) => p !== id) : [...picks, id], checked: false })
+  }
+  const check = () => {
+    if (!picks.length) return
+    set({ picks, checked: true })
+  }
+
+  const answer = new Set<string>(q.type === 'choice' ? [] : answerIds(q))
+  const picked = new Set(picks)
+  const candidates: string[] = q.type === 'choice' ? [] : q.candidates
+  const listed = [...candidates, ...picks.filter((p) => !candidates.includes(p))]
+
+  const entityStates: Record<string, EntityState> = {}
+  const marks: Record<string, PickMark> = {}
+  const regionMarks: Partial<Record<RegionId, PickMark>> = {}
+  if (q.type === 'entities') {
+    for (const e of ENTITIES) {
+      const m = markFor(e.id, picked.has(e.id), checked, answer, candidates.includes(e.id) && !checked)
+      if (m) marks[e.id] = m
+      else entityStates[e.id] = 'dimmed'
+    }
+  } else if (q.type === 'regions') {
+    for (const e of ENTITIES) entityStates[e.id] = 'dimmed'
+    for (const id of new Set([...candidates, ...picks]) as Set<RegionId>) {
+      const m = markFor(id, picked.has(id), checked, answer, false)
+      if (m) regionMarks[id] = m
+    }
+  } else if (checked) {
+    for (const e of ENTITIES) if (!q.highlight.includes(e.id)) entityStates[e.id] = 'dimmed'
+    for (const id of q.highlight) marks[id] = 'answer'
+  }
+
+  const onSelect = (id: string) => {
+    if (q.type === 'entities') toggle(id)
+    else if (q.type === 'regions') toggle(entityById(id).region)
+  }
+  const name = (id: string) => (q.type === 'regions' ? regionById(id as RegionId).title : short(id))
+  const listMark = (id: string) => (q.type === 'regions' ? regionMarks[id as RegionId] : marks[id])
+
+  return (
+    <div class="journey predict-mode">
+      <div class="stage">
+        <World entityStates={entityStates} activeEdges={new Set()} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} />
+        <Labels entityStates={entityStates} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} verb={q.type === 'choice' ? 'No pick in this question' : 'Toggle pick'} />
+        <Minimap />
+      </div>
+      <section class="panel quiz" aria-labelledby="quiz-title">
+        <div class="eyebrow">Predict the machine · question {n + 1} of {quiz.length} · {q.source === 'reviewer' ? 'reviewer question' : `scenario · J${entryBySlug(q.journey!)!.id.slice(1)}`}</div>
+        <h2 id="quiz-title">{q.title}</h2>
+        <p class="story">{q.prompt}</p>
+        <p class="quiz-hint">{HINT[q.type]}</p>
+        <ul class="plain picks" aria-label={q.type === 'choice' ? 'Outcomes' : 'Picks'}>
+          {q.type === 'choice'
+            ? q.options.map((o, i) => {
+              const id = String(i), mine = picked.has(id)
+              const m = checked ? (i === q.answer ? (mine ? 'correct' : 'answer') : mine ? 'extra' : undefined) : mine ? 'picked' : undefined
+              return <li key={o}><button aria-pressed={mine} onClick={() => toggle(id)}>{o}{m && checked && <span class={`chip chip-mark-${m}`}>{MARK_CHIP[m]}</span>}</button></li>
+            })
+            : listed.map((id) => {
+              const m = listMark(id)
+              return <li key={id}><button aria-pressed={picked.has(id)} onClick={() => toggle(id)}>{name(id)}{m && MARK_CHIP[m] && <span class={`chip chip-mark-${m}`}>{MARK_CHIP[m]}</span>}</button></li>
+            })}
+        </ul>
+        <div class="quiz-actions">
+          <button onClick={check} disabled={!picks.length}>Check</button>
+          <button onClick={() => set({ picks: [], checked: false })} disabled={!picks.length && !checked}>Reset</button>
+        </div>
+        <div aria-live="polite">
+          {result && (
+            <div class={`feedback ${result.correct ? 'is-correct' : 'is-wrong'}`}>
+              <p><strong class={result.correct ? 'ok' : 'bad'}>{result.correct ? 'Correct.' : 'Not quite.'}</strong>{' '}
+                {q.type === 'choice'
+                  ? !result.correct && <>The answer is: {q.options[q.answer]}</>
+                  : <>You found {result.hits.length} of {q.answer.length}.
+                    {result.missed.length > 0 && <> Missed: {result.missed.map(name).join(', ')}.</>}
+                    {result.extra.length > 0 && <> Extra: {result.extra.map(name).join(', ')}.</>}</>}
+              </p>
+              <p class="why">{q.why}</p>
+              <ul class="plain replays">
+                {q.replays.map((r) => {
+                  const e = entryBySlug(r.journey)!
+                  return <li key={`${r.journey}-${r.step}`}><a href={formatRoute({ mode: 'journey', slug: r.journey, step: r.step - 1 })}>Replay: J{e.id.slice(1)} step {r.step}</a> <span class="replay-title">{e.title}</span></li>
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
+      </section>
+      <div class="transport" role="toolbar" aria-label="Question controls">
+        <button onClick={() => onGo(n - 1)} disabled={n === 0} aria-label="Previous question">◀ Prev</button>
+        <span class="quiz-counter" aria-live="polite">{n + 1} / {quiz.length}</span>
+        <button onClick={() => onGo(n + 1)} disabled={n === quiz.length - 1} aria-label="Next question">Next ▶</button>
+      </div>
+    </div>
+  )
+}
