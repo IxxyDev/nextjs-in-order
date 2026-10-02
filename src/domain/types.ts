@@ -139,6 +139,73 @@ export interface WorldState {
   text: string
 }
 
+/** the part of a step that places things on the world: camera, token, states, edges */
+export interface LaneScene {
+  camera: CameraTarget
+  token?: TokenState
+  states: Record<string, EntityState>
+  edges: string[]
+}
+
+/** a journey step reused in a compare lane; step is 1-based, as in the URL */
+export interface StepRef { journey: string; step: number }
+
+export type LaneStep =
+  | { ref: StepRef; story?: string; rows?: string[] }
+  | (LaneScene & { story: string; rows?: string[] })
+
+export interface CompareLane { title: string; short: string }
+
+export interface CompareStep {
+  id: string
+  title: string
+  story: string
+  /** relative time (0 = request starts, 1 = done) at which each lane reaches this step; lower is ahead */
+  ruler?: number[]
+  lanes: LaneStep[]
+}
+
+export interface ComparePair {
+  id: string
+  slug: string
+  title: string
+  lanes: CompareLane[]
+  synchronized: string
+  steps: CompareStep[]
+}
+
+export interface ResolvedLane extends LaneScene {
+  story: string
+  rows?: string[]
+  /** where a reused step came from, e.g. J5 step 8 */
+  source?: { slug: string; step: number; label: string }
+}
+
+export interface ResolvedCompareStep extends Omit<CompareStep, 'lanes'> { lanes: ResolvedLane[] }
+
+export interface ResolvedPair extends Omit<ComparePair, 'steps'> { steps: ResolvedCompareStep[] }
+
+export interface LaneWorld {
+  lane: ResolvedLane
+  entityStates: Record<string, EntityState>
+  activeEdges: ReadonlySet<string>
+  token?: TokenState
+  cameraTarget: CameraTarget
+  /** entities lit in this lane and dimmed or absent in another */
+  differs: ReadonlySet<string>
+}
+
+export interface CompareWorld {
+  pairId: string
+  stepIndex: number
+  step: ResolvedCompareStep
+  lanes: LaneWorld[]
+  ruler: number[]
+  text: string
+}
+
 export type Route =
   | { mode: 'journey'; slug: string; step: number; cam?: Camera }
   | { mode: 'atlas'; entity?: string; cam?: Camera }
+  /** no cam: a comparison has one camera per lane, so a single URL camera has nothing to restore */
+  | { mode: 'compare'; slug: string; step: number }

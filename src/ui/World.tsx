@@ -4,7 +4,7 @@ import type { EntityState, TokenState } from '../domain/types'
 import { REGIONS, BANDS, WORLD, CUSTOM_SERVER_RING as RING } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
-import { camera, viewport, transformFor } from './camera'
+import { MAIN_RIG, transformFor, type CameraRig } from './camera'
 import { Glyph } from './Glyph'
 import { reducedMotion } from './useReducedMotion'
 
@@ -14,6 +14,7 @@ export interface WorldProps {
   token?: TokenState
   selected?: string
   onSelect: (id: string) => void
+  rig?: CameraRig
 }
 
 function edgePath(from: { x: number; y: number }, to: { x: number; y: number }): string {
@@ -26,17 +27,17 @@ function edgePath(from: { x: number; y: number }, to: { x: number; y: number }):
   return `M${from.x} ${from.y} C${from.x} ${from.y + Math.sign(dy) * c} ${to.x} ${to.y - Math.sign(dy) * c} ${to.x} ${to.y}`
 }
 
-export function World({ entityStates, activeEdges, token, selected, onSelect }: WorldProps) {
+export function World({ entityStates, activeEdges, token, selected, onSelect, rig = MAIN_RIG }: WorldProps) {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const el = ref.current!
-    const ro = new ResizeObserver(([entry]) => { viewport.value = { w: entry.contentRect.width, h: entry.contentRect.height } })
+    const ro = new ResizeObserver(([entry]) => { rig.viewport.value = { w: entry.contentRect.width, h: entry.contentRect.height } })
     ro.observe(el)
-    viewport.value = { w: el.clientWidth, h: el.clientHeight }
+    rig.viewport.value = { w: el.clientWidth, h: el.clientHeight }
     return () => ro.disconnect()
   }, [])
-  const cam = camera.value
-  const vp = viewport.value
+  const cam = rig.camera.value
+  const vp = rig.viewport.value
   const tokenEntity = token ? entityById(token.at) : undefined
   /** a step that lists states focuses the scene: unrelated edges are hidden */
   const focused = Object.keys(entityStates).length > 0

@@ -1,11 +1,12 @@
 // src/ui/App.tsx
 import { useEffect, useState } from 'preact/hooks'
-import { parseRoute, formatRoute } from '../domain/route'
+import { clampIndex, parseRoute, formatRoute } from '../domain/route'
 import type { Route } from '../domain/types'
 import { entryBySlug, JOURNEY_CATALOG, loadJourney, peekJourney } from '../domain/journeys'
-import { clampStep } from '../domain/worldState'
+import { COMPARE_CATALOG, compareBySlug, loadCompare, peekCompare } from '../domain/compare'
 import { JourneyView } from './JourneyView'
 import { AtlasView } from './AtlasView'
+import { CompareView } from './CompareView'
 import { MenuSelect } from './MenuSelect'
 
 const VERSION_NOTE = 'Articles: Next.js 15→16 era (2025) · verified against Next.js 16.3 (Sept 2026)'
@@ -29,6 +30,8 @@ export function App() {
   const [route, go] = useRoute()
   const slug = route.mode === 'journey' ? (entryBySlug(route.slug) ?? JOURNEY_CATALOG[0]).slug : undefined
   const journey = slug ? peekJourney(slug) : undefined
+  const pairSlug = route.mode === 'compare' ? (compareBySlug(route.slug) ?? COMPARE_CATALOG[0]).slug : undefined
+  const pair = pairSlug ? peekCompare(pairSlug) : undefined
   const [, setLoaded] = useState(0)
   /** the key of the load that failed last, cleared when it is tried again */
   const [failed, setFailed] = useState<string>()
@@ -42,7 +45,13 @@ export function App() {
     if (slug && !journey) load(`journey:${slug}`, () => loadJourney(slug))
   }, [slug])
   useEffect(() => {
-    if (route.mode === 'journey' && journey && (journey.slug !== route.slug || clampStep(journey, route.step) !== route.step)) go({ mode: 'journey', slug: journey.slug, step: clampStep(journey, route.step) })
+    if (pairSlug && !pair) load(`compare:${pairSlug}`, () => loadCompare(pairSlug))
+  }, [pairSlug])
+  useEffect(() => {
+    if (route.mode === 'compare' && pair && (pair.slug !== route.slug || clampIndex(route.step, pair.steps.length) !== route.step)) go({ mode: 'compare', slug: pair.slug, step: clampIndex(route.step, pair.steps.length) })
+  }, [route, pair])
+  useEffect(() => {
+    if (route.mode === 'journey' && journey && (journey.slug !== route.slug || clampIndex(route.step, journey.steps.length) !== route.step)) go({ mode: 'journey', slug: journey.slug, step: clampIndex(route.step, journey.steps.length) })
   }, [route, journey])
   return (
     <div class="app">
@@ -50,12 +59,15 @@ export function App() {
         <h1>Next.js <em>Under the Hood</em></h1>
         <nav aria-label="Modes">
           <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={slug} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: `J${j.id.slice(1)}`, title: j.title }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} />
+          <MenuSelect id="compare-select" label="Compare" placeholder="Compare…" value={pairSlug} options={COMPARE_CATALOG.map((c) => ({ value: c.slug, code: `C${c.id.slice(1)}`, title: c.title }))} onChange={(slug) => go({ mode: 'compare', slug, step: 0 })} />
           <a href={formatRoute({ mode: 'atlas' })} aria-current={route.mode === 'atlas' ? 'page' : undefined}>System Atlas</a>
         </nav>
         <span class="version-chip">{VERSION_NOTE}</span>
       </header>
-      {route.mode === 'journey'
-        ? journey ? <JourneyView journey={journey} step={clampStep(journey, route.step)} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampStep(journey, n) })} /> : loadOr(`journey:${slug}`, 'this journey', 'Loading journey…', () => loadJourney(slug!))
+      {route.mode === 'compare'
+        ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : loadOr(`compare:${pairSlug}`, 'this comparison', 'Loading comparison…', () => loadCompare(pairSlug!))
+        : route.mode === 'journey'
+        ? journey ? <JourneyView journey={journey} step={clampIndex(route.step, journey.steps.length)} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} /> : loadOr(`journey:${slug}`, 'this journey', 'Loading journey…', () => loadJourney(slug!))
         : <AtlasView entity={route.mode === 'atlas' ? route.entity : undefined} onSelect={(id) => go({ mode: 'atlas', ...(id ? { entity: id } : {}) })} />}
     </div>
   )

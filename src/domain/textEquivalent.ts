@@ -14,10 +14,14 @@ function shortName(id: string): string {
 }
 
 export function describeState(world: Omit<WorldState, 'text'>, journey: Journey): string {
+  return [`Step ${world.stepIndex + 1} of ${journey.steps.length}: ${world.step.title}.`, describeScene(world, world.step.story)].join(' ')
+}
+
+/** token, story, entity states and active flows of one scene, as sentences */
+export function describeScene(world: Pick<WorldState, 'token' | 'entityStates' | 'activeEdges'>, story: string): string {
   const parts: string[] = []
-  parts.push(`Step ${world.stepIndex + 1} of ${journey.steps.length}: ${world.step.title}.`)
   if (world.token) parts.push(`Following: ${world.token.label}, at ${shortName(world.token.at)}.`)
-  parts.push(world.step.story)
+  parts.push(story)
   for (const state of ORDER) {
     const ids = Object.entries(world.entityStates).filter(([, s]) => s === state).map(([id]) => shortName(id))
     if (ids.length) parts.push(`${LABEL[state]}: ${ids.join(', ')}.`)

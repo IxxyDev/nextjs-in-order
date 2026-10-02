@@ -1,0 +1,112 @@
+import { useEffect, useMemo, useState } from 'preact/hooks'
+import type { CompareLane, CompareWorld, LaneWorld, ResolvedPair } from '../domain/types'
+import { deriveCompareState } from '../domain/compareState'
+import { clampIndex, formatRoute } from '../domain/route'
+import { World } from './World'
+import { Labels } from './Labels'
+import { Transport } from './Transport'
+import { Inspector } from './Inspector'
+import { createRig, goTo, type CameraRig } from './camera'
+import { reducedMotion } from './useReducedMotion'
+
+const AUTOPLAY_MS = 6000
+/** ruler times closer than this count as in step */
+const TIE = 0.02
+
+function Lane({ meta, world, rig, follow, selected, onSelect }: { meta: CompareLane; world: LaneWorld; rig: CameraRig; follow: boolean; selected?: string; onSelect: (id?: string) => void }) {
+  const vp = rig.viewport.value
+  useEffect(() => { goTo(follow ? world.cameraTarget : { kind: 'world' }, reducedMotion.value, rig) }, [world, follow, vp.w, vp.h])
+  return (
+    <section class="lane" aria-label={meta.title}>
+      <World rig={rig} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
+      <Labels rig={rig} differs={world.differs} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
+      <div class="lane-title">{meta.title}</div>
+      {selected && <Inspector id={selected} onClose={() => onSelect(undefined)} />}
+    </section>
+  )
+}
+
+function Ruler({ lanes, times }: { lanes: CompareLane[]; times: number[] }) {
+  const first = Math.min(...times)
+  const ahead = times.filter((t) => t - first <= TIE).length === times.length ? undefined : lanes[times.indexOf(first)]
+  return (
+    <div class="ruler" role="img" aria-label={ahead ? `${ahead.short} is ahead` : 'Lanes in step'}>
+      <div class="ruler-track" aria-hidden="true">
+        {times.map((t, i) => <span key={lanes[i].short} class={`ruler-mark mark-${i}`} style={`--at: ${t}`}>{lanes[i].short}</span>)}
+      </div>
+      <div class="ruler-note" aria-hidden="true">{ahead ? `${ahead.short} ahead` : 'in step'}</div>
+    </div>
+  )
+}
+
+function ComparePanel({ pair, world, showText }: { pair: ResolvedPair; world: CompareWorld; showText: boolean }) {
+  const { step } = world
+  return (
+    <section class="panel compare-panel" aria-labelledby="compare-title">
+      <div class="eyebrow">C{pair.id.slice(1)} · {pair.title} · step {world.stepIndex + 1} of {pair.steps.length}</div>
+      <h2 id="compare-title">{step.title}</h2>
+      <p class="story">{step.story}</p>
+      {world.lanes.map((l, i) => (
+        <div class={`lane-story mark-${i}`} key={pair.lanes[i].title}>
+          <div class="lane-name">{pair.lanes[i].title}</div>
+          {l.token && <div class="following">Following: {l.token.label}</div>}
+          <p>{l.lane.story}</p>
+          {l.lane.rows && <ul class="rows">{l.lane.rows.map((r) => <li key={r}><code>{r}</code></li>)}</ul>}
+          {l.lane.source && <a class="lane-source" href={formatRoute({ mode: 'journey', slug: l.lane.source.slug, step: l.lane.source.step - 1 })}>From {l.lane.source.label}</a>}
+        </div>
+      ))}
+      <div class="click" aria-label="What is synchronized">Synchronized: {pair.synchronized}</div>
+      {showText && <p class="text-equivalent">{world.text}</p>}
+      <p class="visually-hidden" aria-live="polite">{world.text}</p>
+    </section>
+  )
+}
+
+export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: number; onStep: (n: number) => void }) {
+  const world = useMemo(() => deriveCompareState(pair, step), [pair, step])
+  const rigs = useMemo(() => pair.lanes.map(() => createRig()), [pair])
+  const [follow, setFollow] = useState(true)
+  const [showText, setShowText] = useState(false)
+  const [selected, setSelected] = useState<{ lane: number; id: string } | undefined>()
+
+  const [playing, setPlaying] = useState(false)
+  useEffect(() => {
+    if (!playing) return
+    if (step >= pair.steps.length - 1) { setPlaying(false); return }
+    const t = setTimeout(() => onStep(step + 1), AUTOPLAY_MS)
+    return () => clearTimeout(t)
+  }, [playing, step, pair])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).tagName === 'INPUT') return
+      if (e.key === 'ArrowRight') { setPlaying(false); onStep(step + 1) }
+      else if (e.key === 'ArrowLeft') { setPlaying(false); onStep(step - 1) }
+      else if (e.key === ' ') { e.preventDefault(); setPlaying((p) => !p) }
+      else if (e.key === 'Home') onStep(0)
+      else if (e.key === 'End') onStep(pair.steps.length - 1)
+      else if (e.key === 'Escape') { setSelected(undefined); setFollow(false) }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [step, pair])
+
+  const stepTo = (n: number) => { setPlaying(false); onStep(clampIndex(n, pair.steps.length)) }
+  const lane = (i: number) => (
+    <Lane key={pair.lanes[i].title} meta={pair.lanes[i]} world={world.lanes[i]} rig={rigs[i]} follow={follow}
+      selected={selected?.lane === i ? selected.id : undefined}
+      onSelect={(id) => { setPlaying(false); setSelected(id ? { lane: i, id } : undefined) }} />
+  )
+
+  return (
+    <div class={`compare lanes-${pair.lanes.length}`}>
+      <div class="compare-stage">
+        {lane(0)}
+        <Ruler lanes={pair.lanes} times={world.ruler} />
+        {pair.lanes.slice(1).map((_, i) => lane(i + 1))}
+      </div>
+      <ComparePanel pair={pair} world={world} showText={showText} />
+      <Transport journey={pair} step={world.stepIndex} playing={playing} follow={follow} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={setFollow} onShowText={setShowText} />
+    </div>
+  )
+}

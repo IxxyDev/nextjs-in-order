@@ -1,8 +1,9 @@
 // src/ui/Transport.tsx
-import type { Journey } from '../domain/types'
+import type { Step } from '../domain/types'
 
 export interface TransportProps {
-  journey: Journey
+  /** a journey or a compare pair: anything with an id and titled steps */
+  journey: { id: string; steps: Pick<Step, 'id' | 'title'>[] }
   step: number
   playing: boolean
   follow: boolean

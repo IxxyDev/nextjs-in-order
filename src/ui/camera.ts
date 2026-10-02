@@ -1,5 +1,5 @@
 // src/ui/camera.ts
-import { signal } from '@preact/signals'
+import { signal, type Signal } from '@preact/signals'
 import type { Camera, CameraTarget, Rect } from '../domain/types'
 import { WORLD, regionById } from '../domain/regions'
 import { entityById } from '../domain/entities'
@@ -11,8 +11,16 @@ export const MAX_ZOOM = 4
 const ENTITY_MARGIN = 140
 const DURATION = 500
 
-export const viewport = signal<Viewport>({ w: 1200, h: 800 })
-export const camera = signal<Camera>({ x: WORLD.w / 2, y: WORLD.h / 2, zoom: 0.5 })
+/** One camera with its viewport; journey and atlas share MAIN_RIG, each compare lane owns one. */
+export interface CameraRig { camera: Signal<Camera>; viewport: Signal<Viewport>; frame: number }
+
+export function createRig(): CameraRig {
+  return { camera: signal<Camera>({ x: WORLD.w / 2, y: WORLD.h / 2, zoom: 0.5 }), viewport: signal<Viewport>({ w: 1200, h: 800 }), frame: 0 }
+}
+
+export const MAIN_RIG = createRig()
+export const viewport = MAIN_RIG.viewport
+export const camera = MAIN_RIG.camera
 
 export function fitRect(rect: Rect, vp: Viewport, pad = 0.12): Camera {
   const zoom = Math.min(vp.w / (rect.w * (1 + pad)), vp.h / (rect.h * (1 + pad)))
@@ -42,34 +50,33 @@ export function worldToScreen(p: { x: number; y: number }, cam: Camera, vp: View
   return { x: vp.w / 2 + (p.x - cam.x) * cam.zoom, y: vp.h / 2 + (p.y - cam.y) * cam.zoom }
 }
 
-let frame = 0
-export function cancelCameraAnimation(): void {
-  if (frame) cancelAnimationFrame(frame)
-  frame = 0
+export function cancelCameraAnimation(rig = MAIN_RIG): void {
+  if (rig.frame) cancelAnimationFrame(rig.frame)
+  rig.frame = 0
 }
 
-export function setCamera(cam: Camera): void {
-  cancelCameraAnimation()
-  camera.value = cam
+export function setCamera(cam: Camera, rig = MAIN_RIG): void {
+  cancelCameraAnimation(rig)
+  rig.camera.value = cam
 }
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
 
-export function animateTo(cam: Camera): void {
-  cancelCameraAnimation()
-  const from = camera.value
+export function animateTo(cam: Camera, rig = MAIN_RIG): void {
+  cancelCameraAnimation(rig)
+  const from = rig.camera.value
   const start = performance.now()
   const tick = (now: number) => {
     const t = Math.min(1, (now - start) / DURATION)
     const k = easeOut(t)
-    camera.value = {
+    rig.camera.value = {
       x: from.x + (cam.x - from.x) * k,
       y: from.y + (cam.y - from.y) * k,
       zoom: Math.exp(Math.log(from.zoom) + (Math.log(cam.zoom) - Math.log(from.zoom)) * k)
     }
-    frame = t < 1 ? requestAnimationFrame(tick) : 0
+    rig.frame = t < 1 ? requestAnimationFrame(tick) : 0
   }
-  frame = requestAnimationFrame(tick)
+  rig.frame = requestAnimationFrame(tick)
 }
 
 /** keep the visible rectangle inside the world when the world is larger than the viewport */
@@ -80,8 +87,9 @@ export function clampToWorld(cam: Camera, vp: Viewport): Camera {
   return { ...cam, x: clampAxis(cam.x, halfW, WORLD.x, WORLD.x + WORLD.w), y: clampAxis(cam.y, halfH, WORLD.y, WORLD.y + WORLD.h) }
 }
 
-export function goTo(target: CameraTarget, instant: boolean): void {
-  const cam = clampToWorld(fitRect(targetToRect(target), viewport.value), viewport.value)
-  if (instant) setCamera(cam)
-  else animateTo(cam)
+/** moves the rig's camera to the target */
+export function goTo(target: CameraTarget, instant: boolean, rig = MAIN_RIG): void {
+  const cam = clampToWorld(fitRect(targetToRect(target), rig.viewport.value), rig.viewport.value)
+  if (instant) setCamera(cam, rig)
+  else animateTo(cam, rig)
 }

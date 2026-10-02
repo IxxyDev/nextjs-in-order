@@ -2,10 +2,10 @@
 import type { EntityState, Journey, WorldState } from './types'
 import { ENTITIES } from './entities'
 import { describeState } from './textEquivalent'
+import { clampIndex } from './route'
 
 export function clampStep(journey: Journey, n: number): number {
-  if (!Number.isFinite(n)) return 0
-  return Math.min(journey.steps.length - 1, Math.max(0, Math.floor(n)))
+  return clampIndex(n, journey.steps.length)
 }
 
 export function deriveWorldState(journey: Journey, stepIndex: number): WorldState {

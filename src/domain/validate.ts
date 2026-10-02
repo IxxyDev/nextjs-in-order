@@ -1,5 +1,5 @@
 // src/domain/validate.ts
-import type { Journey } from './types'
+import type { ComparePair, Journey, LaneScene, StepRef } from './types'
 import { ENTITIES } from './entities'
 import { EDGES } from './edges'
 import { REGIONS } from './regions'
@@ -8,6 +8,20 @@ const entityIds = new Set(ENTITIES.map((e) => e.id))
 const edgeIds = new Set(EDGES.map((e) => e.id))
 const regionIds = new Set(REGIONS.map((r) => r.id))
 
+function refError(ref: StepRef, journey: (slug: string) => Journey | undefined): string | undefined {
+  const j = journey(ref.journey)
+  if (!j) return `unknown journey ${ref.journey}`
+  if (!Number.isInteger(ref.step) || ref.step < 1 || ref.step > j.steps.length) return `${ref.journey} has no step ${ref.step}`
+}
+
+function sceneErrors(where: string, scene: LaneScene, errors: string[]): void {
+  for (const id of Object.keys(scene.states)) if (!entityIds.has(id)) errors.push(`${where}: unknown entity ${id}`)
+  for (const id of scene.edges) if (!edgeIds.has(id)) errors.push(`${where}: unknown edge ${id}`)
+  if (scene.token && !entityIds.has(scene.token.at)) errors.push(`${where}: token at unknown entity ${scene.token.at}`)
+  if (scene.camera.kind === 'region' && !regionIds.has(scene.camera.id)) errors.push(`${where}: unknown region ${scene.camera.id}`)
+  if (scene.camera.kind === 'entities') for (const id of scene.camera.ids) if (!entityIds.has(id)) errors.push(`${where}: camera on unknown entity ${id}`)
+}
+
 export function validateJourney(journey: Journey): string[] {
   const errors: string[] = []
   const seen = new Set<string>()
@@ -15,14 +29,37 @@ export function validateJourney(journey: Journey): string[] {
     const where = `${journey.slug} step ${i + 1} (${step.id})`
     if (seen.has(step.id)) errors.push(`${where}: duplicate step id`)
     seen.add(step.id)
-    for (const id of Object.keys(step.states)) if (!entityIds.has(id)) errors.push(`${where}: unknown entity ${id}`)
-    for (const id of step.edges) if (!edgeIds.has(id)) errors.push(`${where}: unknown edge ${id}`)
-    if (step.token && !entityIds.has(step.token.at)) errors.push(`${where}: token at unknown entity ${step.token.at}`)
-    if (step.camera.kind === 'region' && !regionIds.has(step.camera.id)) errors.push(`${where}: unknown region ${step.camera.id}`)
-    if (step.camera.kind === 'entities') for (const id of step.camera.ids) if (!entityIds.has(id)) errors.push(`${where}: camera on unknown entity ${id}`)
+    sceneErrors(where, step, errors)
     if (step.kind === 'predict' && !step.question) errors.push(`${where}: predict step without a question`)
     if (step.kind === 'check' && !(step.checks && step.checks.length)) errors.push(`${where}: check step without checks`)
     if (step.story.trim().length === 0) errors.push(`${where}: empty story`)
+  })
+  return errors
+}
+
+/** every inline lane references existing ids and every reused step resolves to a journey step */
+export function validateCompare(pair: ComparePair, journey: (slug: string) => Journey | undefined): string[] {
+  const errors: string[] = []
+  const seen = new Set<string>()
+  if (pair.lanes.length < 2) errors.push(`${pair.slug}: fewer than two lanes`)
+  pair.steps.forEach((step, i) => {
+    const where = `${pair.slug} step ${i + 1} (${step.id})`
+    if (seen.has(step.id)) errors.push(`${where}: duplicate step id`)
+    seen.add(step.id)
+    if (!step.id.startsWith(`${pair.id}-`)) errors.push(`${where}: id does not start with ${pair.id}-`)
+    if (step.story.trim().length === 0) errors.push(`${where}: empty story`)
+    if (step.lanes.length !== pair.lanes.length) errors.push(`${where}: ${step.lanes.length} lanes, pair has ${pair.lanes.length}`)
+    if (step.ruler && (step.ruler.length !== pair.lanes.length || step.ruler.some((t) => !(t >= 0 && t <= 1)))) errors.push(`${where}: ruler needs one value in [0, 1] per lane`)
+    step.lanes.forEach((lane, l) => {
+      const at = `${where} lane ${l + 1}`
+      if ('ref' in lane) {
+        const e = refError(lane.ref, journey)
+        if (e) errors.push(`${at}: ${e}`)
+      } else {
+        sceneErrors(at, lane, errors)
+        if (lane.story.trim().length === 0) errors.push(`${at}: empty story`)
+      }
+    })
   })
   return errors
 }

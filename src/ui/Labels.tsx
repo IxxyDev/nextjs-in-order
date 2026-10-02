@@ -3,7 +3,7 @@ import type { EntityState, TokenState } from '../domain/types'
 import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
 import { REGIONS, CUSTOM_SERVER_RING as RING } from '../domain/regions'
-import { camera, viewport, worldToScreen } from './camera'
+import { MAIN_RIG, worldToScreen, type CameraRig } from './camera'
 import { placeLabels, type LabelCandidate, type ScreenRect } from './labelLayout'
 
 /** below this zoom, only emphasized entities keep their label */
@@ -19,14 +19,17 @@ export interface LabelsProps {
   token?: TokenState
   selected?: string
   onSelect: (id: string) => void
+  rig?: CameraRig
+  /** compare mode: entities lit in this lane only */
+  differs?: ReadonlySet<string>
 }
 
 const CHIP: Partial<Record<EntityState, string>> = {
   current: 'now', active: 'running', new: 'new', kept: 'kept', replaced: 'replaced', invalid: 'invalid', stale: 'stale', fresh: 'fresh', na: 'n/a'
 }
 
-export function Labels({ entityStates, activeEdges, token, selected, onSelect }: LabelsProps) {
-  const cam = camera.value, vp = viewport.value
+export function Labels({ entityStates, activeEdges, token, selected, onSelect, rig = MAIN_RIG, differs }: LabelsProps) {
+  const cam = rig.camera.value, vp = rig.viewport.value
   const dense = cam.zoom < LABEL_ZOOM
   const ring = entityStates['custom-server']
   const ringAt = ring !== undefined && ring !== 'dimmed' && ring !== 'na' ? worldToScreen({ x: RING.x + RING.w - 10, y: RING.y + RING.h - 6 }, cam, vp) : undefined
@@ -59,6 +62,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect }:
           const chips: string[] = []
           if (state && CHIP[state]) chips.push(CHIP[state]!)
           if (e.badge && cam.zoom >= BADGE_ZOOM) chips.push(e.badge)
+          if (differs?.has(e.id)) chips.push('differs')
           const p = worldToScreen({ x: e.x, y: e.y + 30 }, cam, vp)
           candidates.push({ id: e.id, x: p.x, y: p.y, text: token?.at === e.id ? token.label : (e.short ?? e.name.split(' · ')[0]), chips, state, isToken: token?.at === e.id, isSelected: selected === e.id })
         }
@@ -71,7 +75,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect }:
               class={`label ${c.state === 'dimmed' ? 'is-dimmed' : ''}`}
               style={{ left: `${c.x}px`, top: `${c.y}px` }}
               aria-pressed={selected === c.id}
-              aria-label={`${e.name}${c.state && c.state !== 'dimmed' ? `, ${CHIP[c.state]}` : ''}. Inspect`}
+              aria-label={`${e.name}${c.state && c.state !== 'dimmed' ? `, ${CHIP[c.state]}` : ''}${differs?.has(c.id) ? ', differs' : ''}. Inspect`}
               onClick={() => onSelect(c.id)}
             >
               <span class="label-name">{c.text}</span>
@@ -79,6 +83,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect }:
                 <span class="label-row">
                   {c.state && CHIP[c.state] && <span class={`chip chip-${c.state}`}>{CHIP[c.state]}</span>}
                   {e.badge && cam.zoom >= BADGE_ZOOM && <span class="chip chip-badge">{e.badge}</span>}
+                  {differs?.has(c.id) && <span class="chip chip-differs">differs</span>}
                 </span>
               )}
             </button>
