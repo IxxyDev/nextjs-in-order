@@ -1,6 +1,6 @@
 // src/domain/route.test.ts
 import { describe, it, expect } from 'vitest'
-import { clampIndex, parseRoute, formatRoute } from './route'
+import { clampIndex, parseRoute, formatRoute, roundCam, withCam } from './route'
 
 describe('routes', () => {
   it('clamps indexes to whole numbers in range', () => {
@@ -43,5 +43,18 @@ describe('routes', () => {
       { mode: 'predict', n: 11 },
       { mode: 'predict', n: 0, cam: { x: 7, y: 8, zoom: 0.5 } }
     ] as const) expect(parseRoute(formatRoute(r))).toEqual(r)
+  })
+  it('ignores cam on compare routes, which have one camera per lane', () => {
+    expect(parseRoute('#/compare/runtimes/1?cam=5,6,1')).toEqual({ mode: 'compare', slug: 'runtimes', step: 0 })
+    expect(withCam('#/compare/runtimes/1', { x: 5, y: 6, zoom: 1 })).toBe('#/compare/runtimes/1')
+  })
+  it('rounds the camera for the URL', () => {
+    expect(roundCam({ x: 1200.4, y: 599.6, zoom: 1.23456 })).toEqual({ x: 1200, y: 600, zoom: 1.23 })
+  })
+  it('sets or clears the camera of a hash and keeps the rest of the route', () => {
+    expect(withCam('#/journey/app-initial/12', { x: 10.2, y: 20.7, zoom: 0.555 })).toBe('#/journey/app-initial/12?cam=10,21,0.56')
+    expect(withCam('#/atlas?entity=swc&cam=1,2,3', { x: 4, y: 5, zoom: 2 })).toBe('#/atlas?entity=swc&cam=4,5,2')
+    expect(withCam('#/atlas?entity=swc&cam=1,2,3')).toBe('#/atlas?entity=swc')
+    expect(withCam('#/predict/3?cam=1,2,3')).toBe('#/predict/3')
   })
 })

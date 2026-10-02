@@ -1,22 +1,29 @@
 // src/ui/AtlasView.tsx
-import { useEffect, useState } from 'preact/hooks'
-import type { EntityState, Phase, Reaches } from '../domain/types'
+import { useEffect, useRef, useState } from 'preact/hooks'
+import type { Camera, CameraTarget, EntityState, Phase, Reaches } from '../domain/types'
 import { ENTITIES } from '../domain/entities'
 import { World } from './World'
 import { Labels } from './Labels'
 import { Minimap } from './Minimap'
 import { Inspector } from './Inspector'
-import { goTo, viewport } from './camera'
+import { goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
 
 const PHASES: Phase[] = ['build', 'startup', 'request', 'browser', 'dev']
 const REACHES: Reaches[] = ['code', 'data', 'data+refs', 'no']
 
-export function AtlasView({ entity, onSelect }: { entity?: string; onSelect: (id?: string) => void }) {
+/** a URL camera, or one the user moved, holds until the route changes; until then framing leaves it alone */
+export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Camera; onSelect: (id?: string) => void }) {
   const [phase, setPhase] = useState<Phase | ''>('')
   const [reaches, setReaches] = useState<Reaches | ''>('')
   const vp = viewport.value
-  useEffect(() => { goTo(entity ? { kind: 'entities', ids: [entity] } : { kind: 'world' }, reducedMotion.value) }, [entity, vp.w, vp.h])
+  const camKey = cam && `${cam.x},${cam.y},${cam.zoom}`
+  useEffect(() => { if (cam) restoreCamera(cam) }, [camKey])
+  const manual = useRef(false)
+  const onManual = (c: Camera) => { manual.current = true; writeCamToUrl(c) }
+  useEffect(() => { manual.current = false }, [entity])
+  const target: CameraTarget = entity ? { kind: 'entities', ids: [entity] } : { kind: 'world' }
+  useEffect(() => { if (!cam && !manual.current) goTo(target, reducedMotion.value) }, [entity, camKey, vp.w, vp.h])
   const states: Record<string, EntityState> = {}
   if (phase || reaches) for (const e of ENTITIES) {
     const ok = (!phase || e.phase.includes(phase)) && (!reaches || e.reaches === reaches)
@@ -33,7 +40,7 @@ export function AtlasView({ entity, onSelect }: { entity?: string; onSelect: (id
       <div class="stage">
         <World entityStates={states} activeEdges={new Set()} selected={entity} onSelect={(id) => onSelect(id)} />
         <Labels entityStates={states} selected={entity} onSelect={(id) => onSelect(id)} />
-        <Minimap />
+        <Minimap onManual={onManual} />
         {entity && <Inspector id={entity} onClose={() => onSelect(undefined)} />}
       </div>
     </div>

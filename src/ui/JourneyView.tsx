@@ -1,6 +1,6 @@
 // src/ui/JourneyView.tsx
 import { useEffect, useMemo, useState } from 'preact/hooks'
-import type { Journey } from '../domain/types'
+import type { Camera, Journey } from '../domain/types'
 import { deriveWorldState } from '../domain/worldState'
 import { World } from './World'
 import { Labels } from './Labels'
@@ -8,20 +8,33 @@ import { Minimap } from './Minimap'
 import { StepPanel } from './StepPanel'
 import { Transport } from './Transport'
 import { Inspector } from './Inspector'
-import { goTo, viewport } from './camera'
+import { goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useStepControls } from './useStepControls'
 
-export function JourneyView({ journey, step, onStep }: { journey: Journey; step: number; onStep: (n: number) => void }) {
+/** follow the step's target, show the whole system, or hold a camera the user left (a URL cam) until they step or pick a view */
+type View = 'follow' | 'whole' | 'manual'
+
+export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; step: number; cam?: Camera; onStep: (n: number) => void }) {
   const world = useMemo(() => deriveWorldState(journey, step), [journey, step])
-  const [follow, setFollow] = useState(true)
+  const [view, setView] = useState<View>(cam ? 'manual' : 'follow')
+  const pickView = (follow: boolean) => { setView(follow ? 'follow' : 'whole'); writeCamToUrl(undefined, 0) }
   const [showText, setShowText] = useState(false)
   const [selected, setSelected] = useState<string | undefined>()
 
   const vp = viewport.value
-  useEffect(() => { goTo(follow ? world.cameraTarget : { kind: 'world' }, reducedMotion.value) }, [world, follow, vp.w, vp.h])
+  const camKey = cam && `${cam.x},${cam.y},${cam.zoom}`
+  useEffect(() => { if (cam) { restoreCamera(cam); setView('manual') } }, [camKey])
+  /** stepping drops cam from the URL and hands the camera back to Follow */
+  useEffect(() => { if (!cam) setView((v) => (v === 'manual' ? 'follow' : v)) }, [step, journey.slug])
+  useEffect(() => { if (view !== 'manual') goTo(view === 'follow' ? world.cameraTarget : { kind: 'world' }, reducedMotion.value) }, [world, view, vp.w, vp.h])
 
-  const { playing, setPlaying, stepTo } = useStepControls({ count: journey.steps.length, step, onStep, onEscape: () => { setSelected(undefined); setFollow(false) } })
+  const onEscape = () => {
+    setSelected(undefined)
+    pickView(false)
+  }
+  const { playing, setPlaying, stepTo } = useStepControls({ count: journey.steps.length, step, onStep, onEscape })
+  const onManual = (c: Camera) => { setView('manual'); writeCamToUrl(c) }
   const select = (id: string) => { setPlaying(false); setSelected(id) }
 
   return (
@@ -29,11 +42,11 @@ export function JourneyView({ journey, step, onStep }: { journey: Journey; step:
       <div class="stage">
         <World entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={select} />
         <Labels entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={select} />
-        <Minimap />
+        <Minimap onManual={onManual} />
         {selected && <Inspector id={selected} onClose={() => setSelected(undefined)} />}
       </div>
       <StepPanel journey={journey} world={world} showText={showText} />
-      <Transport journey={journey} step={step} playing={playing} follow={follow} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={setFollow} onShowText={setShowText} />
+      <Transport journey={journey} step={step} playing={playing} follow={view === 'follow'} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={pickView} onShowText={setShowText} />
     </div>
   )
 }

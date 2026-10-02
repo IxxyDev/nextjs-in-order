@@ -4,6 +4,7 @@ import type { Camera, CameraTarget, Rect } from '../domain/types'
 import { WORLD, regionById } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
 import type { ScreenRect } from './labelLayout'
+import { withCam } from '../domain/route'
 
 export interface Viewport { w: number; h: number }
 
@@ -119,6 +120,8 @@ export function worldToScreen(p: { x: number; y: number }, cam: Camera, vp: View
   return { x: vp.w / 2 + (p.x - cam.x) * cam.zoom, y: vp.h / 2 + (p.y - cam.y) * cam.zoom }
 }
 
+const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z))
+
 export function cancelCameraAnimation(rig = MAIN_RIG): void {
   if (rig.frame) cancelAnimationFrame(rig.frame)
   rig.frame = 0
@@ -127,6 +130,24 @@ export function cancelCameraAnimation(rig = MAIN_RIG): void {
 export function setCamera(cam: Camera, rig = MAIN_RIG): void {
   cancelCameraAnimation(rig)
   rig.camera.value = cam
+}
+
+/** a camera from the URL, as it was left; only the zoom is kept in range */
+export function restoreCamera(cam: Camera, rig = MAIN_RIG): void {
+  setCamera({ ...cam, zoom: clampZoom(cam.zoom) }, rig)
+}
+
+let urlWrite = 0
+/**
+ * A manual camera move goes into the URL (debounced, rounded) so a reload restores it; undefined clears it.
+ * replaceState adds no history entry and fires no hashchange. A route change before the write cancels it.
+ */
+export function writeCamToUrl(cam: Camera | undefined, delay = 300): void {
+  clearTimeout(urlWrite)
+  const at = location.hash
+  const write = () => { if (location.hash === at) history.replaceState(history.state, '', withCam(at, cam)) }
+  if (delay) urlWrite = window.setTimeout(write, delay)
+  else write()
 }
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)

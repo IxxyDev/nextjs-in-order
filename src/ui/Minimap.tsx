@@ -1,14 +1,17 @@
 // src/ui/Minimap.tsx
 import { REGIONS, WORLD } from '../domain/regions'
+import type { Camera } from '../domain/types'
 import { MINIMAP, camera, viewport, setCamera } from './camera'
 
-export function Minimap() {
+export function Minimap({ onManual }: { onManual: (cam: Camera) => void }) {
   const cam = camera.value, vp = viewport.value
   const w = vp.w / cam.zoom, h = vp.h / cam.zoom
   const onClick = (ev: MouseEvent) => {
     const el = ev.currentTarget as SVGSVGElement
     const r = el.getBoundingClientRect()
-    setCamera({ ...cam, x: ((ev.clientX - r.left) / r.width) * WORLD.w, y: ((ev.clientY - r.top) / r.height) * WORLD.h })
+    const next = { ...cam, x: ((ev.clientX - r.left) / r.width) * WORLD.w, y: ((ev.clientY - r.top) / r.height) * WORLD.h }
+    setCamera(next)
+    onManual(next)
   }
   return (
     <svg class="minimap" style={{ left: `${MINIMAP.left}px`, bottom: `${MINIMAP.bottom}px`, width: `${MINIMAP.w}px`, height: `${MINIMAP.h}px` }} viewBox={`0 0 ${WORLD.w} ${WORLD.h}`} onClick={onClick} aria-label="Minimap. Click to move the camera." role="img">

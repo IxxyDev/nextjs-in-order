@@ -51,3 +51,15 @@ export function formatRoute(route: Route): string {
   if (route.mode === 'predict') return `#/predict/${route.n + 1}${cam ? `?${cam}` : ''}`
   return `#/${route.mode}/${route.slug}/${route.step + 1}${cam ? `?${cam}` : ''}`
 }
+
+/** a camera as the URL keeps it: whole world units, zoom to two decimals */
+export function roundCam(cam: Camera): Camera {
+  return { x: Math.round(cam.x), y: Math.round(cam.y), zoom: Math.round(cam.zoom * 100) / 100 }
+}
+
+/** the same route with the camera set (rounded) or cleared; a compare hash is returned as it is */
+export function withCam(hash: string, cam?: Camera): string {
+  const route = parseRoute(hash)
+  if (route.mode === 'compare') return hash
+  return formatRoute({ ...route, cam: cam && roundCam(cam) })
+}

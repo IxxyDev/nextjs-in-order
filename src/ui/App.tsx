@@ -66,13 +66,13 @@ export function App() {
     if (route.mode === 'predict' && !quiz) load('predict', loadQuiz)
   }, [route.mode])
   useEffect(() => {
-    if (route.mode === 'predict' && quiz && clampIndex(route.n, quiz.length) !== route.n) go({ mode: 'predict', n: clampIndex(route.n, quiz.length) })
+    if (route.mode === 'predict' && quiz && clampIndex(route.n, quiz.length) !== route.n) go({ mode: 'predict', n: clampIndex(route.n, quiz.length), cam: route.cam })
   }, [route, quiz])
   useEffect(() => {
     if (route.mode === 'compare' && pair && (pair.slug !== route.slug || clampIndex(route.step, pair.steps.length) !== route.step)) go({ mode: 'compare', slug: pair.slug, step: clampIndex(route.step, pair.steps.length) })
   }, [route, pair])
   useEffect(() => {
-    if (route.mode === 'journey' && journey && (journey.slug !== route.slug || clampIndex(route.step, journey.steps.length) !== route.step)) go({ mode: 'journey', slug: journey.slug, step: clampIndex(route.step, journey.steps.length) })
+    if (route.mode === 'journey' && journey && (journey.slug !== route.slug || clampIndex(route.step, journey.steps.length) !== route.step)) go({ mode: 'journey', slug: journey.slug, step: clampIndex(route.step, journey.steps.length), cam: route.cam })
   }, [route, journey])
   return (
     <div class="app">
@@ -87,12 +87,12 @@ export function App() {
         <span class="version-chip">{VERSION_NOTE}</span>
       </header>
       {route.mode === 'predict'
-        ? quiz ? <PredictView quiz={quiz} n={clampIndex(route.n, quiz.length)} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : loadOr('predict', 'the questions', 'Loading questions…', loadQuiz)
+        ? quiz ? <PredictView quiz={quiz} n={clampIndex(route.n, quiz.length)} cam={route.cam} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : loadOr('predict', 'the questions', 'Loading questions…', loadQuiz)
         : route.mode === 'compare'
         ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : loadOr(`compare:${pairSlug}`, 'this comparison', 'Loading comparison…', () => loadCompare(pairSlug!))
         : route.mode === 'journey'
-        ? journey ? <JourneyView journey={journey} step={clampIndex(route.step, journey.steps.length)} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} /> : loadOr(`journey:${slug}`, 'this journey', 'Loading journey…', () => loadJourney(slug!))
-        : <AtlasView entity={route.mode === 'atlas' ? route.entity : undefined} onSelect={(id) => go({ mode: 'atlas', ...(id ? { entity: id } : {}) })} />}
+        ? journey ? <JourneyView journey={journey} step={clampIndex(route.step, journey.steps.length)} cam={route.cam} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} /> : loadOr(`journey:${slug}`, 'this journey', 'Loading journey…', () => loadJourney(slug!))
+        : <AtlasView entity={route.mode === 'atlas' ? route.entity : undefined} cam={route.mode === 'atlas' ? route.cam : undefined} onSelect={(id) => go({ mode: 'atlas', ...(id ? { entity: id } : {}) })} />}
     </div>
   )
 }

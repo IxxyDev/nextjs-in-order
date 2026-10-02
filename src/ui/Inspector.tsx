@@ -4,6 +4,7 @@ import type { ComponentChildren } from 'preact'
 import { entityById } from '../domain/entities'
 import { regionById } from '../domain/regions'
 import { JOURNEY_CATALOG, loadAllJourneys, peekJourney } from '../domain/journeys'
+import { appearancesOf } from '../domain/appearances'
 import type { Journey } from '../domain/types'
 import { formatRoute } from '../domain/route'
 
@@ -22,7 +23,7 @@ export function Inspector({ id, onClose }: { id: string; onClose: () => void }) 
     if (!journeys) load()
     return () => { live.current = false }
   }, [])
-  const appearances = journeys ? journeys.flatMap((j) => j.steps.map((s, i) => ({ j, s, i })).filter(({ s }) => s.states[id] || s.token?.at === id)) : []
+  const appearances = journeys ? appearancesOf(journeys, id) : []
   return (
     <aside class="inspector" aria-label={`Inspector: ${e.name}`}>
       <button class="close" onClick={onClose} aria-label="Close inspector">✕</button>
@@ -37,7 +38,7 @@ export function Inspector({ id, onClose }: { id: string; onClose: () => void }) 
         <dt>Connected through</dt><dd>{e.connects.length ? e.connects.map((c) => entityById(c).name.split(' · ')[0]).join(', ') : '—'}</dd>
         <dt>Crosses to the browser</dt><dd>{e.reaches === 'no' ? 'no' : e.reaches === 'code' ? 'yes, as code' : `yes, as ${e.reaches}`}</dd>
         <dt>Appears in</dt>
-        <dd>{failed ? <span role="alert">Couldn't load the journeys. <button onClick={load}>Retry</button></span> : !journeys ? '…' : appearances.length ? appearances.map(({ j, i }) => <a key={`${j.id}-${i}`} href={formatRoute({ mode: 'journey', slug: j.slug, step: i })}>{j.title} · step {i + 1}</a>).reduce<ComponentChildren[]>((acc, el, k) => (k ? [...acc, ', ', el] : [el]), []) : '—'}</dd>
+        <dd>{failed ? <span role="alert">Couldn't load the journeys. <button onClick={load}>Retry</button></span> : !journeys ? '…' : appearances.length ? appearances.map(({ journey: j, step: i }) => <a key={`${j.id}-${i}`} href={formatRoute({ mode: 'journey', slug: j.slug, step: i })}>{j.title} · step {i + 1}</a>).reduce<ComponentChildren[]>((acc, el, k) => (k ? [...acc, ', ', el] : [el]), []) : '—'}</dd>
       </dl>
       {e.versionNote && (
         <div class="version-note">

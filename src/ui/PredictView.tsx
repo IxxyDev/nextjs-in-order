@@ -1,6 +1,6 @@
 // src/ui/PredictView.tsx
-import { useEffect, useState } from 'preact/hooks'
-import type { CameraTarget, EntityState, PickMark, QuizQuestion, RegionId } from '../domain/types'
+import { useEffect, useRef, useState } from 'preact/hooks'
+import type { Camera, CameraTarget, EntityState, PickMark, QuizQuestion, RegionId } from '../domain/types'
 import { ENTITIES, entityById } from '../domain/entities'
 import { regionById } from '../domain/regions'
 import { entryBySlug } from '../domain/journeys'
@@ -10,7 +10,7 @@ import { progress, quizId } from '../domain/progress'
 import { World } from './World'
 import { Labels, MARK_CHIP } from './Labels'
 import { Minimap } from './Minimap'
-import { goTo, viewport } from './camera'
+import { goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
 
 const short = (id: string) => { const e = entityById(id); return e.short ?? e.name.split(' · ')[0] }
@@ -33,7 +33,7 @@ function markFor(id: string, picked: boolean, checked: boolean, answer: Readonly
   return picked ? 'extra' : undefined
 }
 
-export function PredictView({ quiz, n, onGo, onAnswered }: { quiz: QuizQuestion[]; n: number; onGo: (n: number) => void; onAnswered?: (questionId: string, correct: boolean) => void }) {
+export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQuestion[]; n: number; cam?: Camera; onGo: (n: number) => void; onAnswered?: (questionId: string, correct: boolean) => void }) {
   const q = quiz[n]
   const [state, setState] = useState({ id: q.id, picks: [] as string[], checked: false })
   const { picks, checked } = state.id === q.id ? state : { picks: [] as string[], checked: false }
@@ -41,7 +41,13 @@ export function PredictView({ quiz, n, onGo, onAnswered }: { quiz: QuizQuestion[
   const result = checked ? scoreQuestion(q, picks) : undefined
 
   const vp = viewport.value
-  useEffect(() => { goTo(cameraFor(q), reducedMotion.value) }, [q.id, vp.w, vp.h])
+  /** a URL camera, or one the user moved, holds until the route changes; until then framing leaves it alone */
+  const camKey = cam && `${cam.x},${cam.y},${cam.zoom}`
+  useEffect(() => { if (cam) restoreCamera(cam) }, [camKey])
+  const manual = useRef(false)
+  const onManual = (c: Camera) => { manual.current = true; writeCamToUrl(c) }
+  useEffect(() => { manual.current = false }, [q.id])
+  useEffect(() => { if (!cam && !manual.current) goTo(cameraFor(q), reducedMotion.value) }, [q.id, camKey, vp.w, vp.h])
 
   const toggle = (id: string) => {
     if (q.type === 'choice') { set({ picks: [id], checked: false }); return }
@@ -94,7 +100,7 @@ export function PredictView({ quiz, n, onGo, onAnswered }: { quiz: QuizQuestion[
       <div class="stage">
         <World entityStates={entityStates} activeEdges={new Set()} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} />
         <Labels entityStates={entityStates} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} verb={q.type === 'choice' ? 'No pick in this question' : 'Toggle pick'} />
-        <Minimap />
+        <Minimap onManual={onManual} />
       </div>
       <section class="panel quiz" aria-labelledby="quiz-title">
         <div class="eyebrow">Predict the machine · question {n + 1} of {quiz.length} · {q.source === 'reviewer' ? 'reviewer question' : `scenario · J${entryBySlug(q.journey!)!.id.slice(1)}`}</div>
