@@ -110,7 +110,24 @@ export const EDGES: Edge[] = [
   { id: 'e-action-rsc', from: 'action-handler', to: 'rsc-runtime-entity', kind: 'control', label: 're-render if invalidated' },
   { id: 'e-action-flight', from: 'action-handler', to: 'flight', kind: 'transform', label: 'a + f' },
   { id: 'e-data-cache-rsc', from: 'data-cache', to: 'rsc-runtime-entity', kind: 'data', label: 'cache reads' },
-  { id: 'e-action-server-cache', from: 'action-handler', to: 'server-cache', kind: 'control', label: 'updateTag / revalidatePath' }
+  { id: 'e-action-server-cache', from: 'action-handler', to: 'server-cache', kind: 'control', label: 'updateTag / revalidatePath' },
+
+  // ---------- Caching, ISR, PPR (J8) ----------
+  { id: 'e-memo-rsc', from: 'request-memo', to: 'rsc-runtime-entity', kind: 'data', label: 'one execution' },
+  { id: 'e-db-data-cache', from: 'db', to: 'data-cache', kind: 'data', label: 'miss → fill' },
+  { id: 'e-ladder-pages', from: 'routing-ladder', to: 'pages-renderer', kind: 'control', label: 'handoff /posts/7' },
+  { id: 'e-pages-server-cache', from: 'pages-renderer', to: 'server-cache', kind: 'lookup', label: 'lookup /posts/7' },
+  { id: 'e-pages-regen', from: 'pages-renderer', to: 'isr-regeneration', kind: 'control' },
+  { id: 'e-regen-server-cache', from: 'isr-regeneration', to: 'server-cache', kind: 'transform', label: 'replace entry' },
+  { id: 'e-db-pages', from: 'db', to: 'pages-renderer', kind: 'data' },
+  { id: 'e-pages-html', from: 'pages-renderer', to: 'html', kind: 'transform', label: 'render HTML' },
+  { id: 'e-pages-store', from: 'pages-renderer', to: 'server-cache', kind: 'transform', label: 'store · revalidate 60' },
+  { id: 'e-server-cache-dir', from: 'server-cache', to: 'next-cache-dir', kind: 'data', label: 'default store' },
+  { id: 'e-image-cache-dir', from: 'image-cache', to: 'next-cache-dir', kind: 'data', label: 'images/' },
+  { id: 'e-bundler-cache-dir', from: 'bundler', to: 'next-cache-dir', kind: 'data', label: 'persistent cache' },
+  { id: 'e-prerender-ppr', from: 'prerender', to: 'ppr-shell', kind: 'transform', label: 'stop at Suspense' },
+  { id: 'e-ppr-server-cache', from: 'ppr-shell', to: 'server-cache', kind: 'data', label: 'stored like a static route' },
+  { id: 'e-ppr-resume', from: 'ppr-shell', to: 'rsc-runtime-entity', kind: 'control', label: 'resume · real cookies' }
 ]
 
 const byId = new Map(EDGES.map((e) => [e.id, e]))

@@ -255,11 +255,18 @@ export const ENTITIES: Entity[] = [
     consumes: ['prerender'], produces: ['initial server cache entries'], exists: 'until ISR regenerates', connects: ['server-cache'], reaches: 'data'
   },
   {
-    id: 'next-cache-dir', short: '.next/cache', name: '.next/cache', region: 'artifacts', glyph: 'cache', x: 1930, y: 740,
+    id: 'next-cache-dir', short: '.next/cache', name: '.next/cache', region: 'artifacts', glyph: 'cache', x: 1930, y: 740, badge: 'fs',
     phase: ['build', 'request'], env: ['storage'], role: 'cache',
     what: 'Persistent directory: bundler filesystem cache across builds, optimized images, and the default store for the server cache.',
     consumes: ['bundler results', 'optimized images', 'rendered routes'], produces: ['reuse across builds and restarts'],
-    exists: 'across builds and process restarts', connects: ['image-cache', 'server-cache'], reaches: 'no'
+    exists: 'across builds and process restarts', connects: ['image-cache', 'server-cache', 'bundler'], reaches: 'no',
+    internals: ['build cache key: module / task inputs; value: transformed modules and turbo-tasks results', 'skipped with --no-cache or a CI job that does not restore the directory', 'images/ holds the optimizer cache; the server cache writes here unless a cacheHandler is configured'],
+    versionNote: {
+      article: 'A Webpack filesystem cache, plus Turbopack caching in dev.',
+      current: 'Turbopack is the default bundler and its persistent filesystem cache is on by default for next dev and next build (16.3).',
+      why: 'A second build reuses unchanged work, so keeping .next/cache between CI runs matters.'
+    },
+    sources: [{ label: 'turbopackFileSystemCache', url: `${DOCS}/api-reference/config/next-config-js/turbopackFileSystemCache` }, { label: 'Next.js 16.3', url: 'https://nextjs.org/blog/next-16-3' }]
   },
 
   // ---------- HTTP entry ----------
@@ -448,15 +455,21 @@ export const ENTITIES: Entity[] = [
     consumes: ['queries', 'mutations'], produces: ['data'], exists: 'always', connects: [], reaches: 'no'
   },
   {
-    id: 'server-cache', short: 'Server cache', name: 'Server cache · prerendered HTML + RSC', region: 'data-caches', glyph: 'cache', x: 500, y: 1395,
+    id: 'server-cache', short: 'Server cache', name: 'Server cache · prerendered HTML + RSC', region: 'data-caches', glyph: 'cache', x: 500, y: 1395, badge: 'server store',
     phase: ['build', 'request'], env: ['storage', 'node'], role: 'cache',
     what: 'Key: route path + params. Value: HTML, RSC payload and meta (revalidate, tags). Miss → render and store; fresh → serve without React; stale → serve and regenerate in the background.',
     consumes: ['prerender', 'ISR regeneration'], produces: ['responses without rendering'],
     exists: 'until revalidate, expire or redeploy', connects: ['prerender-manifest', 'next-cache-dir'], reaches: 'data',
-    internals: ['older docs: "Full Route Cache"; article: "incremental cache"', 'cacheHandler / cacheMaxMemorySize for self-hosting']
+    internals: ['older docs: "Full Route Cache"; article: "incremental cache"', 'cacheHandler / cacheMaxMemorySize for self-hosting'],
+    versionNote: {
+      article: 'Called the incremental cache.',
+      current: 'Current docs call it the Next.js server cache; "Full Route Cache" is a retired name.',
+      why: 'Three names, one mechanism: rendered HTML + RSC per route key, shared by every user.'
+    },
+    sources: [{ label: 'Caching', url: `${DOCS}/getting-started/caching` }, { label: 'Self-hosting: caching', url: `${DOCS}/guides/self-hosting` }]
   },
   {
-    id: 'data-cache', short: '"use cache"', name: '"use cache" entries', region: 'data-caches', glyph: 'cache', x: 850, y: 1395,
+    id: 'data-cache', short: '"use cache"', name: '"use cache" entries', region: 'data-caches', glyph: 'cache', x: 850, y: 1395, badge: 'server memory',
     phase: ['request'], env: ['node', 'storage'], role: 'cache',
     what: 'Results of functions and components marked "use cache", keyed by arguments and closed-over values, with cacheLife profiles and cacheTag tags. Nothing is cached without the directive.',
     consumes: ['first render'], produces: ['reused results'], exists: 'per cacheLife profile',
@@ -469,16 +482,20 @@ export const ENTITIES: Entity[] = [
     sources: [{ label: 'Caching', url: `${DOCS}/getting-started/caching` }]
   },
   {
-    id: 'image-cache', short: 'Image cache', name: 'Image optimizer cache · .next/cache/images', region: 'data-caches', glyph: 'cache', x: 1200, y: 1395,
+    id: 'image-cache', short: 'Image cache', name: 'Image optimizer cache · .next/cache/images', region: 'data-caches', glyph: 'cache', x: 1200, y: 1395, badge: 'fs',
     phase: ['request'], env: ['storage', 'node'], role: 'cache',
     what: 'Key: url + width + quality + format. Value: the sharp-transformed image, so each variant is computed once.',
-    consumes: ['/_next/image requests'], produces: ['cached variants'], exists: 'per TTL', connects: ['early-exits', 'next-cache-dir'], reaches: 'data'
+    consumes: ['/_next/image requests'], produces: ['cached variants'], exists: 'per TTL', connects: ['image-optimizer', 'next-cache-dir'], reaches: 'data',
+    internals: ['/hero.jpg|640|75|webp', 'minimumCacheTTL 4 h by default (16.0)'],
+    sources: [{ label: 'Image component', url: `${DOCS}/api-reference/components/image` }]
   },
   {
-    id: 'request-memo', short: 'Memoization', name: 'Request memoization', region: 'data-caches', glyph: 'cache', x: 1550, y: 1395,
+    id: 'request-memo', short: 'Memoization', name: 'Request memoization', region: 'data-caches', glyph: 'cache', x: 1550, y: 1395, badge: 'one request',
     phase: ['request'], env: ['node'], role: 'cache',
     what: 'Within one render pass, identical fetch GETs (and React cache() calls) run once. Dies with the request.',
-    consumes: ['duplicate calls'], produces: ['one execution'], exists: 'one request', connects: [], reaches: 'no'
+    consumes: ['duplicate calls'], produces: ['one execution'], exists: 'one request', connects: ['rsc-runtime-entity'], reaches: 'no',
+    internals: ['key: function + arguments; different arguments run again', 'React cache() for non-fetch calls'],
+    sources: [{ label: 'Caching', url: `${DOCS}/getting-started/caching` }]
   },
 
   // ---------- Browser ----------
@@ -522,13 +539,13 @@ export const ENTITIES: Entity[] = [
     consumes: ['initial Flight', 'patches'], produces: ['navigation diff input'], exists: 'tab', connects: ['loader-tree', 'app-router'], reaches: 'data'
   },
   {
-    id: 'route-cache', short: 'Route cache', name: 'Route cache · trees', region: 'client-router', glyph: 'cache', x: 1250, y: 1880,
+    id: 'route-cache', short: 'Route cache', name: 'Route cache · trees', region: 'client-router', glyph: 'cache', x: 1250, y: 1880, badge: 'browser tab',
     phase: ['browser'], env: ['browser'], role: 'cache',
     what: 'Prefetched route structures per URL (docs: part of the "Client Cache").',
     consumes: ['/_tree prefetches'], produces: ['instant structure on click'], exists: 'tab, staleness rules', connects: ['app-router'], reaches: 'data'
   },
   {
-    id: 'segment-cache', short: 'Segment cache', name: 'Segment cache · content', region: 'client-router', glyph: 'cache', x: 1550, y: 1880,
+    id: 'segment-cache', short: 'Segment cache', name: 'Segment cache · content', region: 'client-router', glyph: 'cache', x: 1550, y: 1880, badge: 'browser tab',
     phase: ['browser'], env: ['browser'], role: 'cache',
     what: 'Prefetched segment content; shared layouts are stored once and reused across routes (docs: "Client Cache"; 16.3 adds per-route App Shells).',
     consumes: ['segment prefetches', 'navigation responses'], produces: ['cache-hit navigations with no network'], exists: 'tab, staleness rules', connects: ['app-router'], reaches: 'data'
@@ -553,6 +570,38 @@ export const ENTITIES: Entity[] = [
     what: 'Flight carries content per segment as compact slices: the segment, how to patch the structure there, its rendered content and its head data. Slices are what make the stream resumable and navigations partial.',
     consumes: ['recursive segment render'], produces: ['rows the client merges into one LayoutRouter slot'], exists: 'per response',
     connects: ['flight', 'router-state-tree'], reaches: 'data'
+  },
+  {
+    id: 'ppr-shell', short: 'PPR shell', name: 'Static shell + postponed state · PPR', region: 'render-server', glyph: 'html', x: 1730, y: 920,
+    phase: ['build', 'request'], env: ['node', 'storage'], role: 'artifact',
+    what: 'A build render that stopped at a Suspense boundary whose subtree reads request data. Everything outside the boundary became the static shell; the place where rendering stopped was saved so a request can resume there.',
+    consumes: ['build render of /dashboard/billing'], produces: ['shell HTML + Flight rows served at once', 'a resume point for the dynamic part'],
+    exists: 'per deploy, until revalidated; stored in the server cache like a static route', connects: ['prerender', 'server-cache', 'rsc-runtime-entity', 'suspense-hole'], reaches: 'data',
+    internals: ['"postponed state" is an implementation term: the serialized resume point', 'response header x-nextjs-postponed', 'the shell for /dashboard/billing: RootLayout + DashboardLayout + BillingPage up to <InvoicesSkeleton/>'],
+    versionNote: {
+      article: 'PPR as its own feature: experimental.ppr, a static shell and a postponed state.',
+      current: 'cacheComponents: true implements PPR as the default behavior; experimental.ppr and experimental_ppr were removed in 16.0. The docs no longer name the postponed state, but resuming works the same way.',
+      why: 'The mechanism is unchanged; the switch is cacheComponents, not a PPR flag.'
+    },
+    sources: [{ label: 'cacheComponents', url: `${DOCS}/api-reference/config/next-config-js/cacheComponents` }, { label: 'Upgrading to 16', url: `${DOCS}/guides/upgrading/version-16` }]
+  },
+  {
+    id: 'pages-renderer', short: 'Pages renderer', name: 'Pages renderer · data function + _app + _document', region: 'render-server', glyph: 'machine', x: 1880, y: 1040,
+    phase: ['build', 'request'], env: ['node'], role: 'renderer',
+    what: 'Renders Pages Router routes such as pages/products/[id].tsx and pages/posts/[id].tsx: dispatches on the page exports (static file, getStaticProps entry, getServerSideProps or getInitialProps run), renders the page inside _app and _document, and produces HTML plus a JSON copy of the props.',
+    consumes: ['page module from pages-manifest', 'data function result'], produces: ['HTML + props JSON (__NEXT_DATA__)'],
+    exists: 'per render: at build, on a cache miss, on ISR regeneration and on every getServerSideProps request', connects: ['server-cache', 'pages-manifest', 'db'], reaches: 'data',
+    internals: ['getStaticProps → { props, revalidate: 60 }', 'getStaticPaths → { paths, fallback: "blocking" }', 'stored as .next/server/pages/posts/7.html + 7.json', 'packages/next/src/server/render.tsx: renderToHTMLImpl'],
+    sources: [{ label: 'getStaticProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-static-props' }, { label: 'ISR (Pages)', url: 'https://nextjs.org/docs/pages/guides/incremental-static-regeneration' }, { label: 'getServerSideProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-server-side-props' }]
+  },
+  {
+    id: 'isr-regeneration', short: 'Regeneration', name: 'Background regeneration · stale-while-revalidate', region: 'render-server', glyph: 'process', x: 1660, y: 1220,
+    phase: ['request'], env: ['node'], role: 'process',
+    what: 'Started when a stale entry is served: renders the route again after the response has left, and replaces the cache entry only if the render succeeds. The visitor who triggered it never waits for it.',
+    consumes: ['a stale server cache entry'], produces: ['a fresh entry for the next visitor'],
+    exists: 'after a stale hit, until the new entry is stored', connects: ['server-cache', 'pages-renderer'], reaches: 'no',
+    internals: ['prerender-manifest: initialRevalidateSeconds 60 for /posts/7', 'a failed regeneration keeps serving the old entry', 'App Router: revalidateTag(tag, "max") marks entries stale the same way'],
+    sources: [{ label: 'ISR', url: `${DOCS}/guides/incremental-static-regeneration` }, { label: 'revalidateTag', url: `${DOCS}/api-reference/functions/revalidateTag` }]
   },
   {
     id: 'suspense-hole', short: 'Suspense hole', name: 'Suspense boundary · streamed hole', region: 'browser', glyph: 'segment', x: 500, y: 1880,

@@ -38,8 +38,8 @@ list is in §Sources at the end.
 | 1 | Streaming and selective hydration via Suspense | J5 steps 14, 19 | fill / light-up | L1 | A1 §Streaming; docs: streaming | implemented (J5) |
 | 1 | App client router (`AppRouter`), `RSC: 1`, layout state preservation | J6 steps 6, 11 | move / swap | L1–L3 | A1 §Клиентский роутер; source: app-router.tsx | planned |
 | 1 | Prefetch on hover into a client cache | J6 step 1 | move | L1 | A1; A4 | planned · version note |
-| 1 | Caching model evolution: 14 implicit fetch cache → 16 Cache Components explicit `"use cache"`, `cacheLife()` | J8 step 3 | explain | L1–L3 | A1 §Кеширование; docs: cacheComponents, use cache | planned · version note |
-| 1 | PPR overview | J8 steps 13–15 | resume | L1 | A1 §Partial Prerendering; docs: PPR | planned · version note |
+| 1 | Caching model evolution: 14 implicit fetch cache → 16 Cache Components explicit `"use cache"`, `cacheLife()` | J8 step 3 | explain | L1–L3 | A1 §Кеширование; docs: cacheComponents, use cache | implemented (J8) · version note |
+| 1 | PPR overview | J8 steps 13–15 | resume | L1 | A1 §Partial Prerendering; docs: PPR | implemented (J8) · version note |
 | 1 | Server Actions overview | J7 | – | L1 | A1 §Server Actions | planned |
 
 ## Article 2 — Pages Router internals
@@ -56,7 +56,7 @@ list is in §Sources at the end.
 | 2 | Rendering-strategy detection from exports; `_app.getInitialProps` disables ASO | J3 step 1 | explain (toggle) | L1–L2 | A2 §Как определяется стратегия | planned |
 | 2 | Build output symbols ○ ● ƒ | J1 step 17 | explain | L1 | A2 | implemented (J1) |
 | 2 | Route matching priority (static → dynamic → catch-all) | J3 step 2; J2 step 7 | gate | L1–L2 | A2 §Матчинг маршрута | implemented (J2) |
-| 2 | `getStaticProps`: file read, ISR stale-while-revalidate | J3 step 4; J8 steps 5–8 | stale-serve | L1–L2 | A2 §getStaticProps; docs: ISR | planned |
+| 2 | `getStaticProps`: file read, ISR stale-while-revalidate | J3 step 4; J8 steps 5–8 | stale-serve | L1–L2 | A2 §getStaticProps; docs: ISR | implemented (J8) |
 | 2 | `getStaticPaths` fallback `false` / `true` / `'blocking'` | J3 step 4 (three exits) | gate | L1–L2 | A2 §getStaticProps; docs: getStaticPaths | planned |
 | 2 | `getServerSideProps`: per request, stripped from client bundle, context | J3 step 3 | transform | L1–L2 | A2 §getServerSideProps | planned |
 | 2 | `getInitialProps`: server + client, code in bundle, security; `_app.getInitialProps` + gSSP context-switch nuance | J3 step 5; J4 step 6 | transform | L1–L3 | A2 §getInitialProps | planned |
@@ -110,7 +110,7 @@ list is in §Sources at the end.
 | 4 | Client merges patch; unchanged segments keep nodes (scroll, accordions, form text) | J6 step 11 | swap | L1 | A4 | planned |
 | 4 | Shared layout neither rendered nor sent | J6 step 9 | transform | L1 | A4 | planned |
 | 4 | Prefetch: viewport + hover, Flight into cache | J6 step 1 | move | L1 | A4 §Segment Cache и prefetch | planned · version note |
-| 4 | Route Cache (trees) vs Segment Cache (segments) | J6 step 2; J8 step 10; C9 | explain | L1–L2 | A4; docs: segment cache | planned · version note |
+| 4 | Route Cache (trees) vs Segment Cache (segments) | J6 step 2; J8 step 10; C9 | explain | L1–L2 | A4; docs: segment cache | implemented (J8) · version note |
 | 4 | Old model (tree to first `loading`) vs new (tree first, then missing segments) | J6 steps 3–4; version chips | move | L1 + version note | A4 | planned · version note |
 | 4 | Network burst: `Next-Router-Segment-Prefetch: /_tree`, per-segment paths, `Next-Router-Prefetch: 1` | J6 steps 3–4 | move | L2–L3 | A4; source: prefetch headers | planned |
 | 4 | Why it is cheap: dedupe, shared segments, small parallel HTTP/2, scheduler with priorities/cancel | J6 step 1 | explain | L1–L2 | A4 | planned |
@@ -192,7 +192,7 @@ list is in §Sources at the end.
 | 7 | Turbopack default in 16; Webpack via flag | J1 step 9 version chip | explain | version note | A7 §Turbopack; docs | implemented (J1) · version note |
 | 7 | `turbo-tasks`: functions, tasks, values, `Vc`; dependency graph | J1 step 9 L3; C6 | inspect | L3 | A7 §Устройство Turbopack | implemented (J1) |
 | 7 | Bottom-up invalidation; affected subgraph only | C6; J9 step 6 | explain | L1–L2 | A7 | planned |
-| 7 | Persistent filesystem cache across builds | J8 step 12 | explain | L1–L2 | A7; docs: turbopack cache | planned |
+| 7 | Persistent filesystem cache across builds | J8 step 12 | explain | L1–L2 | A7; docs: turbopack cache | implemented (J8) |
 | 7 | Crates: core, ecmascript, css, resolve, node | J1 step 9 L3 | inspect | L3 | A7 | implemented (J1) |
 | 7 | Unified graph vs separate compilers | C6 | compare | L1 | A7 | planned |
 | 7 | Next ↔ Turbopack through N-API `Project`; identical manifests | J1 step 9 L3; J1 step 12 | inspect | L2–L3 | A7 §Как Next.js управляет Turbopack | implemented (J1) |
@@ -233,10 +233,10 @@ list is in §Sources at the end.
 |---|---|---|---|---|---|---|
 | 9 | Static as default: dynamic APIs decide | J11 step 1; J1 step 13 | explain | L1 | A9 §Статика | planned · version note (Cache Components defaults) |
 | 9 | ISR stale-while-revalidate | J8 steps 6–7; J11 step 2 | stale-serve | L1 | A9 | planned |
-| 9 | Incremental cache lookup branches (miss / fresh / stale) | J8 steps 4–8 | move | L1–L2 | A9 | planned |
-| 9 | Plain static as infinite-revalidate special case | J8 step 5 | explain | L2 | A9 | planned |
-| 9 | PPR: static shell + postponed state; request fills holes | J8 steps 13–15 | resume | L1–L2 | A9 §Partial Prerendering; docs: PPR | planned · version note |
-| 9 | Dynamic API placement trap | J8 steps 16–17 | predict / reveal | L1 | A9 | planned |
+| 9 | Incremental cache lookup branches (miss / fresh / stale) | J8 steps 4–8 | move | L1–L2 | A9 | implemented (J8) |
+| 9 | Plain static as infinite-revalidate special case | J8 step 5 | explain | L2 | A9 | implemented (J8) |
+| 9 | PPR: static shell + postponed state; request fills holes | J8 steps 13–15 | resume | L1–L2 | A9 §Partial Prerendering; docs: PPR | implemented (J8) · version note |
+| 9 | Dynamic API placement trap | J8 steps 16–17 | predict / reveal | L1 | A9 | implemented (J8) |
 | 9 | Automatic chunk splitting recap | J11 step 4 | explain | L1 | A9 §Разбиение бандла | planned |
 | 9 | Import optimization recap | J11 step 5 | transform | L1 | A9 | planned |
 | 9 | `next/dynamic` on `Loadable`; `import()` boundary chunk | J11 step 6 | transform | L1–L2 | A9; docs: lazy loading | planned |
@@ -258,7 +258,7 @@ list is in §Sources at the end.
 | Item | Visual scene | Status |
 |---|---|---|
 | Runtime layers as depth (RSC over SSR) | J5 step 1 cutaway | implemented (J5) |
-| Caches at different layers | J8 step 1 cache map | planned |
+| Caches at different layers | J8 step 1 cache map | implemented (J8) |
 | Version/scope note visible in product | header chip "Articles: Next.js 15→16 (2025) · verified against Next.js <version> (2026-09)" | planned |
 | Source panel with doc links | inspector L3 and step Internals | planned |
 | Reduced-motion static path | every motion verb has a static equivalent (`visual-language.md` §8) | planned |

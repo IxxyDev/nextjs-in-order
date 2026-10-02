@@ -2,13 +2,14 @@
 import { describe, it, expect } from 'vitest'
 import { JOURNEY_CATALOG, loadAllJourneys, loadJourney } from './index'
 
-const EXPECTED: { slug: string; id: string; steps: number; predictAt?: number; checkAt: number }[] = [
+const EXPECTED: { slug: string; id: string; steps: number; predictAt?: number[]; checkAt: number }[] = [
   { slug: 'whole-lifecycle', id: 'j0', steps: 10, checkAt: 10 },
-  { slug: 'production-build', id: 'j1', steps: 18, predictAt: 6, checkAt: 18 },
-  { slug: 'request-routing', id: 'j2', steps: 14, predictAt: 10, checkAt: 14 },
-  { slug: 'app-initial', id: 'j5', steps: 22, predictAt: 7, checkAt: 22 },
-  { slug: 'app-navigation', id: 'j6', steps: 18, predictAt: 7, checkAt: 18 },
-  { slug: 'server-actions', id: 'j7', steps: 17, predictAt: 11, checkAt: 17 }
+  { slug: 'production-build', id: 'j1', steps: 18, predictAt: [6], checkAt: 18 },
+  { slug: 'request-routing', id: 'j2', steps: 14, predictAt: [10], checkAt: 14 },
+  { slug: 'app-initial', id: 'j5', steps: 22, predictAt: [7], checkAt: 22 },
+  { slug: 'app-navigation', id: 'j6', steps: 18, predictAt: [7], checkAt: 18 },
+  { slug: 'server-actions', id: 'j7', steps: 17, predictAt: [11], checkAt: 17 },
+  { slug: 'caching', id: 'j8', steps: 20, predictAt: [6, 16], checkAt: 20 }
 ]
 
 describe('journeys', () => {
@@ -30,11 +31,11 @@ describe('journeys', () => {
       const j = (await loadJourney(e.slug))!
       expect(j, e.slug).toBeDefined()
       expect(j.steps.length).toBe(e.steps)
-      if (e.predictAt) {
-        expect(j.steps[e.predictAt - 1].kind).toBe('predict')
-        expect(j.steps[e.predictAt].kind).toBe('reveal')
-        expect(j.steps.filter((s) => s.kind === 'predict')).toHaveLength(1)
+      for (const at of e.predictAt ?? []) {
+        expect(j.steps[at - 1].kind, `step ${at}`).toBe('predict')
+        expect(j.steps[at].kind, `step ${at + 1}`).toBe('reveal')
       }
+      expect(j.steps.filter((s) => s.kind === 'predict')).toHaveLength(e.predictAt?.length ?? 0)
       expect(j.steps[e.checkAt - 1].kind).toBe('check')
       expect(j.steps[e.checkAt - 1].checks!.length).toBeGreaterThanOrEqual(2)
       for (const s of j.steps) expect(s.id.startsWith(`${e.id}-`), s.id).toBe(true)
