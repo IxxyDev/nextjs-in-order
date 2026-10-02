@@ -6,8 +6,9 @@ import { World } from './World'
 import { Labels } from './Labels'
 import { Minimap } from './Minimap'
 import { Inspector } from './Inspector'
-import { goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
+import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
+import { useCameraGestures } from './useCameraGestures'
 
 const PHASES: Phase[] = ['build', 'startup', 'request', 'browser', 'dev']
 const REACHES: Reaches[] = ['code', 'data', 'data+refs', 'no']
@@ -19,8 +20,10 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
   const vp = viewport.value
   const camKey = cam && `${cam.x},${cam.y},${cam.zoom}`
   useEffect(() => { if (cam) restoreCamera(cam) }, [camKey])
+  const stage = useRef<HTMLDivElement>(null)
   const manual = useRef(false)
   const onManual = (c: Camera) => { manual.current = true; writeCamToUrl(c) }
+  useCameraGestures(MAIN_RIG, stage, onManual)
   useEffect(() => { manual.current = false }, [entity])
   const target: CameraTarget = entity ? { kind: 'entities', ids: [entity] } : { kind: 'world' }
   useEffect(() => { if (!cam && !manual.current) goTo(target, reducedMotion.value) }, [entity, camKey, vp.w, vp.h])
@@ -37,7 +40,7 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
         <label>Reaches the browser <select value={reaches} onChange={(e) => setReaches((e.currentTarget as HTMLSelectElement).value as Reaches | '')}><option value="">all</option>{REACHES.map((r) => <option key={r} value={r}>{r}</option>)}</select></label>
         <span>{ENTITIES.length} entities. Click any to inspect. Press Escape to return to the whole system.</span>
       </div>
-      <div class="stage">
+      <div class="stage" ref={stage}>
         <World entityStates={states} activeEdges={new Set()} selected={entity} onSelect={(id) => onSelect(id)} />
         <Labels entityStates={states} selected={entity} onSelect={(id) => onSelect(id)} />
         <Minimap onManual={onManual} />

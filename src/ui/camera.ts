@@ -120,7 +120,30 @@ export function worldToScreen(p: { x: number; y: number }, cam: Camera, vp: View
   return { x: vp.w / 2 + (p.x - cam.x) * cam.zoom, y: vp.h / 2 + (p.y - cam.y) * cam.zoom }
 }
 
+export function screenToWorld(p: { x: number; y: number }, cam: Camera, vp: Viewport): { x: number; y: number } {
+  return { x: cam.x + (p.x - vp.w / 2) / cam.zoom, y: cam.y + (p.y - vp.h / 2) / cam.zoom }
+}
+
+type Point = { x: number; y: number }
 const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z))
+
+/** the world point under screen point `from` lands under `to` at the new zoom (clamped), then the view is kept on the world */
+function anchored(cam: Camera, vp: Viewport, from: Point, to: Point, zoom: number): Camera {
+  const w = screenToWorld(from, cam, vp), z = clampZoom(zoom)
+  return clampToWorld({ x: w.x - (to.x - vp.w / 2) / z, y: w.y - (to.y - vp.h / 2) / z, zoom: z }, vp)
+}
+
+/** zoom by a factor around a screen point, which stays put */
+export function zoomAt(cam: Camera, vp: Viewport, p: Point, factor: number): Camera {
+  return anchored(cam, vp, p, p, cam.zoom * factor)
+}
+
+/** two pointers moving from a0,b0 to a1,b1: zoom follows their spread, the midpoint carries the pan; a0=b0 is a plain drag */
+export function pinchCamera(cam: Camera, vp: Viewport, a0: Point, b0: Point, a1: Point, b1: Point): Camera {
+  const d0 = Math.hypot(b0.x - a0.x, b0.y - a0.y), d1 = Math.hypot(b1.x - a1.x, b1.y - a1.y)
+  const mid = (a: Point, b: Point) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 })
+  return anchored(cam, vp, mid(a0, b0), mid(a1, b1), d0 > 0 ? cam.zoom * d1 / d0 : cam.zoom)
+}
 
 export function cancelCameraAnimation(rig = MAIN_RIG): void {
   if (rig.frame) cancelAnimationFrame(rig.frame)

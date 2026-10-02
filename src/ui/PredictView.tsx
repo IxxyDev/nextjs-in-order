@@ -10,8 +10,9 @@ import { progress, quizId } from '../domain/progress'
 import { World } from './World'
 import { Labels, MARK_CHIP } from './Labels'
 import { Minimap } from './Minimap'
-import { goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
+import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
+import { useCameraGestures } from './useCameraGestures'
 
 const short = (id: string) => { const e = entityById(id); return e.short ?? e.name.split(' · ')[0] }
 const HINT = {
@@ -44,8 +45,10 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
   /** a URL camera, or one the user moved, holds until the route changes; until then framing leaves it alone */
   const camKey = cam && `${cam.x},${cam.y},${cam.zoom}`
   useEffect(() => { if (cam) restoreCamera(cam) }, [camKey])
+  const stage = useRef<HTMLDivElement>(null)
   const manual = useRef(false)
   const onManual = (c: Camera) => { manual.current = true; writeCamToUrl(c) }
+  useCameraGestures(MAIN_RIG, stage, onManual)
   useEffect(() => { manual.current = false }, [q.id])
   useEffect(() => { if (!cam && !manual.current) goTo(cameraFor(q), reducedMotion.value) }, [q.id, camKey, vp.w, vp.h])
 
@@ -97,7 +100,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
 
   return (
     <div class="journey predict-mode">
-      <div class="stage">
+      <div class="stage" ref={stage}>
         <World entityStates={entityStates} activeEdges={new Set()} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} />
         <Labels entityStates={entityStates} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} verb={q.type === 'choice' ? 'No pick in this question' : 'Toggle pick'} />
         <Minimap onManual={onManual} />

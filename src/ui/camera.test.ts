@@ -1,6 +1,6 @@
 // src/ui/camera.test.ts
 import { describe, it, expect } from 'vitest'
-import { fitRect, targetToRect, transformFor, worldToScreen, clampToWorld, frame, OVERSCROLL } from './camera'
+import { fitRect, targetToRect, transformFor, worldToScreen, screenToWorld, clampToWorld, frame, zoomAt, pinchCamera, OVERSCROLL, MIN_ZOOM, MAX_ZOOM } from './camera'
 import { WORLD } from '../domain/regions'
 
 describe('camera math', () => {
@@ -52,5 +52,40 @@ describe('camera math', () => {
     expect(clear(plain)).toBe(false)
     expect(clear(kept)).toBe(true)
     expect(kept.zoom).toBeGreaterThan(plain.zoom * 0.7)
+  })
+})
+
+describe('camera gestures', () => {
+  const vp = { w: 1000, h: 600 }
+  const cam = { x: 1200, y: 1040, zoom: 1 }
+  it('zooms at a point without moving the world under it', () => {
+    const p = { x: 300, y: 200 }
+    const before = screenToWorld(p, cam, vp)
+    const next = zoomAt(cam, vp, p, 1.5)
+    expect(next.zoom).toBeCloseTo(1.5)
+    const after = worldToScreen(before, next, vp)
+    expect(after.x).toBeCloseTo(p.x)
+    expect(after.y).toBeCloseTo(p.y)
+  })
+  it('pans with one pointer: the world follows it', () => {
+    const next = pinchCamera(cam, vp, { x: 500, y: 300 }, { x: 500, y: 300 }, { x: 540, y: 280 }, { x: 540, y: 280 })
+    expect(next).toEqual({ x: 1160, y: 1060, zoom: 1 })
+  })
+  it('pinches: zoom follows the spread, the world point under the old midpoint lands under the new one', () => {
+    const a0 = { x: 400, y: 300 }, b0 = { x: 600, y: 300 }, a1 = { x: 320, y: 340 }, b1 = { x: 720, y: 340 }
+    const anchor = screenToWorld({ x: 500, y: 300 }, cam, vp)
+    const next = pinchCamera(cam, vp, a0, b0, a1, b1)
+    expect(next.zoom).toBeCloseTo(2)
+    const at = worldToScreen(anchor, next, vp)
+    expect(at.x).toBeCloseTo(520)
+    expect(at.y).toBeCloseTo(340)
+  })
+  it('clamps zoom to its range and the view to the world', () => {
+    expect(zoomAt(cam, vp, { x: 500, y: 300 }, 100).zoom).toBe(MAX_ZOOM)
+    expect(zoomAt(cam, vp, { x: 500, y: 300 }, 0.001).zoom).toBe(MIN_ZOOM)
+    const far = pinchCamera(cam, vp, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 99999, y: 99999 }, { x: 99999, y: 99999 })
+    expect(far).toEqual(clampToWorld(far, vp))
+    expect(far.x).toBe(500 - 1000 * OVERSCROLL)
+    expect(far.y).toBe(300 - 600 * OVERSCROLL)
   })
 })

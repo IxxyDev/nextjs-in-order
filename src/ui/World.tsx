@@ -67,7 +67,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
           <line class="boundary-network" x1={0} y1={BANDS.network.y + 42} x2={2020} y2={BANDS.network.y + 42} />
           {REGIONS.map((r) => (
             <g key={r.id}>
-              <rect class={`region ${r.id.endsWith('-runtime') ? 'region-runtime' : ''} ${onRegion ? 'is-pickable' : ''} ${regionMarks?.[r.id] ? `mark-${regionMarks[r.id]}` : ''}`} x={r.x} y={r.y} width={r.w} height={r.h} onClick={onRegion && (() => onRegion(r.id))} />
+              <rect class={`region ${r.id.endsWith('-runtime') ? 'region-runtime' : ''} ${onRegion ? 'is-pickable' : ''} ${regionMarks?.[r.id] ? `mark-${regionMarks[r.id]}` : ''}`} x={r.x} y={r.y} width={r.w} height={r.h} onClick={onRegion && ((e) => { if (e.detail < 2) onRegion(r.id) })} />
             </g>
           ))}
           <rect class={`ring ${ringOn ? 'is-on' : ''}`} x={RING.x} y={RING.y} width={RING.w} height={RING.h} rx={18} />

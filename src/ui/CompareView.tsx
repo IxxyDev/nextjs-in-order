@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { CompareLane, CompareWorld, LaneWorld, ResolvedPair } from '../domain/types'
 import { deriveCompareState } from '../domain/compareState'
 import { formatRoute } from '../domain/route'
@@ -9,15 +9,18 @@ import { Inspector } from './Inspector'
 import { createRig, goTo, type CameraRig } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useStepControls } from './useStepControls'
+import { useCameraGestures } from './useCameraGestures'
 
 /** ruler times closer than this count as in step */
 const TIE = 0.02
 
 function Lane({ meta, world, rig, follow, selected, onSelect }: { meta: CompareLane; world: LaneWorld; rig: CameraRig; follow: boolean; selected?: string; onSelect: (id?: string) => void }) {
   const vp = rig.viewport.value
+  const stage = useRef<HTMLElement>(null)
+  useCameraGestures(rig, stage)
   useEffect(() => { goTo(follow ? world.cameraTarget : { kind: 'world' }, reducedMotion.value, rig) }, [world, follow, vp.w, vp.h])
   return (
-    <section class="lane" aria-label={meta.title}>
+    <section class="lane" ref={stage} aria-label={meta.title}>
       <World rig={rig} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
       <Labels rig={rig} differs={world.differs} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
       <div class="lane-title">{meta.title}</div>

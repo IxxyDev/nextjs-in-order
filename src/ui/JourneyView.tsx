@@ -1,5 +1,5 @@
 // src/ui/JourneyView.tsx
-import { useEffect, useMemo, useState } from 'preact/hooks'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { Camera, Journey } from '../domain/types'
 import { deriveWorldState } from '../domain/worldState'
 import { World } from './World'
@@ -8,9 +8,10 @@ import { Minimap } from './Minimap'
 import { StepPanel } from './StepPanel'
 import { Transport } from './Transport'
 import { Inspector } from './Inspector'
-import { goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
+import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useStepControls } from './useStepControls'
+import { useCameraGestures } from './useCameraGestures'
 
 /** follow the step's target, show the whole system, or hold a camera the user left (a URL cam) until they step or pick a view */
 type View = 'follow' | 'whole' | 'manual'
@@ -34,12 +35,14 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
     pickView(false)
   }
   const { playing, setPlaying, stepTo } = useStepControls({ count: journey.steps.length, step, onStep, onEscape })
+  const stage = useRef<HTMLDivElement>(null)
   const onManual = (c: Camera) => { setView('manual'); writeCamToUrl(c) }
+  useCameraGestures(MAIN_RIG, stage, onManual)
   const select = (id: string) => { setPlaying(false); setSelected(id) }
 
   return (
     <div class="journey">
-      <div class="stage">
+      <div class="stage" ref={stage}>
         <World entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={select} />
         <Labels entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={select} />
         <Minimap onManual={onManual} />
