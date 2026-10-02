@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 import { watchErrors } from './helpers'
 
 /** the world group's transform is translate(w/2 h/2) scale(zoom) translate(-x -y) */

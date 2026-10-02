@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { eyebrow, watchErrors } from './helpers'
 
 test('keyboard only: step with arrows, Home and End, then switch journey through the menu', async ({ page }) => {

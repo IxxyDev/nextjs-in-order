@@ -1,5 +1,5 @@
 // Runs only in the reduced-motion project (see playwright.config.ts).
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { eyebrow, sampleCamera } from './helpers'
 
 test('the media query matches', async ({ page }) => {

@@ -1,5 +1,5 @@
 // Control for reduced-motion.spec.ts: with motion allowed, the camera tweens.
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { eyebrow, sampleCamera } from './helpers'
 
 test('camera tweens over several frames when motion is allowed', async ({ page }) => {

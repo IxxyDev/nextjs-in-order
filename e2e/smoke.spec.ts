@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { eyebrow, expectNoHorizontalScroll, watchErrors } from './helpers'
 
 test('atlas: clicking an entity opens its inspector and Close dismisses it', async ({ page }) => {
