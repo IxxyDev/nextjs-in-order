@@ -2,9 +2,10 @@
 import { useEffect, useState } from 'preact/hooks'
 import { clampIndex, parseRoute, formatRoute } from '../domain/route'
 import type { Route } from '../domain/types'
-import { entryBySlug, JOURNEY_CATALOG, loadJourney, peekJourney } from '../domain/journeys'
+import { entryBySlug, JOURNEY_CATALOG, loadAllJourneys, loadJourney, peekJourney } from '../domain/journeys'
 import { COMPARE_CATALOG, compareBySlug, loadCompare, peekCompare } from '../domain/compare'
 import { loadQuiz, peekQuiz } from '../domain/predict'
+import { progress, quizId } from '../domain/progress'
 import { JourneyView } from './JourneyView'
 import { AtlasView } from './AtlasView'
 import { CompareView } from './CompareView'
@@ -12,6 +13,13 @@ import { PredictView } from './PredictView'
 import { MenuSelect } from './MenuSelect'
 
 const VERSION_NOTE = 'Articles: Next.js 15→16 era (2025) · verified against Next.js 16.3 (Sept 2026)'
+
+function journeyMeta(slug: string): string | undefined {
+  const j = peekJourney(slug)
+  if (!j) return undefined
+  const { answered, correct, total } = progress.summaryForJourney(j)
+  return answered === 0 ? undefined : answered === total && correct === total ? '✓' : `${answered}/${total}`
+}
 
 /** shown in place of the loading message when a chunk fails; the catalogs retry a failed load on the next call */
 function LoadFailed({ what, onRetry }: { what: string; onRetry: () => void }) {
@@ -47,6 +55,10 @@ export function App() {
   useEffect(() => {
     if (slug && !journey) load(`journey:${slug}`, () => loadJourney(slug))
   }, [slug])
+  /** progress meta needs every journey; their chunks load on the first menu open, not on mount */
+  const [wantAll, setWantAll] = useState(false)
+  /** a failed chunk here only leaves some progress meta blank; the menu retries on its next open */
+  useEffect(() => { if (wantAll) loadAllJourneys().then(() => setLoaded((n) => n + 1), () => setWantAll(false)) }, [wantAll])
   useEffect(() => {
     if (pairSlug && !pair) load(`compare:${pairSlug}`, () => loadCompare(pairSlug))
   }, [pairSlug])
@@ -67,7 +79,7 @@ export function App() {
       <header class="app-header">
         <h1>Next.js <em>Under the Hood</em></h1>
         <nav aria-label="Modes">
-          <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={slug} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: `J${j.id.slice(1)}`, title: j.title }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} />
+          <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={slug} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: `J${j.id.slice(1)}`, title: j.title, meta: journeyMeta(j.slug) }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} onOpen={() => setWantAll(true)} />
           <MenuSelect id="compare-select" label="Compare" placeholder="Compare…" value={pairSlug} options={COMPARE_CATALOG.map((c) => ({ value: c.slug, code: `C${c.id.slice(1)}`, title: c.title }))} onChange={(slug) => go({ mode: 'compare', slug, step: 0 })} />
           <a href={formatRoute({ mode: 'atlas' })} aria-current={route.mode === 'atlas' ? 'page' : undefined}>System Atlas</a>
           <a href={formatRoute({ mode: 'predict', n: 0 })} aria-current={route.mode === 'predict' ? 'page' : undefined}>Predict</a>
@@ -75,7 +87,7 @@ export function App() {
         <span class="version-chip">{VERSION_NOTE}</span>
       </header>
       {route.mode === 'predict'
-        ? quiz ? <PredictView quiz={quiz} n={clampIndex(route.n, quiz.length)} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} /> : loadOr('predict', 'the questions', 'Loading questions…', loadQuiz)
+        ? quiz ? <PredictView quiz={quiz} n={clampIndex(route.n, quiz.length)} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : loadOr('predict', 'the questions', 'Loading questions…', loadQuiz)
         : route.mode === 'compare'
         ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : loadOr(`compare:${pairSlug}`, 'this comparison', 'Loading comparison…', () => loadCompare(pairSlug!))
         : route.mode === 'journey'

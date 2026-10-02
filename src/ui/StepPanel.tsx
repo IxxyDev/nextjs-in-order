@@ -2,6 +2,7 @@
 import { useState } from 'preact/hooks'
 import type { Journey, WorldState, EntityState } from '../domain/types'
 import { entityById } from '../domain/entities'
+import { checkId, journeyId, progress } from '../domain/progress'
 
 const GROUPS: { state: EntityState; label: string }[] = [
   { state: 'new', label: 'New' }, { state: 'replaced', label: 'Replaced' }, { state: 'kept', label: 'Kept' },
@@ -10,8 +11,11 @@ const GROUPS: { state: EntityState; label: string }[] = [
 
 export function StepPanel({ journey, world, showText }: { journey: Journey; world: WorldState; showText: boolean }) {
   const { step } = world
-  const [picked, setPicked] = useState<number | null>(null)
-  const [answers, setAnswers] = useState<Record<number, boolean>>({})
+  const [local, setLocal] = useState<{ id: string; picked: number | null; answers: Record<number, boolean> }>({ id: step.id, picked: null, answers: {} })
+  const { picked, answers } = local.id === step.id ? local : { picked: null, answers: {} as Record<number, boolean> }
+  const pick = (i: number) => { setLocal({ id: step.id, picked: i, answers }); progress.record(journeyId(journey.slug, step.id), i === step.question!.answer) }
+  const answer = (i: number, v: boolean) => { setLocal({ id: step.id, picked, answers: { ...answers, [i]: v } }); progress.record(checkId(step.id, i), v === step.checks![i].isTrue) }
+  const earlier = (id: string, shown: boolean) => { const a = shown ? undefined : progress.get(id); return a && <span class={a.correct ? 'ok' : 'bad'}> answered {a.correct ? '✓' : '✗'} earlier</span> }
   const groups = GROUPS.map((g) => ({ ...g, ids: Object.entries(world.entityStates).filter(([, s]) => s === g.state).map(([id]) => id) })).filter((g) => g.ids.length)
   return (
     <section class="panel" aria-labelledby="step-title">
@@ -24,9 +28,9 @@ export function StepPanel({ journey, world, showText }: { journey: Journey; worl
       )}
       {step.question && (
         <div class="predict">
-          <p><strong>Predict:</strong> {step.question.text}</p>
+          <p><strong>Predict:</strong> {step.question.text}{earlier(journeyId(journey.slug, step.id), picked !== null)}</p>
           <ul class="plain">{step.question.options.map((o, i) => (
-            <li key={o}><button aria-pressed={picked === i} onClick={() => setPicked(i)}>{o}</button>{picked !== null && i === step.question!.answer && <span class="ok"> ✓</span>}</li>
+            <li key={o}><button aria-pressed={picked === i} onClick={() => pick(i)}>{o}</button>{picked !== null && i === step.question!.answer && <span class="ok"> ✓</span>}</li>
           ))}</ul>
           {picked !== null && <p class="why">{picked === step.question.answer ? 'Right. ' : 'Not quite. '}{step.question.why}</p>}
         </div>
@@ -36,9 +40,9 @@ export function StepPanel({ journey, world, showText }: { journey: Journey; worl
           <p><strong>Check yourself</strong></p>
           {step.checks.map((c, i) => (
             <div class="check" key={c.statement}>
-              <p>{c.statement}</p>
-              <button onClick={() => setAnswers({ ...answers, [i]: true })} aria-pressed={answers[i] === true}>True</button>
-              <button onClick={() => setAnswers({ ...answers, [i]: false })} aria-pressed={answers[i] === false}>False</button>
+              <p>{c.statement}{earlier(checkId(step.id, i), answers[i] !== undefined)}</p>
+              <button onClick={() => answer(i, true)} aria-pressed={answers[i] === true}>True</button>
+              <button onClick={() => answer(i, false)} aria-pressed={answers[i] === false}>False</button>
               {answers[i] !== undefined && <p class="why"><span class={answers[i] === c.isTrue ? 'ok' : 'bad'}>{answers[i] === c.isTrue ? 'Correct.' : 'Incorrect.'}</span> {c.why}</p>}
             </div>
           ))}

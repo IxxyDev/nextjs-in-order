@@ -6,6 +6,7 @@ import { regionById } from '../domain/regions'
 import { entryBySlug } from '../domain/journeys'
 import { answerIds, scoreQuestion } from '../domain/predict'
 import { formatRoute } from '../domain/route'
+import { progress, quizId } from '../domain/progress'
 import { World } from './World'
 import { Labels, MARK_CHIP } from './Labels'
 import { Minimap } from './Minimap'
@@ -32,7 +33,7 @@ function markFor(id: string, picked: boolean, checked: boolean, answer: Readonly
   return picked ? 'extra' : undefined
 }
 
-export function PredictView({ quiz, n, onGo }: { quiz: QuizQuestion[]; n: number; onGo: (n: number) => void }) {
+export function PredictView({ quiz, n, onGo, onAnswered }: { quiz: QuizQuestion[]; n: number; onGo: (n: number) => void; onAnswered?: (questionId: string, correct: boolean) => void }) {
   const q = quiz[n]
   const [state, setState] = useState({ id: q.id, picks: [] as string[], checked: false })
   const { picks, checked } = state.id === q.id ? state : { picks: [] as string[], checked: false }
@@ -49,7 +50,12 @@ export function PredictView({ quiz, n, onGo }: { quiz: QuizQuestion[]; n: number
   const check = () => {
     if (!picks.length) return
     set({ picks, checked: true })
+    onAnswered?.(q.id, scoreQuestion(q, picks).correct)
   }
+
+  const earlier = progress.get(quizId(q.id))
+  const sum = progress.summaryForQuiz(quiz.map((x) => x.id))
+  const reset = () => { if (window.confirm('Reset all saved progress? This clears your answered and correct counts.')) progress.reset() }
 
   const answer = new Set<string>(q.type === 'choice' ? [] : answerIds(q))
   const picked = new Set(picks)
@@ -95,6 +101,7 @@ export function PredictView({ quiz, n, onGo }: { quiz: QuizQuestion[]; n: number
         <h2 id="quiz-title">{q.title}</h2>
         <p class="story">{q.prompt}</p>
         <p class="quiz-hint">{HINT[q.type]}</p>
+        {earlier && <p class="quiz-earlier"><span class={earlier.correct ? 'ok' : 'bad'}>answered {earlier.correct ? '✓' : '✗'} earlier</span></p>}
         <ul class="plain picks" aria-label={q.type === 'choice' ? 'Outcomes' : 'Picks'}>
           {q.type === 'choice'
             ? q.options.map((o, i) => {
@@ -135,6 +142,8 @@ export function PredictView({ quiz, n, onGo }: { quiz: QuizQuestion[]; n: number
       <div class="transport" role="toolbar" aria-label="Question controls">
         <button onClick={() => onGo(n - 1)} disabled={n === 0} aria-label="Previous question">◀ Prev</button>
         <span class="quiz-counter" aria-live="polite">{n + 1} / {quiz.length}</span>
+        <span class="quiz-progress">answered {sum.answered}/{sum.total} · correct {sum.correct}</span>
+        <button class="quiz-reset" onClick={reset}>Reset progress</button>
         <button onClick={() => onGo(n + 1)} disabled={n === quiz.length - 1} aria-label="Next question">Next ▶</button>
       </div>
     </div>

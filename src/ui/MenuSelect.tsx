@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 
-export interface MenuOption { value: string; code: string; title: string }
+export interface MenuOption { value: string; code: string; title: string; meta?: string }
 
 const GUTTER = 16
 const MAX_W = 420
 
-export function MenuSelect({ id, label, placeholder, options, value, onChange }: { id: string; label: string; placeholder: string; options: MenuOption[]; value?: string; onChange: (value: string) => void }) {
+export function MenuSelect({ id, label, placeholder, options, value, onChange, onOpen }: { id: string; label: string; placeholder: string; options: MenuOption[]; value?: string; onChange: (value: string) => void; onOpen?: () => void }) {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
   const [pos, setPos] = useState({ left: 0, width: MAX_W })
@@ -21,6 +21,7 @@ export function MenuSelect({ id, label, placeholder, options, value, onChange }:
     setPos({ left: left - r.left, width })
     setActive(Math.max(0, options.findIndex((o) => o.value === value)))
     setOpen(true)
+    onOpen?.()
   }
   const close = (refocus: boolean) => { setOpen(false); if (refocus) trigger.current?.focus() }
   const pick = (i: number) => { close(true); if (options[i].value !== value) onChange(options[i].value) }
@@ -73,7 +74,7 @@ export function MenuSelect({ id, label, placeholder, options, value, onChange }:
               class={`menu-option ${i === active ? 'is-active' : ''}`}
               onPointerMove={() => setActive(i)} onClick={() => pick(i)}
             >
-              <span class="menu-code">{o.code}</span><span class="menu-title">{o.title}</span>
+              <span class="menu-code">{o.code}</span><span class="menu-title">{o.title}</span>{o.meta && <span class="menu-meta">{o.meta}</span>}
             </li>
           ))}
         </ul>
