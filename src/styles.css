@@ -35,13 +35,13 @@ a { color: var(--accent); }
 /* app frame */
 .app { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; height: 100%; }
 .app-header { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--bg); }
-.app-header h1 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; letter-spacing: -0.01em; margin: 0; }
+.app-header h1 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; letter-spacing: -0.01em; margin: 0; white-space: nowrap; }
 .app-header h1 em { font-style: normal; color: var(--accent); }
 .app-header nav { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .app-header nav a { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); text-decoration: none; padding: 8px 12px; border: 1px solid transparent; }
 .app-header nav a[aria-current="page"] { border-color: var(--line); background: var(--surface); color: var(--fg); }
-.menu { position: relative; }
-.menu-trigger { display: flex; align-items: center; gap: 10px; min-height: 36px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--hi); border-radius: 0; cursor: pointer; }
+.menu { position: relative; min-width: 0; }
+.menu-trigger { display: flex; align-items: center; gap: 10px; max-width: 280px; min-height: 36px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--hi); border-radius: 0; cursor: pointer; }
 .menu-trigger:hover, .menu-trigger[aria-expanded="true"] { color: var(--fg); border-color: var(--mid); }
 .menu-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .menu-caret { margin-left: auto; color: var(--muted); }
@@ -246,6 +246,7 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
   .app-header { flex-wrap: wrap; gap: 8px; padding: 8px 12px; }
   .app-header nav { flex-wrap: wrap; gap: 8px; min-width: 0; max-width: 100%; }
   .app-header nav a, .menu-trigger { padding: 6px 8px; min-height: 44px; display: flex; align-items: center; }
+  .menu, .menu-trigger { max-width: 100%; }
   .menu-option { min-height: 44px; align-items: center; }
   .version-chip { display: none; }
   .journey { grid-template-rows: minmax(40vh, 1fr) auto auto; }

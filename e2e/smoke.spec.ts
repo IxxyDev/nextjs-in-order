@@ -1,0 +1,61 @@
+import { expect, test } from '@playwright/test'
+import { eyebrow, expectNoHorizontalScroll, watchErrors } from './helpers'
+
+test('atlas: clicking an entity opens its inspector and Close dismisses it', async ({ page }) => {
+  const errors = watchErrors(page)
+  await page.goto('/#/atlas')
+  await expect(page.getByText(/entities\. Click any to inspect/)).toBeVisible()
+  await expect(page.locator('aside.inspector')).toHaveCount(0)
+  // at whole-system zoom no labels are drawn; filtering by phase lights entities and labels them
+  await page.getByLabel('Phase').selectOption('build')
+  await page.locator('button.label').first().click()
+  const inspector = page.getByRole('complementary', { name: /^Inspector:/ })
+  await expect(inspector).toBeVisible()
+  await expect(page).toHaveURL(/#\/atlas\?entity=/)
+  await expect(inspector.getByText('Crosses to the browser')).toBeVisible()
+  await inspector.getByRole('button', { name: 'Close inspector' }).click()
+  await expect(inspector).toHaveCount(0)
+  await expectNoHorizontalScroll(page)
+  errors.assertClean()
+})
+
+test('compare: stepping forward advances the step counter and URL', async ({ page }) => {
+  const errors = watchErrors(page)
+  await page.goto('/#/compare/initial-load/1')
+  await expect(eyebrow(page)).toContainText('step 1 of')
+  await expect(page.locator('section.lane')).toHaveCount(2)
+  await page.getByRole('button', { name: 'Next step' }).click()
+  await expect(page).toHaveURL(/#\/compare\/initial-load\/2$/)
+  await expect(eyebrow(page)).toContainText('step 2 of')
+  await page.keyboard.press('ArrowRight')
+  await expect(page).toHaveURL(/#\/compare\/initial-load\/3$/)
+  await expectNoHorizontalScroll(page)
+  errors.assertClean()
+})
+
+test('predict: choosing an answer and pressing Check shows feedback', async ({ page }) => {
+  const errors = watchErrors(page)
+  await page.goto('/#/predict/1')
+  await expect(page.getByText(/question 1 of/)).toBeVisible()
+  const check = page.getByRole('button', { name: 'Check', exact: true })
+  await expect(check).toBeDisabled()
+  await page.getByRole('list', { name: 'Picks' }).getByRole('button').first().click()
+  await check.click()
+  await expect(page.locator('.feedback')).toBeVisible()
+  await expect(page.locator('.feedback')).toContainText(/Correct\.|Not quite\./)
+  await expect(page.getByRole('link', { name: /^Replay:/ }).first()).toBeVisible()
+  await page.getByRole('button', { name: 'Next question' }).click()
+  await expect(page).toHaveURL(/#\/predict\/2$/)
+  await expectNoHorizontalScroll(page)
+  errors.assertClean()
+})
+
+test('deep link: reloading #/journey/app-initial/12 keeps showing step 12', async ({ page }) => {
+  const errors = watchErrors(page)
+  await page.goto('/#/journey/app-initial/12')
+  await expect(eyebrow(page)).toContainText('step 12 of 22')
+  await page.reload()
+  await expect(eyebrow(page)).toContainText('step 12 of 22')
+  await expect(page).toHaveURL(/#\/journey\/app-initial\/12$/)
+  errors.assertClean()
+})

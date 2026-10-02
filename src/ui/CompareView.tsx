@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { CompareLane, CompareWorld, LaneWorld, ResolvedPair } from '../domain/types'
 import { deriveCompareState } from '../domain/compareState'
 import { clampIndex, formatRoute } from '../domain/route'
@@ -77,19 +77,24 @@ export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: 
     return () => clearTimeout(t)
   }, [playing, step, pair])
 
+  /** bound once and reading the latest props, so a fast second press never sees a stale step */
+  const latest = useRef({ step, onStep, last: pair.steps.length - 1 })
+  latest.current = { step, onStep, last: pair.steps.length - 1 }
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === 'INPUT') return
+      const t = e.target as HTMLElement
+      if (t.isContentEditable || t.closest?.('input, textarea, select, [role=option], [role=listbox]')) return
+      const { step, onStep, last } = latest.current
       if (e.key === 'ArrowRight') { setPlaying(false); onStep(step + 1) }
       else if (e.key === 'ArrowLeft') { setPlaying(false); onStep(step - 1) }
       else if (e.key === ' ') { e.preventDefault(); setPlaying((p) => !p) }
       else if (e.key === 'Home') onStep(0)
-      else if (e.key === 'End') onStep(pair.steps.length - 1)
+      else if (e.key === 'End') onStep(last)
       else if (e.key === 'Escape') { setSelected(undefined); setFollow(false) }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [step, pair])
+  }, [])
 
   const stepTo = (n: number) => { setPlaying(false); onStep(clampIndex(n, pair.steps.length)) }
   const lane = (i: number) => (

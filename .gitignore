@@ -3,3 +3,6 @@ dist/
 all_articles.txt
 fetch_articles.py
 .DS_Store
+test-results/
+playwright-report/
+.playwright-mcp/

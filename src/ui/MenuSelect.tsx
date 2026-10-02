@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'preact/hooks'
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
 
 export interface MenuOption { value: string; code: string; title: string; meta?: string }
 
@@ -26,7 +26,8 @@ export function MenuSelect({ id, label, placeholder, options, value, onChange, o
   const close = (refocus: boolean) => { setOpen(false); if (refocus) trigger.current?.focus() }
   const pick = (i: number) => { close(true); if (options[i].value !== value) onChange(options[i].value) }
 
-  useEffect(() => { if (open) list.current?.focus() }, [open])
+  /** focus moves before the browser paints, so the first key after the list appears already reaches it */
+  useLayoutEffect(() => { if (open) list.current?.focus() }, [open])
   useEffect(() => {
     if (!open) return
     const onDown = (e: PointerEvent) => { if (!wrap.current?.contains(e.target as Node)) close(false) }
