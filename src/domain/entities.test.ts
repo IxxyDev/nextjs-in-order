@@ -20,7 +20,7 @@ describe('entities', () => {
   it('only lets code cross the network for client modules, Pages Router page code and browser chunks', () => {
     const code = ENTITIES.filter((e) => e.reaches === 'code').map((e) => e.id).sort()
     expect(code).toEqual([
-      'browser-chunks', 'client-components', 'gip', 'layout-router', 'pages-app', 'pages-post-page', 'pages-product-page',
+      'browser-chunks', 'client-components', 'gip', 'layout-router', 'next-dynamic', 'pages-app', 'pages-post-page', 'pages-product-page',
       'src-dashboard-nav', 'src-profile-form'
     ])
   })

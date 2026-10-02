@@ -186,7 +186,20 @@ export const EDGES: Edge[] = [
   { id: 'e-chunks-post-page', from: 'browser-chunks', to: 'pages-post-page', kind: 'data', label: 'posts/[id] chunk', crossing: 'code' },
   { id: 'e-router-pages-app', from: 'pages-router', to: 'pages-app', kind: 'control', label: 'set Component' },
   { id: 'e-pages-app-post', from: 'pages-app', to: 'pages-post-page', kind: 'data' },
-  { id: 'e-pages-router-history', from: 'pages-router', to: 'browser-history', kind: 'control', label: 'pushState' }
+  { id: 'e-pages-router-history', from: 'pages-router', to: 'browser-history', kind: 'control', label: 'pushState' },
+
+  // ---------- Built-in optimizations (J11) ----------
+  { id: 'e-split-dynamic', from: 'split-chunks', to: 'next-dynamic', kind: 'transform', label: 'import() → own chunk', crossing: 'code' },
+  { id: 'e-dynamic-suspense', from: 'next-dynamic', to: 'suspense-hole', kind: 'control' },
+  { id: 'e-next-image-dom', from: 'next-image', to: 'dom', kind: 'data' },
+  { id: 'e-next-image-optimizer', from: 'next-image', to: 'image-optimizer', kind: 'data', label: 'GET /_next/image · w=640', crossing: 'data' },
+  { id: 'e-image-sharp', from: 'image-optimizer', to: 'sharp', kind: 'control' },
+  { id: 'e-root-layout-font', from: 'src-root-layout', to: 'font-loader', kind: 'transform', label: 'next/font call' },
+  { id: 'e-google-font-loader', from: 'google-fonts', to: 'font-loader', kind: 'data' },
+  { id: 'e-font-loader-css', from: 'font-loader', to: 'font-css', kind: 'transform', label: '@font-face · size-adjust', crossing: 'data' },
+  { id: 'e-font-css-dom', from: 'font-css', to: 'dom', kind: 'data', label: 'no layout shift' },
+  { id: 'e-react-script', from: 'react-client', to: 'next-script', kind: 'control' },
+  { id: 'e-script-worker', from: 'next-script', to: 'script-worker', kind: 'control', label: 'worker · Pages only' }
 ]
 
 const byId = new Map(EDGES.map((e) => [e.id, e]))

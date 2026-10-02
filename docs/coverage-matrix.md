@@ -137,7 +137,7 @@ list is in §Sources at the end.
 | 5 | Minimal mode on serverless platforms | J2 step 13 | explain | L1–L2 | A5 | implemented (J2) |
 | 5 | Startup reads buildId, page lists, handlers, `public/`, proxy rules from manifests | J2 step 2 | connect | L1–L2 | A5 §Что сервер отдаёт сам | implemented (J2) |
 | 5 | Direct static delivery `/_next/static`, `public/` | J2 step 11 | exit | L1 | A5 | implemented (J2) |
-| 5 | Image optimizer branch | J2 step 12; J11 step 7 | exit | L1–L2 | A5 | planned |
+| 5 | Image optimizer branch | J2 step 12; J11 step 7 | exit | L1–L2 | A5 | implemented (J2, J11) |
 | 5 | Route Handlers (method table) | J2 step 12 | exit | L1–L2 | A5 §API-эндпоинты; docs: route handlers | implemented (J2) |
 | 5 | Pages API Routes (`(req, res)` + helpers) | J2 step 12 | exit | L1–L2 | A5 | implemented (J2) |
 | 5 | Endpoint and page are the same exit type for router-server | J2 step 12 | explain | L1 | A5 | implemented (J2) |
@@ -175,7 +175,7 @@ list is in §Sources at the end.
 | 7 | SWC transforms list (types, JSX, downlevel, minify) | J1 step 3 | transform | L1–L2 | A7 §SWC | implemented (J1) |
 | 7 | Native N-API packages per platform; WASM fallback | J1 step 3 L3 | inspect | L3 | A7 | implemented (J1) |
 | 7 | Next-specific transforms: console removal, `data-testid`, CSS-in-JS | J1 step 3 L3 | inspect | L3 | A7; docs: compiler options | implemented (J1) |
-| 7 | `modularizeImports` / `optimizePackageImports` | J1 step 5; J11 step 5 | transform | L1–L2 | A7; docs: optimizePackageImports | planned |
+| 7 | `modularizeImports` / `optimizePackageImports` | J1 step 5; J11 step 5 | transform | L1–L2 | A7; docs: optimizePackageImports | implemented (J1, J11) |
 | 7 | `serverComponents` / `serverActions` transforms; action IDs | J1 step 4; J7 step 2 | transform | L1–L3 | A7 | implemented (J1) |
 | 7 | Babel fallback and its cost | J1 step 3 (toggle) | inspect | L2 | A7; docs: babel | implemented (J1 step 3 internals; no toggle yet) |
 | 7 | Worker-thread scheduling (`registerWorkerScheduler`) | J1 step 3 L3 | inspect | L3 | A7 | implemented (J1) |
@@ -185,10 +185,10 @@ list is in §Sources at the end.
 | 7 | `next-swc-loader` per layer | J1 step 3 L3 | inspect | L3 | A7 §Загрузчики и плагины | implemented (J1) |
 | 7 | `next-flight-loader` | J1 step 4 L3 | inspect | L3 | A7 | implemented (J1) |
 | 7 | `next-app-loader` | J5 step 3 L3 | inspect | L3 | A7 | implemented (J5) |
-| 7 | `next-font-loader`, CSS loader chain | J11 steps 8–9 | transform | L2–L3 | A7 | planned |
+| 7 | `next-font-loader`, CSS loader chain | J11 steps 8–9 | transform | L2–L3 | A7 | implemented (J11) |
 | 7 | Plugins generate manifests | J1 step 12 | connect | L2 | A7 | implemented (J1) |
 | 7 | `flight-client-entry-plugin` and `flight-manifest-plugin` | J1 steps 10–11 | pack / reference | L1–L3 | A7 | implemented (J1) |
-| 7 | Chunk policy: framework, lib > ~160 KB, runtime | J1 step 10; J11 step 4 | pack | L1–L2 | A7 §Разделение на чанки; source: webpack-config splitChunks | planned |
+| 7 | Chunk policy: framework, lib > ~160 KB, runtime | J1 step 10; J11 step 4 | pack | L1–L2 | A7 §Разделение на чанки; source: webpack-config splitChunks | implemented (J1, J11) |
 | 7 | Turbopack default in 16; Webpack via flag | J1 step 9 version chip | explain | version note | A7 §Turbopack; docs | implemented (J1) · version note |
 | 7 | `turbo-tasks`: functions, tasks, values, `Vc`; dependency graph | J1 step 9 L3; C6 | inspect | L3 | A7 §Устройство Turbopack | implemented (J1) |
 | 7 | Bottom-up invalidation; affected subgraph only | C6; J9 step 6 | explain | L1–L2 | A7 | implemented (J9) |
@@ -198,7 +198,7 @@ list is in §Sources at the end.
 | 7 | Next ↔ Turbopack through N-API `Project`; identical manifests | J1 step 9 L3; J1 step 12 | inspect | L2–L3 | A7 §Как Next.js управляет Turbopack | implemented (J1) |
 | 7 | `next build` phases: buildId, config, redirects/rewrites, route discovery, compile, trace, analyze, prerender, standalone, summary | J1 step 1 | explain | L1–L2 | A7 §Другие шаги | implemented (J1) |
 | 7 | Route analysis and prerender | J1 steps 13–14 | explain / transform | L1–L2 | A7 | implemented (J1) |
-| 7 | Output file tracing → standalone | J1 steps 15–16; J11 step 12 | explain / pack | L1–L2 | A7; docs: output tracing | planned |
+| 7 | Output file tracing → standalone | J1 steps 15–16; J11 step 12 | explain / pack | L1–L2 | A7; docs: output tracing | implemented (J1, J11) |
 
 ## Article 8 — Development mode
 
@@ -231,27 +231,27 @@ list is in §Sources at the end.
 
 | Article | Section / concept | Visual scene | Interaction | Explanation layer | Verification source | Status |
 |---|---|---|---|---|---|---|
-| 9 | Static as default: dynamic APIs decide | J11 step 1; J1 step 13 | explain | L1 | A9 §Статика | planned · version note (Cache Components defaults) |
-| 9 | ISR stale-while-revalidate | J8 steps 6–7; J11 step 2 | stale-serve | L1 | A9 | planned |
+| 9 | Static as default: dynamic APIs decide | J11 step 1; J1 step 13 | explain | L1 | A9 §Статика | implemented (J11) · version note (Cache Components defaults) |
+| 9 | ISR stale-while-revalidate | J8 steps 6–7; J11 step 2 | stale-serve | L1 | A9 | implemented (J8, J11) |
 | 9 | Incremental cache lookup branches (miss / fresh / stale) | J8 steps 4–8 | move | L1–L2 | A9 | implemented (J8) |
 | 9 | Plain static as infinite-revalidate special case | J8 step 5 | explain | L2 | A9 | implemented (J8) |
 | 9 | PPR: static shell + postponed state; request fills holes | J8 steps 13–15 | resume | L1–L2 | A9 §Partial Prerendering; docs: PPR | implemented (J8) · version note |
 | 9 | Dynamic API placement trap | J8 steps 16–17 | predict / reveal | L1 | A9 | implemented (J8) |
-| 9 | Automatic chunk splitting recap | J11 step 4 | explain | L1 | A9 §Разбиение бандла | planned |
-| 9 | Import optimization recap | J11 step 5 | transform | L1 | A9 | planned |
-| 9 | `next/dynamic` on `Loadable`; `import()` boundary chunk | J11 step 6 | transform | L1–L2 | A9; docs: lazy loading | planned |
-| 9 | Loadable 200 ms delay; `ssr: false` | J11 step 6 | explain | L2 + version note | A9; source: next/dynamic | planned · version note |
-| 9 | `next/image`: width/height or static import; layout reservation | J11 step 7 | explain | L1–L2 | A9 §next/image; docs: image | planned |
-| 9 | `/_next/image` request; `sharp`; `Accept` format; `.next/cache/images` | J11 step 7; J2 step 12 | move | L1–L3 | A9; docs: image optimization | planned |
-| 9 | `srcset` from `deviceSizes` | J11 step 7 | explain | L2 | A9 | planned |
-| 9 | `next-font-loader`; local: metrics + `@font-face` | J11 step 8 | transform | L1–L2 | A9 §next/font; docs: font | planned |
-| 9 | Google: CSS fetch, file download, self-hosting | J11 step 9 | move | L1–L2 | A9 | planned |
-| 9 | Download moment: build vs first dev compile | J11 step 9 | explain | L2 | A9 | planned |
-| 9 | Failure: dev warns + fallback, prod build fails; CI implication | J11 step 9 | explain | L1–L2 | A9; docs: font | planned · version note |
-| 9 | Fallback metrics and `size-adjust` | J11 step 10 | explain | L1–L2 | A9 | planned |
-| 9 | `next/script` strategies incl. `worker` (Partytown) | J11 step 11 | explain | L1–L2 | A9 §next/script; docs: script | planned · version note (worker status) |
-| 9 | File tracing: deploy size, cold start, not render speed | J11 step 12 | explain | L1 | A9 §Трассировка файлов | planned |
-| 9 | Closing thesis: move work to build, narrow runtime | J11 step 15 | explain | L1 | A9 §Итого | planned |
+| 9 | Automatic chunk splitting recap | J11 step 4 | explain | L1 | A9 §Разбиение бандла | implemented (J11) |
+| 9 | Import optimization recap | J11 step 5 | transform | L1 | A9 | implemented (J11) |
+| 9 | `next/dynamic` on `Loadable`; `import()` boundary chunk | J11 step 6 | transform | L1–L2 | A9; docs: lazy loading | implemented (J11) |
+| 9 | Loadable 200 ms delay; `ssr: false` | J11 step 6 | explain | L2 + version note | A9; source: next/dynamic | implemented (J11) · version note |
+| 9 | `next/image`: width/height or static import; layout reservation | J11 step 7 | explain | L1–L2 | A9 §next/image; docs: image | implemented (J11) |
+| 9 | `/_next/image` request; `sharp`; `Accept` format; `.next/cache/images` | J11 step 7; J2 step 12 | move | L1–L3 | A9; docs: image optimization | implemented (J2, J11) |
+| 9 | `srcset` from `deviceSizes` | J11 step 7 | explain | L2 | A9 | implemented (J11) |
+| 9 | `next-font-loader`; local: metrics + `@font-face` | J11 step 8 | transform | L1–L2 | A9 §next/font; docs: font | implemented (J11) |
+| 9 | Google: CSS fetch, file download, self-hosting | J11 step 9 | move | L1–L2 | A9 | implemented (J11) |
+| 9 | Download moment: build vs first dev compile | J11 step 9 | explain | L2 | A9 | implemented (J11) |
+| 9 | Failure: dev warns + fallback, prod build fails; CI implication | J11 step 9 | explain | L1–L2 | A9; docs: font | implemented (J11) · version note |
+| 9 | Fallback metrics and `size-adjust` | J11 step 10 | explain | L1–L2 | A9 | implemented (J11) |
+| 9 | `next/script` strategies incl. `worker` (Partytown) | J11 step 11 | explain | L1–L2 | A9 §next/script; docs: script | implemented (J11) · version note (worker status) |
+| 9 | File tracing: deploy size, cold start, not render speed | J11 step 12 | explain | L1 | A9 §Трассировка файлов | implemented (J11) |
+| 9 | Closing thesis: move work to build, narrow runtime | J11 step 15 | explain | L1 | A9 §Итого | implemented (J11) |
 
 ## Brief checklist items not tied to one article section
 

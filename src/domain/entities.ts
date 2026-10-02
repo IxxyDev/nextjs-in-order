@@ -734,6 +734,100 @@ export const ENTITIES: Entity[] = [
     sources: [{ label: 'Shallow routing', url: 'https://nextjs.org/docs/pages/building-your-application/routing/linking-and-navigating#shallow-routing' }]
   },
 
+  // ---------- Built-in optimizations (J11) ----------
+  {
+    id: 'font-loader', short: 'next/font loader', name: 'next/font loader · next-font-loader', region: 'build', glyph: 'machine', x: 1180, y: 190,
+    phase: ['build', 'dev'], env: ['node', 'network'], role: 'compiler',
+    what: 'Runs every next/font/local and next/font/google call at build time. It copies or downloads the font files, writes an @font-face rule and a fallback face with matching metrics, and returns a class name.',
+    consumes: ['next/font/local or next/font/google calls', 'font files', 'Google Fonts CSS and files'], produces: ['@font-face CSS', 'self-hosted font files', 'fallback metrics (size-adjust)'],
+    exists: 'build; first compile that reaches the font in dev', connects: ['google-fonts', 'font-css', 'src-root-layout'], reaches: 'data',
+    internals: ['next-font-loader in the CSS loader chain (Webpack path); Turbopack handles next/font itself', 'font files → .next/static/media/<hash>.woff2', 'returns { className, style, variable }'],
+    versionNote: {
+      article: 'next/font/google: dev warns and falls back, the production build fails.',
+      current: 'Unchanged in source: dev logs "Failed to download … Using fallback font instead" and emits a fallback @font-face; otherwise the error is thrown.',
+      why: 'A build machine without access to Google Fonts cannot produce a release.'
+    },
+    sources: [{ label: 'Font module', url: `${DOCS}/api-reference/components/font` }, { label: 'font/src/google/loader.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/font/src/google/loader.ts' }]
+  },
+  {
+    id: 'google-fonts', short: 'Google Fonts', name: 'Google Fonts · fonts.googleapis.com', region: 'build', glyph: 'data-source', x: 1180, y: 60, badge: 'remote',
+    phase: ['build', 'dev'], env: ['network'], role: 'data-source',
+    what: 'The remote source of next/font/google. Contacted only by the build (or the dev compile), never by the browser of a visitor.',
+    consumes: ['stylesheet and font file requests from the loader'], produces: ['font CSS', 'font files'],
+    exists: 'outside the app; reached at build time', connects: ['font-loader'], reaches: 'no',
+    internals: ['GET https://fonts.googleapis.com/css2?family=…&display=swap', 'font files from fonts.gstatic.com, then self-hosted'],
+    sources: [{ label: 'Font module', url: `${DOCS}/api-reference/components/font` }]
+  },
+  {
+    id: 'sharp', short: 'sharp', name: 'sharp · native image codec', region: 'router-server', glyph: 'machine', x: 750, y: 1265, badge: 'native',
+    phase: ['request'], env: ['rust'], role: 'compiler',
+    what: 'The native image library the optimizer calls to decode, resize and re-encode. It runs outside JavaScript, reached through Node bindings.',
+    consumes: ['source image bytes', 'width, quality, format'], produces: ['encoded WebP or AVIF variant'],
+    exists: 'loaded once per server process', connects: ['image-optimizer'], reaches: 'no',
+    internals: ['libvips through N-API bindings', 'installed automatically with next 15+; required for next start self-hosting'],
+    sources: [{ label: 'Image optimization', url: `${DOCS}/getting-started/images` }]
+  },
+  {
+    id: 'next-image', short: 'next/image', name: 'next/image · reserved box + srcset', region: 'browser', glyph: 'dom', x: 350, y: 1715,
+    phase: ['request', 'browser'], env: ['node', 'browser'], role: 'renderer',
+    what: 'Renders an <img> whose width and height come from props or a static import, so the box is reserved before the image loads, and whose srcset lists widths that all point at the image endpoint.',
+    consumes: ['src /hero.jpg', 'width / height or static import', 'deviceSizes', 'sizes'], produces: ['<img srcset> with /_next/image URLs', 'reserved layout box'],
+    exists: 'per render; the <img> lives in the tab', connects: ['image-optimizer', 'dom'], reaches: 'data',
+    internals: ['srcset widths from deviceSizes [640, 750, 828, 1080, 1200, 1920, 2048, 3840] and imageSizes [32, 48, 64, 96, 128, 256, 384]', 'loading="lazy" by default; preload for above-the-fold images', 'the default loader does not optimize SVG (dangerouslyAllowSVG)'],
+    versionNote: {
+      article: 'srcset built from deviceSizes and imageSizes.',
+      current: '16.0 removed 16 from the default imageSizes and set qualities to [75].',
+      why: 'Fewer variants means fewer cached files per image.'
+    },
+    sources: [{ label: 'Image component', url: `${DOCS}/api-reference/components/image` }, { label: 'Upgrading to 16', url: `${DOCS}/guides/upgrading/version-16` }]
+  },
+  {
+    id: 'next-dynamic', short: 'next/dynamic', name: 'next/dynamic · lazy chunk at an import() boundary', region: 'browser', glyph: 'browser-chunk', x: 500, y: 1770,
+    phase: ['build', 'browser'], env: ['browser'], role: 'boundary',
+    what: 'A component behind next/dynamic is split into its own chunk at the import() call. The browser fetches that chunk the first time the component renders, showing the loading fallback meanwhile.',
+    consumes: ['dynamic(() => import(…), { loading, ssr })'], produces: ['a separate browser chunk', 'a Suspense fallback while it loads'],
+    exists: 'chunk per deploy; loaded once per tab', connects: ['split-chunks', 'suspense-hole', 'client-components'], reaches: 'code',
+    internals: ['Loadable (shared/lib/loadable.shared-runtime.tsx): delay: 200 before the loading component is shown', 'App Router: a composite of React.lazy() and Suspense', 'ssr: false skips the server render; only allowed inside Client Components'],
+    versionNote: {
+      article: 'Built on Loadable, which waits 200 ms before showing the loading state.',
+      current: 'The 200 ms delay is still in the Loadable source used by the Pages Router. In the App Router next/dynamic is React.lazy() plus Suspense; ssr: false is an error in Server Components.',
+      why: 'The chunk split is the same in both routers; the loading behavior follows the router.'
+    },
+    sources: [{ label: 'Lazy loading', url: `${DOCS}/guides/lazy-loading` }, { label: 'loadable.shared-runtime.tsx', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/loadable.shared-runtime.tsx' }]
+  },
+  {
+    id: 'font-css', short: '@font-face', name: 'next/font CSS · @font-face + fallback metrics', region: 'browser', glyph: 'json', x: 350, y: 1935,
+    phase: ['build', 'browser'], env: ['browser'], role: 'artifact',
+    what: 'The CSS the loader generated: an @font-face for the self-hosted file and a fallback face whose size-adjust and ascent/descent overrides make a local font take the same space, so the swap does not shift the layout.',
+    consumes: ['loader output'], produces: ['text in the fallback, then in the web font, with no layout shift'],
+    exists: 'per deploy; applied in the tab', connects: ['font-loader', 'dom'], reaches: 'data',
+    internals: ['adjustFontFallback: on by default → "<Font> Fallback" with size-adjust, ascent-override, descent-override, line-gap-override', 'fallback base: Arial or Times New Roman', 'font file served from the same origin; <link rel="preload" as="font"> on routes that use it'],
+    sources: [{ label: 'Font module', url: `${DOCS}/api-reference/components/font` }]
+  },
+  {
+    id: 'next-script', short: 'next/script', name: 'next/script · strategies on the load timeline', region: 'browser', glyph: 'runtime', x: 650, y: 1825,
+    phase: ['browser'], env: ['browser'], role: 'process',
+    what: 'Schedules third-party scripts against hydration: beforeInteractive runs before it, afterInteractive (the default) right after, lazyOnload in idle time.',
+    consumes: ['<Script src strategy>'], produces: ['third-party script executed at the chosen moment'],
+    exists: 'tab', connects: ['react-client', 'script-worker'], reaches: 'no',
+    internals: ['beforeInteractive: injected into the initial HTML; place it in the root layout', 'afterInteractive: default, after some hydration', 'lazyOnload: during browser idle time', 'onLoad / onReady / onError need a Client Component'],
+    sources: [{ label: 'Script component', url: `${DOCS}/api-reference/components/script` }]
+  },
+  {
+    id: 'script-worker', short: 'worker (Partytown)', name: 'next/script worker · Partytown web worker', region: 'browser', glyph: 'process', x: 500, y: 1990,
+    phase: ['browser'], env: ['browser-worker'], role: 'process',
+    what: 'The fourth strategy moves a third-party script into a web worker so it stays off the main thread. It is experimental and limited to the Pages Router.',
+    consumes: ['<Script strategy="worker">'], produces: ['script executed in a worker'],
+    exists: 'tab, when enabled', connects: ['next-script'], reaches: 'no',
+    internals: ['experimental.nextScriptWorkers: true + @builder.io/partytown', 'Pages Router only; not supported by Turbopack yet'],
+    versionNote: {
+      article: 'worker strategy runs scripts in a web worker via Partytown.',
+      current: 'Experimental, requires experimental.nextScriptWorkers, Pages Router only and not supported by Turbopack (the default bundler since 16.0).',
+      why: 'On an App Router page built with Turbopack the strategy is not available.'
+    },
+    sources: [{ label: 'Script component', url: `${DOCS}/api-reference/components/script` }, { label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
+  },
+
   // ---------- Dev ----------
   {
     id: 'dev-parent', short: 'Parent', name: 'Parent process · supervisor', region: 'dev', glyph: 'process', x: 2210, y: 110,
