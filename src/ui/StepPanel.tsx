@@ -1,6 +1,6 @@
 // src/ui/StepPanel.tsx
 import { useState } from 'preact/hooks'
-import type { ComponentChildren } from 'preact'
+import type { ComponentChildren, RefObject } from 'preact'
 import type { Journey, WorldState, EntityState } from '../domain/types'
 import { entityById } from '../domain/entities'
 import { checkId, journeyId, progress } from '../domain/progress'
@@ -11,8 +11,8 @@ const GROUPS: { state: EntityState; label: string }[] = [
   { state: 'invalid', label: 'Invalidated' }, { state: 'stale', label: 'Stale' }
 ]
 
-/** header and expanded: the tablet bottom sheet's handle row and state */
-export function StepPanel({ journey, world, showText, header, expanded }: { journey: Journey; world: WorldState; showText: boolean; header?: ComponentChildren; expanded?: boolean }) {
+/** header and expanded: the tablet bottom sheet's handle row and state (on phones, the room toggle of an open code lens); lens: the code lens, on journeys that have one */
+export function StepPanel({ journey, world, showText, header, expanded, lens, panelRef }: { journey: Journey; world: WorldState; showText: boolean; header?: ComponentChildren; expanded?: boolean; lens?: ComponentChildren; panelRef?: RefObject<HTMLElement> }) {
   const { step } = world
   /** §4: collapsed by default at every width (so also at 1024–1199px, §9); the open state holds for the session */
   const [internals, setInternals] = useState(() => sessionFlags.get(STEP_INTERNALS_KEY) ?? false)
@@ -27,7 +27,7 @@ export function StepPanel({ journey, world, showText, header, expanded }: { jour
   const earlier = (id: string, shown: boolean) => { const a = shown ? undefined : progress.get(id); return a && <span class={a.correct ? 'ok' : 'bad'}> answered {a.correct ? '✓' : '✗'} earlier</span> }
   const groups = GROUPS.map((g) => ({ ...g, ids: Object.entries(world.entityStates).filter(([, s]) => s === g.state).map(([id]) => id) })).filter((g) => g.ids.length)
   return (
-    <section class={`panel ${expanded ? 'is-expanded' : ''}`} aria-labelledby="step-title">
+    <section class={`panel ${expanded ? 'is-expanded' : ''}`} aria-labelledby="step-title" ref={panelRef}>
       {header}
       <div class="eyebrow">{journey.title} · step {world.stepIndex + 1} of {journey.steps.length}</div>
       <h2 id="step-title">{step.title}</h2>
@@ -36,6 +36,7 @@ export function StepPanel({ journey, world, showText, header, expanded }: { jour
       {groups.length > 0 && (
         <dl>{groups.map((g) => <><dt key={`t-${g.state}`}>{g.label}</dt><dd key={`d-${g.state}`}>{g.ids.map((id) => entityById(id).name.split(' · ')[0]).join(', ')}</dd></>)}</dl>
       )}
+      {lens}
       {step.question && (
         <div class="predict">
           <p><strong>Predict:</strong> {step.question.text}{earlier(journeyId(journey.slug, step.id), picked !== null)}</p>

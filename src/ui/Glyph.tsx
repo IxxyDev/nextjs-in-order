@@ -1,8 +1,9 @@
 // src/ui/Glyph.tsx
 import type { ComponentChildren } from 'preact'
-import type { EntityState, GlyphKind } from '../domain/types'
+import type { EntityState, GlyphKind, HueFate } from '../domain/types'
 
-export interface GlyphProps { kind: GlyphKind; state?: EntityState; selected?: boolean; children?: ComponentChildren }
+/** linked: a code lens line points here, drawn in that line's hue (true when the line has only a timing mark) */
+export interface GlyphProps { kind: GlyphKind; state?: EntityState; selected?: boolean; linked?: HueFate | true; children?: ComponentChildren }
 
 function Doc({ fold, hatched }: { fold: boolean; hatched: boolean }) {
   return (
@@ -81,7 +82,7 @@ export function GlyphShape({ kind }: { kind: GlyphKind }) {
   }
 }
 
-export function Glyph({ kind, state, selected, children }: GlyphProps) {
-  const cls = ['glyph', `glyph-${kind}`, kind === 'browser-chunk' ? 'glyph-browser' : '', state ? `state-${state}` : '', selected ? 'is-selected' : '']
+export function Glyph({ kind, state, selected, linked, children }: GlyphProps) {
+  const cls = ['glyph', `glyph-${kind}`, kind === 'browser-chunk' ? 'glyph-browser' : '', state ? `state-${state}` : '', selected ? 'is-selected' : '', linked ? 'is-linked' : '', typeof linked === 'string' ? `fate-${linked}` : '']
   return <g class={cls.filter(Boolean).join(' ')}>{children}<GlyphShape kind={kind} /></g>
 }

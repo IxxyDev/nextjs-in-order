@@ -5,6 +5,7 @@ import { EDGES } from '../domain/edges'
 import { REGIONS, CUSTOM_SERVER_RING as RING } from '../domain/regions'
 import { MAIN_RIG, reservedFor, worldToScreen, type CameraRig } from './camera'
 import { intersects, placeLabels, type LabelCandidate, type ScreenRect } from './labelLayout'
+import { lensLit, mapHover } from './lensLink'
 
 /** below this zoom, only emphasized entities keep their label (emphasized ones always try for one) */
 const LABEL_ZOOM = 0.7
@@ -89,6 +90,8 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     return true
   }
   const ringText = 'server.js · custom server ring'
+  const lit = lensLit.value
+  const hover = (id: string | undefined) => () => { if (id || mapHover.peek()) mapHover.value = id }
 
   return (
     <div class="labels">
@@ -117,8 +120,10 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
         return (
           <button
             key={c.id}
-            class={`label ${c.state === 'dimmed' ? 'is-dimmed' : ''} ${c.inline ? 'is-inline' : ''}`}
+            class={`label ${c.state === 'dimmed' ? 'is-dimmed' : ''} ${c.inline ? 'is-inline' : ''} ${lit.ids.has(c.id) ? `is-linked ${lit.hue ? `fate-${lit.hue}` : ''}` : ''}`}
             style={{ left: `${at.x}px`, top: `${at.y}px` }}
+            data-entity={c.id}
+            onMouseEnter={hover(c.id)} onMouseLeave={hover(undefined)} onFocus={hover(c.id)} onBlur={hover(undefined)}
             aria-pressed={selected === c.id || PRESSED.has(m)}
             aria-label={`${e.name}${c.state && c.state !== 'dimmed' ? `, ${CHIP[c.state]}` : ''}${differs?.has(c.id) ? ', differs' : ''}${m && MARK_CHIP[m] ? `, ${MARK_CHIP[m]}` : ''}. ${verb}`}
             onClick={() => onSelect(c.id)}

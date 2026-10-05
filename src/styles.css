@@ -6,12 +6,15 @@
   --band-build: #0d0d10; --band-server: #0b0c0e; --band-browser: #0c0e0d; --band-dev: #0f0d12;
   --font-serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* code lens fates (docs/code-lens.md §3): server-only reuses the data hue; client is the code-crossing blue */
+  --fate-server: var(--data); --fate-client: #58a6ff; --fate-action: #db61a2;
   color-scheme: dark;
 }
 :root[data-theme="light"] {
   --bg: #f6f6f4; --surface: #ffffff; --surface-2: #efefec; --line: #d8d8d3; --mid: #8a8d95; --hi: #5b5f69; --muted: #5b5f69; --fg: #17181c;
   --accent: #6b46b8; --accent-dim: #a879ff; --ok: #14724f; --warn: #8a5a00; --bad: #c8323b; --code: #17181c; --data: #6b46b8;
   --band-build: #f4f2ec; --band-server: #f6f6f4; --band-browser: #f1f5f2; --band-dev: #f3eff8;
+  --fate-client: #0969da; --fate-action: #bf3989;
   color-scheme: light;
 }
 @media (prefers-color-scheme: light) {
@@ -19,6 +22,7 @@
   --bg: #f6f6f4; --surface: #ffffff; --surface-2: #efefec; --line: #d8d8d3; --mid: #8a8d95; --hi: #5b5f69; --muted: #5b5f69; --fg: #17181c;
   --accent: #6b46b8; --accent-dim: #a879ff; --ok: #14724f; --warn: #8a5a00; --bad: #c8323b; --code: #17181c; --data: #6b46b8;
   --band-build: #f4f2ec; --band-server: #f6f6f4; --band-browser: #f1f5f2; --band-dev: #f3eff8;
+  --fate-client: #0969da; --fate-action: #bf3989;
   color-scheme: light;
 }
 }
@@ -160,6 +164,121 @@ a { color: var(--accent); }
 .check .ok, .predict .ok { color: var(--ok); } .check .bad, .predict .bad { color: var(--bad); }
 .text-equivalent { font-family: var(--font-mono); font-size: 12px; line-height: 1.6; color: var(--hi); background: var(--surface); padding: 14px; border: 1px solid var(--line); margin-top: 16px; }
 
+/* code lens (docs/code-lens.md): hue says where a line ends up, the gutter mark when; every line also carries its glyph and each group a text chip */
+.fate-server-only { --fate: var(--fate-server); } .fate-client-boundary, .fate-split { --fate: var(--fate-client); } .fate-action-id { --fate: var(--fate-action); }
+.glyph.is-linked .shape { stroke: var(--fate, var(--fg)); stroke-width: 3; filter: drop-shadow(0 0 8px var(--fate, var(--fg))); }
+.label.is-linked .label-name { border-color: var(--fate, var(--fg)); box-shadow: 0 0 0 1px var(--fate, var(--fg)); }
+.lens { margin: 20px 0 4px; border-top: 1px solid var(--line); padding-top: 12px; container: lens / inline-size; }
+.lens-head { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.lens-title { margin: 0; font: 500 12px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); }
+.lens-tag { font: 500 10px/1.4 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 1px 6px; white-space: nowrap; }
+.panel .lens-toggle { margin-left: auto; min-height: 32px; padding: 4px 10px; font-size: 11px; }
+.lens-chipline { margin: 0 0 10px; padding-left: 10px; border-left: 2px solid var(--line); font: 12px/1.5 var(--font-mono); color: var(--hi); }
+.lens-strip { display: block; width: 100%; padding: 10px 12px; border: 1px solid var(--line); background: var(--surface); font: 12px/1.6 var(--font-mono); color: var(--fg); text-align: left; }
+.panel .lens-strip { min-height: 44px; padding: 10px 12px; font: 12px/1.6 var(--font-mono); letter-spacing: 0; text-transform: none; color: var(--fg); text-align: left; }
+.lens-strip.is-dimmed { opacity: 0.35; }
+.lens-strip-line { display: block; overflow-wrap: break-word; }
+.lens-strip-line + .lens-strip-line { margin-top: 2px; }
+.lens-strip-cta { display: block; margin-top: 6px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+/* panes: one column, two side by side once each pane can hold ~40 columns of code (a container query, so the panel's width decides, not the window's) */
+.lens-panes { display: grid; gap: 10px; min-width: 0; }
+@container lens (min-width: 580px) {
+  .lens-panes.is-paired { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lens-pane.is-wide { grid-column: 1 / -1; }
+  .lens-panes.is-paired .lens-pane:not(.is-wide) { --lens-size: 11px; --lens-leading: 18px; --lens-gutter: 20px; --lens-sign: 10px; --lens-end: 6px; }
+}
+.lens-pane { --lens-size: 12px; --lens-leading: 20px; --lens-gutter: 26px; --lens-sign: 12px; --lens-end: 10px; min-width: 0; border: 1px solid var(--line); background: var(--surface); }
+.lens-pane.is-before { background: var(--bg); }
+.lens-pane.is-all-gone .lens-rows { opacity: 0.6; }
+.lens-pane-head { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px 10px; border-bottom: 1px solid var(--line); font: 11px/18px var(--font-mono); color: var(--hi); white-space: nowrap; }
+.lens-side { flex: none; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.lens-side::after { content: " ·"; letter-spacing: 0; }
+.lens-file { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--fg); }
+/* a path keeps its file name and loses its leading folders: rtl puts the ellipsis at the start, the bdi keeps the text itself left to right */
+.lens-file.is-path { display: flex; min-width: 0; }
+.lens-dir { min-width: 0; overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left; color: var(--hi); }
+.lens-base { flex: 0 .001 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* 'path · description': the description gives way first, then the folders */
+.lens-desc { flex: 0 1000 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.lens-badge { flex: none; padding: 0 5px; border: 1px solid var(--line); color: var(--fg); }
+.lens-flag { flex: none; font-size: 10px; letter-spacing: 0.06em; color: var(--muted); }
+.lens-flag.is-new { color: var(--ok); }
+.lens-flag.is-gone { color: var(--bad); }
+/* before-pane lines are context: links and off-map flags belong to the after panes */
+.lens-row.is-context .lens-gutter { opacity: 0.7; }
+.lens-hint { margin: 0; padding: 4px 10px 5px; border-bottom: 1px solid var(--line); font: italic 13px/1.4 var(--font-serif); color: var(--hi); }
+.lens-rows { list-style: none; margin: 0; padding: 4px 0; }
+
+/* a line: change sign | fate glyphs | code. The hue bar is the row's left border; new lines are tinted, removed lines dim and struck */
+.lens-row { position: relative; display: grid; grid-template-columns: var(--lens-sign) var(--lens-gutter) minmax(0, 1fr); padding: 1px var(--lens-end) 1px 0; border-left: 3px solid transparent; outline-offset: -2px; }
+.lens-row[class*="fate-"] { border-left-color: var(--fate); }
+.lens-row.fate-client-boundary { border-left-style: dotted; }
+.lens-sign { font: 600 var(--lens-size)/var(--lens-leading) var(--font-mono); text-align: center; }
+.lens-row.is-new { background: color-mix(in srgb, var(--ok) 8%, transparent); }
+.lens-row.is-new .lens-sign { color: var(--ok); }
+.lens-row.is-gone .lens-sign { color: var(--bad); }
+.lens-row.is-gone .lens-line { opacity: 0.55; }
+.lens-row.is-gone .lens-code { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--bad) 70%, transparent); }
+.lens-gutter { display: flex; justify-content: flex-start; gap: 1px; font: 10px/var(--lens-leading) var(--font-mono); color: var(--fate, var(--muted)); white-space: nowrap; overflow: hidden; }
+.lens-gutter > span + span { color: var(--hi); }
+.lens-cell { min-width: 0; }
+/* wrapped code hangs two columns past the line's own indent (--lead, set per line) */
+/* break-word, not anywhere: a long identifier wraps at the <wbr> the lens puts after _ / . and breaks mid-word only when nothing else fits */
+.lens-line { padding-left: calc((var(--lead, 0) + 2) * 1ch); text-indent: -2ch; font: var(--lens-size)/var(--lens-leading) var(--font-mono); white-space: pre-wrap; overflow-wrap: break-word; }
+.lens-code { font: inherit; color: var(--fg); }
+.lens-row.is-frame .lens-code { color: var(--muted); }
+/* the note never splits: it trails the code, or moves whole to the next line at the hanging indent */
+.lens-note { display: inline-block; max-width: 100%; margin-left: 1.5ch; text-indent: 0; font: italic 12.5px/var(--lens-leading) var(--font-serif); color: var(--hi); white-space: normal; }
+.lens-cut { display: inline-block; margin-left: 1.5ch; text-indent: 0; font-size: 0.92em; color: var(--bad); }
+.lens-meta { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 1px 0 3px; }
+.lens-chip { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fate, var(--hi)); border: 1px solid color-mix(in srgb, currentColor 55%, transparent); padding: 0 6px; font: 10px/16px var(--font-mono); letter-spacing: 0.02em; }
+.lens-chip.is-mark { color: var(--hi); border-style: dashed; }
+.lens-morph { color: inherit; background: color-mix(in srgb, var(--fate, var(--accent)) 24%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--fate, var(--accent)) 45%, transparent); }
+.lens-pane:not(.is-before) .lens-row:hover, .lens-row:focus-visible, .lens-row.is-lit { background: color-mix(in srgb, var(--fate, var(--fg)) 13%, transparent); }
+.lens-row.is-lit { box-shadow: inset -2px 0 0 var(--fate, var(--fg)); }
+
+/* a fold: one calm muted line, never struck; the ones that hold text open to show it */
+.lens-row.is-fold { grid-template-columns: var(--lens-sign) minmax(0, 1fr); padding-top: 2px; padding-bottom: 2px; }
+.lens-fold { display: block; padding-left: var(--lens-gutter); font: italic 13px/var(--lens-leading) var(--font-serif); color: var(--muted); }
+.panel button.lens-fold { display: flex; align-items: baseline; gap: 0; width: 100%; min-height: 0; min-width: 0; padding: 0 0 0 var(--lens-gutter); border: 0; background: none; font: italic 13px/var(--lens-leading) var(--font-serif); letter-spacing: 0; text-transform: none; text-align: left; color: var(--hi); }
+.panel button.lens-fold:hover { color: var(--fg); }
+.lens-fold-icon { flex: none; width: 2ch; margin-left: -2ch; font-style: normal; font-size: 10px; color: var(--muted); transition: transform 150ms ease-out; }
+.lens-fold[aria-expanded="true"] .lens-fold-icon { transform: rotate(90deg); }
+.lens-fold > span[aria-hidden] { font-style: normal; }
+.lens-unfolded { margin: 2px 0 4px; border-left: 1px dashed var(--line); }
+.lens-unfolded .lens-row { grid-template-columns: 0 var(--lens-gutter) minmax(0, 1fr); }
+.lens-caption { margin: 0; padding: 2px 0 2px 10px; font: 10px/1.6 var(--font-mono); letter-spacing: 0.04em; color: var(--muted); }
+
+.lens-ledger { margin-top: 10px; padding: 8px 12px; border: 1px solid var(--line); border-left: 3px solid var(--fate-server); background: var(--surface); font: 12px/1.55 var(--font-mono); color: var(--hi); }
+.lens-ledger p { margin: 2px 0; overflow-wrap: break-word; }
+.lens-ledger strong { color: var(--fg); font-weight: 600; }
+.lens-failed { font: 12px var(--font-mono); color: var(--hi); }
+
+@keyframes lens-in { from { opacity: 0; transform: translateY(4px); } }
+@keyframes lens-from-left { from { opacity: 0; transform: translateX(-10px); } }
+@keyframes lens-from-right { from { opacity: 0; transform: translateX(10px); } }
+@keyframes lens-hold { from { background: color-mix(in srgb, var(--fate, var(--accent)) 60%, transparent); } }
+@keyframes lens-gone { from { opacity: 1; } }
+@keyframes lens-glow { 40% { background: color-mix(in srgb, var(--fate) 28%, transparent); } }
+@keyframes lens-fill { from { outline: 1px dashed var(--fate, var(--accent)); background: transparent; } }
+.lens-body .lens-row.is-new, .motion-fade-in .lens-row, .motion-transform .lens-row, .motion-wrap .lens-row { animation: lens-in 360ms ease-out both; animation-delay: calc(var(--i, 0) * 35ms); }
+.lens-body .lens-morph { animation: lens-hold 600ms ease-out; }
+.lens-body .lens-row.is-gone .lens-line { animation: lens-gone 500ms ease-out both; }
+.motion-split .side-server { animation: lens-from-left 500ms ease-out both; }
+.motion-split .side-browser { animation: lens-from-right 500ms ease-out both; }
+.motion-light-up .lens-row.fate-split { animation: lens-glow 600ms ease-out; }
+.motion-fill .has-suspended .lens-morph { animation: lens-fill 600ms ease-out 300ms both; }
+.lens-ledger.motion-fade-to-zero { animation: lens-in 400ms ease-out 250ms both; }
+/* connect: the fate glyphs land after the lines; reference: the shared id is traced once; swap: the old slot fades as the new one slides in */
+@keyframes lens-pop { from { opacity: 0; transform: scale(0.6); } }
+@keyframes lens-swap-out { from { opacity: 1; background: color-mix(in srgb, var(--bad) 16%, transparent); } }
+.motion-connect .lens-gutter > span { display: inline-block; animation: lens-pop 420ms ease-out 200ms both; }
+.motion-reference .lens-morph { animation: lens-fill 700ms ease-out 150ms both; }
+.motion-swap .lens-row.is-gone .lens-line { animation: lens-swap-out 480ms ease-out both; }
+.motion-swap .lens-row.is-new { animation: lens-from-right 420ms ease-out 180ms both; }
+@media (prefers-reduced-motion: reduce) { .lens-body *, .lens-ledger { animation: none !important; } .lens-fold-icon { transition: none; } }
+
 /* minimap */
 .minimap { position: absolute; /* place and size: MINIMAP in camera.ts, which labels and framing keep clear */ border: 1px solid var(--line); background: var(--bg); opacity: 0.9; cursor: pointer; }
 .minimap rect { stroke: var(--mid); }
@@ -267,6 +386,15 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
 
 /* responsive */
 @media (max-width: 1199px) { .journey { grid-template-columns: minmax(0, 60fr) minmax(300px, 40fr); } .panel { padding: 20px 22px; } .panel h2 { font-size: 26px; } }
+/*
+ * journeys with a code lens: from 1280px the panel takes what the stage can spare above 760px (the transport's one-row width),
+ * up to 700px, where two ~40-column code panes fit side by side. It holds for the whole journey, so the map does not jump
+ * between steps; the stage refits to what is left (World measures it). Below ~1400px the lens stacks its panes instead.
+ */
+@media (min-width: 1280px) {
+  .journey.has-lens { grid-template-columns: minmax(0, 1fr) clamp(480px, calc(100vw - 760px), 700px); }
+  .journey.has-lens .panel { padding-left: 28px; padding-right: 28px; }
+}
 @media (max-width: 1023px) {
   .journey { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr) auto auto; }
   .panel { grid-row: 3; grid-column: 1; border-left: 0; border-top: 1px solid var(--line); max-height: 42vh; }
@@ -312,6 +440,18 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
   .history-strip button { min-height: 44px; }
   .transport { gap: 6px; padding: 8px; }
   .transport button, .panel button { min-height: 44px; min-width: 44px; padding: 6px 8px; }
+  .panel .lens-toggle { min-height: 44px; }
+  .panel button.lens-fold { min-height: 44px; align-items: center; }
+  /* an open code lens may take ~4/5 of the room between breadcrumb and transport; the map keeps a strip and refits to it */
+  .journey.is-roomy { grid-template-rows: auto minmax(112px, 1fr) minmax(0, 4fr) auto; }
+  /* code panes run to the screen edges: every column counts at 390px */
+  .lens-panes { margin: 0 -16px; }
+  .lens-pane { border-left: 0; border-right: 0; }
+  .journey.is-roomy .panel { max-height: none; }
+  .journey .panel:has(> .sheet-head.is-room) { padding-top: 0; }
+  .panel > .sheet-head.is-room { display: flex; position: sticky; top: 0; z-index: 2; margin: 0 -16px 12px; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .panel .sheet-handle { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: 44px; border-color: transparent; background: transparent; font-size: 11px; }
+  .sheet-handle .grabber { width: 40px; height: 4px; border-radius: 2px; background: var(--mid); }
   .compare { display: block; overflow-y: auto; }
   .compare-stage, .lanes-3 .compare-stage { display: flex; flex-direction: column; }
   .lane { height: 46vh; flex: none; }

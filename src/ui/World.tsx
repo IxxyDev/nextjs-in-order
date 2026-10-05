@@ -7,6 +7,7 @@ import { EDGES } from '../domain/edges'
 import { MAIN_RIG, transformFor, type CameraRig } from './camera'
 import { Glyph } from './Glyph'
 import { reducedMotion } from './useReducedMotion'
+import { lensLit, mapHover } from './lensLink'
 
 export interface WorldProps {
   entityStates: Record<string, EntityState>
@@ -38,7 +39,8 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
     const ro = new ResizeObserver(([entry]) => { rig.viewport.value = { w: entry.contentRect.width, h: entry.contentRect.height } })
     ro.observe(el)
     rig.viewport.value = { w: el.clientWidth, h: el.clientHeight }
-    return () => ro.disconnect()
+    /** a hover (here or on a label) must not outlive the map: the lens would keep its lines lit */
+    return () => { ro.disconnect(); mapHover.value = undefined }
   }, [])
   const cam = rig.camera.value
   const vp = rig.viewport.value
@@ -47,6 +49,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
   const focused = Object.keys(entityStates).length > 0
   const ring = entityStates['custom-server']
   const ringOn = ring !== undefined && ring !== 'dimmed' && ring !== 'na'
+  const lit = lensLit.value
   return (
     <div class="canvas-wrap" ref={ref}>
       <svg class="world" role="img" aria-label="System map of Next.js" viewBox={`0 0 ${vp.w} ${vp.h}`}>
@@ -81,8 +84,9 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
             return <path key={e.id} class={`edge edge-${e.kind} ${active ? 'is-active' : ''}`} d={edgePath(a, b)} marker-end={active ? 'url(#arrow)' : undefined} />
           })}
           {ENTITIES.map((e) => (
-            <g key={e.id} class={marks?.[e.id] ? `mark-${marks[e.id]}` : undefined} transform={`translate(${e.x} ${e.y})`} onClick={() => onSelect(e.id)}>
-              <Glyph kind={e.glyph} state={entityStates[e.id]} selected={selected === e.id}><title>{e.name}</title></Glyph>
+            <g key={e.id} data-entity={e.id} class={marks?.[e.id] ? `mark-${marks[e.id]}` : undefined} transform={`translate(${e.x} ${e.y})`} onClick={() => onSelect(e.id)}
+              onMouseEnter={() => { mapHover.value = e.id }} onMouseLeave={() => { if (mapHover.peek() === e.id) mapHover.value = undefined }}>
+              <Glyph kind={e.glyph} state={entityStates[e.id]} selected={selected === e.id} linked={lit.ids.has(e.id) ? lit.hue ?? true : undefined}><title>{e.name}</title></Glyph>
             </g>
           ))}
           {tokenEntity && token && (

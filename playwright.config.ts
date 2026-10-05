@@ -27,7 +27,9 @@ export default defineConfig({
     })),
     {
       name: 'reduced-motion-1440',
-      testMatch: /(reduced-motion|journeys)\.spec/,
+      // reduced-motion.spec, journeys.spec, code-lens.spec and code-lens-journeys.spec (the last also ends in journeys.spec);
+      // the per-journey code-lens-<slug>.spec files run only in the viewport projects
+      testMatch: /(^|\/)(reduced-motion|journeys|code-lens|code-lens-journeys)\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' as const }
     }
   ]
