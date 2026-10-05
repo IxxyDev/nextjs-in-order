@@ -242,3 +242,140 @@ export type Route =
   | { mode: 'compare'; slug: string; step: number }
   /** n is 0-based; the URL is 1-based */
   | { mode: 'predict'; n: number; cam?: Camera }
+
+// ---------- code lens (docs/code-lens.md) ----------
+
+/** where a line ends up, drawn as a hue: exactly one per non-frame line */
+export type HueFate = 'server-only' | 'client-boundary' | 'split' | 'action-id'
+/** when its output exists, drawn as a gutter mark: zero or one per line */
+export type MarkFate = 'static-shell' | 'suspended' | 'cached' | 'shared-layout'
+export type FateId = HueFate | MarkFate
+
+export interface Fate {
+  id: FateId
+  channel: 'hue' | 'mark'
+  label: string
+  /** '⊘', '⚡', '⇄', '○', '⌛', '▤', '🔒' */
+  glyph: string
+  /** text chip, so color is never the only signal: the network chip for hues, the timing for marks */
+  chip: string
+  /** CSS color token, hue channel only */
+  token?: string
+  /** client-boundary and split share a hue; the reference is drawn outlined, the code filled */
+  swatch?: 'outline' | 'filled'
+}
+
+export interface SpecimenLine {
+  /** 'DN6': file prefix + line number */
+  id: string
+  text: string
+  /** absent only on frame lines */
+  fate?: HueFate
+  mark?: MarkFate
+  /** `return (`, `)`, `}`: inherits its block's fate, never carries a chip */
+  frame?: true
+  /** journeys other than J0 whose lens shows the line, e.g. ['j7'] (docs/code-lens.md §4) */
+  journeys?: string[]
+  note?: string
+}
+
+export interface SpecimenFile {
+  path: string
+  component: string
+  /** source entity on the map, when the file has one */
+  entity?: string
+  /** lines left out of the specimen, e.g. 'db folded (4 lines)' */
+  abridged?: string
+  /** a what-if version of `path` that a journey contrasts with the app (not part of the app), e.g. 'J8: cookies() read above the boundary' */
+  variant?: string
+  lines: SpecimenLine[]
+}
+
+export type LensMode = 'off' | 'peek' | 'open'
+/** docs/code-lens.md §10: http = request/response lines, json = a JSON body or file, files = a listing of emitted files, terminal = CLI output */
+export type ArtifactForm = 'tsx' | 'js' | 'js-reference' | 'manifest' | 'flight' | 'html' | 'dom' | 'flight-patch' | 'http' | 'json' | 'css' | 'files' | 'terminal'
+export type LineChange = 'new' | 'same' | 'gone'
+export type LensMotion = 'fade-in' | 'transform' | 'split' | 'connect' | 'reference' | 'wrap' | 'fade-to-zero' | 'light-up' | 'swap' | 'fill'
+
+/** one shown line of a derived artifact */
+export interface CodeLine {
+  text: string
+  /** specimen line ids it comes from: drives hover ↔ entity and morph alignment */
+  from?: string[]
+  fate?: HueFate
+  mark?: MarkFate
+  /** absent on context lines such as a request header */
+  change?: LineChange
+  /** the identifier that keeps its highlight while the text around it changes form */
+  morph?: string
+  /** a token struck with ✂ at this step, e.g. '<boolean>' */
+  cut?: string
+  note?: string
+}
+
+/** lines left out of a pane, shown as one calm row that opens to show them when it can */
+export interface FoldRow {
+  /** how many lines or rows are left out */
+  fold: number
+  /** the whole row after its ⋯ or ▸, count included: '10 lines of DashboardNav (stay in the browser chunk)' */
+  label: string
+  /** specimen lines it stands for; it opens to show them as written in the source */
+  from?: string[]
+  /** the left-out text itself, when it is not specimen source; opening shows these instead of `from` */
+  lines?: string[]
+  change?: LineChange
+}
+
+export type LensRow = CodeLine | FoldRow
+
+export interface LensPane {
+  /** set only on a step that declares split: which side of the server/browser divide the pane shows */
+  side?: 'server' | 'browser'
+  /** file label in the pane header */
+  title: string
+  /** pane header link */
+  entity?: string
+  /** a short pill in the one-line pane header, e.g. '×2' */
+  badge?: string
+  /** a compact hint under the header that says what the badge means */
+  hint?: string
+  /** cut from a real artifact; real-world ids left out are written … */
+  abridged: boolean
+  rows: LensRow[]
+}
+
+/** a lit fate and the entities it links to at this step; `from` narrows the link to those specimen lines */
+export interface LensLink {
+  fate: FateId
+  entities: string[]
+  from?: string[]
+}
+
+export interface LensStep {
+  /** journey step id, e.g. 'j0-4' */
+  step: string
+  /** set in data, not inferred from the step kind */
+  mode: LensMode
+  /** absent when the lens is off */
+  form?: ArtifactForm
+  /** one column becomes two: a server pane and a browser pane */
+  split?: true
+  /** shown dimmed: the artifacts did not change form on this step */
+  dimmed?: true
+  /** header or footnote chip */
+  chip?: string
+  /** the one-line ledger of a peek strip */
+  summary?: string[]
+  /** ledger under the panes, e.g. '0 B of JS in the browser' */
+  footer?: string[]
+  /** the panes when open, or what expanding a peek shows */
+  panes: LensPane[]
+  links: LensLink[]
+  motion: LensMotion[]
+  reduced?: 'side-by-side' | 'three-pane' | 'static'
+}
+
+export interface CodeLens {
+  journey: string
+  steps: LensStep[]
+}

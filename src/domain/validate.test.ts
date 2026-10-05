@@ -1,9 +1,15 @@
 // src/domain/validate.test.ts
 import { describe, it, expect } from 'vitest'
-import { validateEntities, validateJourney } from './validate'
+import { validateCodeLens, validateEntities, validateJourney } from './validate'
 import { ENTITIES, entityById } from './entities'
 import { loadAllJourneys } from './journeys'
 import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'
+import { STEPS } from './codeLens/whole-lifecycle'
+import { FATES, SPECIMEN } from './codeLens/specimen'
+import { loadLens } from './codeLens'
+import type { CodeLens, FateId, HueFate, LensStep, MarkFate } from './types'
+
+const WHOLE_LIFECYCLE_LENS: CodeLens = { journey: 'j0', steps: STEPS }
 
 describe('validateJourney', () => {
   it('accepts every registered journey', async () => {
@@ -46,6 +52,74 @@ describe('validateEntities', () => {
       'blank history 1: no release number in "today"',
       'order history 2: 9.3 does not come after 12',
       'order history 3: 9.3 does not come after 9.3'
+    ])
+  })
+})
+
+describe('validateCodeLens', () => {
+  it('accepts the J0 lens', () => {
+    expect(validateCodeLens(WHOLE_LIFECYCLE_LENS, WHOLE_LIFECYCLE, SPECIMEN, FATES)).toEqual([])
+  })
+  it('accepts every journey\'s lens: an empty one is not written yet, a written one covers every step', async () => {
+    for (const j of await loadAllJourneys()) {
+      const b = await loadLens(j.slug)
+      expect(b, j.slug).toBeDefined()
+      expect(validateCodeLens(b!.lens, j, b!.specimen, b!.fates), j.slug).toEqual([])
+    }
+  })
+  it('checks only the specimen while a lens is empty, every step once it is not', () => {
+    expect(validateCodeLens({ journey: 'j0', steps: [] }, WHOLE_LIFECYCLE, SPECIMEN, FATES)).toEqual([])
+    const one = validateCodeLens({ journey: 'j0', steps: [STEPS[0]] }, WHOLE_LIFECYCLE, SPECIMEN, FATES)
+    expect(one).toHaveLength(WHOLE_LIFECYCLE.steps.length - 1)
+    expect(one[0]).toBe('lens j0-2: missing')
+  })
+  it('reports every broken rule with its own message', () => {
+    const at = (id: string) => WHOLE_LIFECYCLE_LENS.steps.find((s) => s.step === id)!
+    const ghost = 'ghost' as FateId
+    const pane = at('j0-7').panes[0]
+    const steps: LensStep[] = [
+      { ...at('j0-1'), links: [{ fate: 'server-only', entities: ['html'] }] },
+      { ...at('j0-2'), summary: undefined },
+      { ...at('j0-3'), form: undefined, mode: 'peek', summary: ['s'] },
+      { ...at('j0-4'), panes: [at('j0-4').panes[1], at('j0-4').panes[0]] },
+      { ...at('j0-5'), panes: [{ ...at('j0-4').panes[0], entity: 'nowhere' }], links: [{ fate: ghost, entities: ['nope'] }] },
+      { ...at('j0-7'), panes: [{ ...pane, rows: [...pane.rows, { text: 'x', from: ['ZZ9'], fate: ghost as HueFate }, { text: 'y' }] }], links: [{ fate: 'server-only', entities: ['dom'], from: ['ZZ8'] }] },
+      { ...at('j0-8'), form: 'flight' },
+      { ...at('j0-9'), panes: [{ ...at('j0-9').panes[0], rows: [{ fold: 5, label: 'all' }] }] },
+      { ...at('j0-9') },
+      { step: 'j0-99', mode: 'off', panes: [], links: [], motion: [] }
+    ]
+    const lens: CodeLens = { journey: 'j0', steps }
+    const specimen = [{ ...SPECIMEN[0], entity: 'missing', lines: [...SPECIMEN[0].lines, { id: 'RL1', text: 'dup' }, { id: 'RL9', text: 'x', mark: ghost as MarkFate, journeys: ['j12'] }] }]
+    const errors = validateCodeLens(lens, WHOLE_LIFECYCLE, [...specimen, ...SPECIMEN.slice(1)], FATES)
+    expect(errors).toEqual([
+      'specimen RL1: duplicate line id',
+      'specimen RL1: no fate on a non-frame line',
+      'specimen RL9: no fate on a non-frame line',
+      'specimen RL9: undefined fate ghost',
+      'specimen RL9: unknown journey j12',
+      'specimen app/layout.tsx: unknown entity missing',
+      'lens j0-1: off but has panes or links',
+      'lens j0-2: peek without a summary',
+      'lens j0-3: peek without a form',
+      'lens j0-4: split needs a server pane then a browser pane',
+      'lens j0-5 pane 1: server side on a step that is not split',
+      'lens j0-5 pane 1: unknown entity nowhere',
+      'lens j0-5: undefined fate ghost',
+      'lens j0-5: unknown entity nope',
+      'lens j0-7 pane 1: unknown specimen line ZZ9',
+      'lens j0-7 pane 1: undefined fate ghost',
+      'lens j0-7 pane 1: 9 lines shown, at most 8',
+      'lens j0-7: unknown specimen line ZZ8',
+      'lens j0-7: server-only link from ZZ8 matches no row',
+      "lens j0-7: server-only links dom, which is not in the step's states or camera",
+      'lens j0-8: open but the form did not change',
+      'lens j0-9: open with no lines',
+      'lens j0-9: duplicate step',
+      'lens j0-9: open but the form did not change',
+      'lens j0-99: no such step in whole-lifecycle',
+      'lens j0-6: missing',
+      'lens j0-10: missing'
     ])
   })
 })
