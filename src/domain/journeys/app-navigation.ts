@@ -43,7 +43,7 @@ export const APP_NAVIGATION: Journey = {
       story: 'The articles give the rule: without cacheComponents only static routes get per-segment prefetch, so the dynamic part of billing is hatched n/a and fetched on click, which is why step 6 still goes to the server. Next.js 16.3 refines the granularity, not the mechanism: with partialPrefetching the default prefetch is one reusable App Shell per route.',
       camera: { kind: 'entities', ids: ['segment-cache', 'src-billing-page', 'prefetch-scheduler'] },
       states: { 'segment-cache': 'active', 'src-billing-page': 'na', 'prefetch-scheduler': 'kept' }, edges: [],
-      internals: ['article: cacheComponents: true enables per-segment prefetch for dynamic routes', '16.3: experimental.partialPrefetching → App Shell prefetch by default', 'prefetch={true}: shell + URL-dependent cached content'],
+      internals: ['the server pre-cuts content per segment and marks each with hints: fetch it separately or not, is there a loading boundary below it', 'article: cacheComponents: true enables per-segment prefetch for dynamic routes', '16.3: experimental.partialPrefetching → App Shell prefetch by default', 'prefetch={true}: shell + URL-dependent cached content'],
       sources: [{ label: 'Link prefetching', url: 'https://nextjs.org/docs/app/api-reference/components/link#prefetch' }]
     },
     {

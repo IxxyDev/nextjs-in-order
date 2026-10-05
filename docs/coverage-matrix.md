@@ -6,7 +6,8 @@ checklist items that the articles cover inside a larger section. Scenes and step
 
 Explanation layer: **L1** story sentence in the step, **L2** inspector fields, **L3** internals
 disclosure / source panel. Status values: `planned`, `planned · version note` (the site must show
-article snapshot vs current behavior), `implemented`, `deferred (reason)`, `corrected (source)`.
+article snapshot vs current behavior), `implemented (where)`, `implemented (where) · version note`
+(the site shows both), `deferred (reason)`, `corrected (source)`.
 
 Verification source lists the article part and section, then the official source topic; the URL
 list is in §Sources at the end.
@@ -16,7 +17,7 @@ list is in §Sources at the end.
 | Article | Section / concept | Visual scene | Interaction | Explanation layer | Verification source | Status |
 |---|---|---|---|---|---|---|
 | 1 | Introduction: compiler + bundler + two runtimes + protocol | J0 step 1 (three bands) | explain | L1 | A1 §Введение | implemented (J0) |
-| 1 | Brief history: SSR wrapper → getInitialProps → 9.3 split → 12 SWC → 13 App Router → today | Atlas timeline strip in the Source region header; J0 step 1 caption | inspect | L2 (history field on `next build`), L3 | A1 §Краткая история; docs: release notes | planned |
+| 1 | Brief history: SSR wrapper → getInitialProps → 9.3 split → 12 SWC → 13 App Router → today | Atlas timeline strip in the Source region header; J0 step 1 caption | inspect | L2 (history field on `next build`), L3 | A1 §Краткая история; docs: release notes | implemented (Atlas history strip above the canvas; History field in the `next build` inspector with release-notes link; J0 step 1 story and internals) |
 | 1 | SWC as compiler (single file, N-API, no graph knowledge) | J1 steps 3–5 | transform | L1–L3 | A1 §SWC; A7 §SWC; docs: next/compiler | implemented (J1) |
 | 1 | Turbopack as bundler: incremental graph, lazy bundling in dev, unified graph, crates location | J1 step 9; C6; J9 step 6 | explain / compare | L1–L3 | A1 §Turbopack; A7 §Turbopack; docs: turbopack | implemented (J1) · version note (default status) |
 | 1 | `BaseServer`, `NextNodeServer`, `NextWebServer` | J2 step 9 inspector; Atlas render-server | inspect | L2, L3 | A1 §Серверный слой; source: packages/next/src/server | implemented (J2) |
@@ -34,13 +35,13 @@ list is in §Sources at the end.
 | 1 | Component as rendering unit; `"use client"` | J5 steps 7–8; J0 step 2 | reference | L1 | A1 §Компонент как единица рендеринга | implemented (J5) |
 | 1 | Route-segment file conventions (page, layout, loading, error, not-found) | J5 step 3 | assemble | L1–L2 | A1; docs: file conventions | implemented (J5) |
 | 1 | Two React runtimes + `renderToHTMLOrFlight` decision by `RSC` header | J5 steps 1, 21; C3 | explain | L1, L3 | A1 §Два React-рантайма; source: app-render | implemented (J5) |
-| 1 | RSC payload contents | J5 step 10 | transform | L1–L2 | A1; A3 §Рендеринг | planned · version note ("binary" wording) |
+| 1 | RSC payload contents | J5 step 10 | transform | L1–L2 | A1; A3 §Рендеринг | implemented (J5) · version note ("binary" wording) |
 | 1 | Streaming and selective hydration via Suspense | J5 steps 14, 19 | fill / light-up | L1 | A1 §Streaming; docs: streaming | implemented (J5) |
-| 1 | App client router (`AppRouter`), `RSC: 1`, layout state preservation | J6 steps 6, 11 | move / swap | L1–L3 | A1 §Клиентский роутер; source: app-router.tsx | planned |
-| 1 | Prefetch on hover into a client cache | J6 step 1 | move | L1 | A1; A4 | planned · version note |
+| 1 | App client router (`AppRouter`), `RSC: 1`, layout state preservation | J6 steps 6, 11 | move / swap | L1–L3 | A1 §Клиентский роутер; source: app-router.tsx | implemented (J6) |
+| 1 | Prefetch on hover into a client cache | J6 step 1 | move | L1 | A1; A4 | implemented (J6) · version note |
 | 1 | Caching model evolution: 14 implicit fetch cache → 16 Cache Components explicit `"use cache"`, `cacheLife()` | J8 step 3 | explain | L1–L3 | A1 §Кеширование; docs: cacheComponents, use cache | implemented (J8) · version note |
 | 1 | PPR overview | J8 steps 13–15 | resume | L1 | A1 §Partial Prerendering; docs: PPR | implemented (J8) · version note |
-| 1 | Server Actions overview | J7 | – | L1 | A1 §Server Actions | planned |
+| 1 | Server Actions overview | J7 | – | L1 | A1 §Server Actions | implemented (J7) |
 
 ## Article 2 — Pages Router internals
 
@@ -65,7 +66,7 @@ list is in §Sources at the end.
 | 2 | `__NEXT_DATA__` contents and duplication cost (128 KB warning) | J3 step 9 | transform | L1–L3 (excerpt) | A2 §NEXT_DATA | implemented (J3) |
 | 2 | Hydration sequence: chunks → read `__NEXT_DATA__` → `hydrateRoot` → attach | J3 steps 11–12 | light-up | L1–L2 | A2 §Гидратация | implemented (J3) |
 | 2 | Hydration mismatch causes | J3 step 13 | explain | L1–L2 | A2 §Гидратация | implemented (J3) |
-| 2 | Whole-tree hydration vs App Router | C5 | compare | L1 | A2 §Гидратация | planned |
+| 2 | Whole-tree hydration vs App Router | C5 | compare | L1 | A2 §Гидратация | implemented (C5) |
 | 2 | ASO empty `query` and `router.isReady` | J3 step 14 | explain | L1–L2 | A2 §Гидратация | implemented (J3) |
 | 2 | Client navigation entry (`<Link>`, `router.push`) | J4 | – | L1 | A2 §Клиентская навигация | implemented (J4) |
 | 2 | Viewport prefetch: SSG chunk+JSON, SSR chunk only, `Set` dedupe | J4 step 1 | move | L1–L2 | A2 §Prefetch | implemented (J4) · version note |
@@ -80,7 +81,7 @@ list is in §Sources at the end.
 | Article | Section / concept | Visual scene | Interaction | Explanation layer | Verification source | Status |
 |---|---|---|---|---|---|---|
 | 3 | Two React builds in one process | J5 step 1 (cutaway); C3 | explain | L1–L2 | A3 §Два рантайма React | implemented (J5) |
-| 3 | RSC build: async components, serializes to a stream, no DOM, no `useState`/`useEffect` | J5 step 6; Atlas RSC runtime | transform | L1–L2 | A3; docs: server components | planned · version note ("binary") |
+| 3 | RSC build: async components, serializes to a stream, no DOM, no `useState`/`useEffect` | J5 step 6; Atlas RSC runtime | transform | L1–L2 | A3; docs: server components | implemented (J5) · version note ("binary") |
 | 3 | `react-server` conditional export map in React's `package.json` | J5 step 2 (L3 excerpt) | explain | L3 | A3; source: react package.json | implemented (J5) |
 | 3 | Bundler layers activate the condition per module | J1 step 8; J5 step 2 | explain | L1–L3 | A3; A7 §Слои | implemented (J1) |
 | 3 | Loader tree shape `[segment, parallelRoutes, modules]`; `children` and `@slot` keys | J5 step 3 | assemble | L1–L3 (excerpt) | A3 §Как описывается маршрут; source: next-app-loader | implemented (J5) |
@@ -91,7 +92,7 @@ list is in §Sources at the end.
 | 3 | `"use client"` boundary: reference instead of execution; `page_client-reference-manifest.js` | J5 steps 7–8 | reference | L1–L3 (manifest excerpt) | A3 §Рендеринг | implemented (J5) |
 | 3 | RSC Payload contents; single-letter keys; inlined into HTML | J5 step 10 | transform | L1–L3 (rows) | A3 §Рендеринг | implemented (J5) |
 | 3 | Two parallel uses of the payload (HTML + inline) | J5 steps 11–13 | split | L1 | A3 §Рендеринг | implemented (J5) |
-| 3 | `FlightRouterState`: bidirectional, per-segment marks (refetch, head-only) | J5 step 9; J6 step 6 | explain | L1–L3 | A3 §Flight Protocol; source: router-reducer types | implemented (J5) |
+| 3 | `FlightRouterState`: bidirectional, per-segment refresh mark (`refetch`, `inside-shared-layout`, `metadata-only`) | J5 step 9; J6 step 6 | explain | L1–L3 | A3 §Flight Protocol; source: router-reducer types | implemented (J5) |
 | 3 | Segment slices `[segment, tree patch, content, head]`; streamability | J5 step 9–10 | explain | L2–L3 | A3 §Flight Protocol | implemented (J5) |
 | 3 | Flight → HTML: tee, SSR consumes copy 1, seeds router state, does not re-render | J5 steps 11–12; C3 | split / transform | L1–L2 | A3 §Как RSC превращается в HTML | implemented (J5) |
 | 3 | Why not straight to HTML (three uses of one stream) | J5 step 12 caption; J0 step 7 | explain | L1 | A3 | implemented (J5) |
@@ -104,27 +105,27 @@ list is in §Sources at the end.
 
 | Article | Section / concept | Visual scene | Interaction | Explanation layer | Verification source | Status |
 |---|---|---|---|---|---|---|
-| 4 | Navigation request headers `RSC`, `Next-Router-State-Tree` (URL-encoded JSON), `Next-Url` | J6 step 6 | move | L1–L3 (values) | A4 §Клиентская навигация; docs/source: app-router headers | planned |
-| 4 | `_rsc` cache-busting parameter and CDN keys | J6 step 6 | explain | L1–L2 | A4 | planned |
-| 4 | Server walks both trees; renders from divergence or explicit marks | J6 step 8 | diff | L1–L2 | A4 | planned |
-| 4 | Client merges patch; unchanged segments keep nodes (scroll, accordions, form text) | J6 step 11 | swap | L1 | A4 | planned |
-| 4 | Shared layout neither rendered nor sent | J6 step 9 | transform | L1 | A4 | planned |
-| 4 | Prefetch: viewport + hover, Flight into cache | J6 step 1 | move | L1 | A4 §Segment Cache и prefetch | planned · version note |
+| 4 | Navigation request headers `RSC`, `Next-Router-State-Tree` (URL-encoded JSON), `Next-Url` | J6 step 6 | move | L1–L3 (values) | A4 §Клиентская навигация; docs/source: app-router headers | implemented (J6) |
+| 4 | `_rsc` cache-busting parameter and CDN keys | J6 step 6 | explain | L1–L2 | A4 | implemented (J6) |
+| 4 | Server walks both trees; renders from divergence or explicit marks | J6 step 8 | diff | L1–L2 | A4 | implemented (J6) |
+| 4 | Client merges patch; unchanged segments keep nodes (scroll, accordions, form text) | J6 step 11 | swap | L1 | A4 | implemented (J6) |
+| 4 | Shared layout neither rendered nor sent | J6 step 9 | transform | L1 | A4 | implemented (J6) |
+| 4 | Prefetch: viewport + hover, Flight into cache | J6 step 1 | move | L1 | A4 §Segment Cache и prefetch | implemented (J6) · version note |
 | 4 | Route Cache (trees) vs Segment Cache (segments) | J6 step 2; J8 step 10; C9 | explain | L1–L2 | A4; docs: segment cache | implemented (J8) · version note |
-| 4 | Old model (tree to first `loading`) vs new (tree first, then missing segments) | J6 steps 3–4; version chips | move | L1 + version note | A4 | planned · version note |
-| 4 | Network burst: `Next-Router-Segment-Prefetch: /_tree`, per-segment paths, `Next-Router-Prefetch: 1` | J6 steps 3–4 | move | L2–L3 | A4; source: prefetch headers | planned |
-| 4 | Why it is cheap: dedupe, shared segments, small parallel HTTP/2, scheduler with priorities/cancel | J6 step 1 | explain | L1–L2 | A4 | planned |
-| 4 | `prefetch` prop to weaken/disable | J6 step 1 | inspect | L2 | A4; docs: Link prefetch | planned · version note |
-| 4 | Server prepares segment hints (`loading` below?) | J6 step 5 | explain | L3 | A4 | planned |
-| 4 | Cache Components nuance: per-segment prefetch for all routes only with `cacheComponents: true` | J6 step 5 | explain | L1–L2 | A4; docs: cacheComponents | planned · version note |
-| 4 | Server Action ID (hash) and `server-reference-manifest` | J7 step 2 | transform | L1–L3 | A4 §Server Actions | planned |
-| 4 | POST with `Next-Action` and serialized args | J7 step 6 | move | L1–L2 | A4 | planned |
-| 4 | Response `text/x-component` with `a` (result) and `f` (flight) | J7 steps 13–14 | move | L1–L3 | A4; source: action-handler | planned |
-| 4 | Rerender only if invalidated (`revalidatePath/Tag`, `redirect`) | J7 steps 11–13 | invalidate | L1 | A4 | planned · version note (`updateTag`/`refresh`) |
-| 4 | Unknown / old action IDs rejected before execution | J7 step 8 | connect | L1 | A4 | planned |
-| 4 | Closure encryption with deploy key, ID as checksum | J7 step 4 | transform | L1–L2 | A4; docs: security | planned |
-| 4 | `.bind()` arguments travel as plain JSON | J7 step 4 | explain | L1–L2 | A4 | planned |
-| 4 | Forms without JavaScript | J7 step 5 | explain | L1 | A4 | planned |
+| 4 | Old model (tree to first `loading`) vs new (tree first, then missing segments) | J6 steps 3–4; version chips | move | L1 + version note | A4 | implemented (J6) · version note |
+| 4 | Network burst: `Next-Router-Segment-Prefetch: /_tree`, per-segment paths, `Next-Router-Prefetch: 1` | J6 steps 3–4 | move | L2–L3 | A4; source: prefetch headers | implemented (J6) |
+| 4 | Why it is cheap: dedupe, shared segments, small parallel HTTP/2, scheduler with priorities/cancel | J6 step 1 | explain | L1–L2 | A4 | implemented (J6) |
+| 4 | `prefetch` prop to weaken/disable | J6 step 1 | inspect | L2 | A4; docs: Link prefetch | implemented (J6) · version note |
+| 4 | Server prepares segment hints (`loading` below?) | J6 step 5 | explain | L3 | A4 | implemented (J6) |
+| 4 | Cache Components nuance: per-segment prefetch for all routes only with `cacheComponents: true` | J6 step 5 | explain | L1–L2 | A4; docs: cacheComponents | implemented (J6) · version note |
+| 4 | Server Action ID (hash) and `server-reference-manifest` | J7 step 2 | transform | L1–L3 | A4 §Server Actions | implemented (J7) |
+| 4 | POST with `Next-Action` and serialized args | J7 step 6 | move | L1–L2 | A4 | implemented (J7) |
+| 4 | Response `text/x-component` with `a` (result) and `f` (flight) | J7 steps 13–14 | move | L1–L3 | A4; source: action-handler | implemented (J7) |
+| 4 | Rerender only if invalidated (`revalidatePath/Tag`, `redirect`) | J7 steps 11–13 | invalidate | L1 | A4 | implemented (J7) · version note (`updateTag`/`refresh`) |
+| 4 | Unknown / old action IDs rejected before execution | J7 step 8 | connect | L1 | A4 | implemented (J7) |
+| 4 | Closure encryption with deploy key, ID as checksum | J7 step 4 | transform | L1–L2 | A4; docs: security | implemented (J7) |
+| 4 | `.bind()` arguments travel as plain JSON | J7 step 4 | explain | L1–L2 | A4 | implemented (J7) |
+| 4 | Forms without JavaScript | J7 step 5 | explain | L1 | A4 | implemented (J7) |
 
 ## Article 5 — Server layer
 
@@ -171,7 +172,7 @@ list is in §Sources at the end.
 |---|---|---|---|---|---|---|
 | 7 | Compiler vs bundler responsibilities | J1 steps 3, 7; concept pair | predict / reveal | L1 | A7 §Компилятор и бандлер | implemented (J1) |
 | 7 | Bundler options: Webpack, Turbopack, Rspack (experimental); Turbopack embeds SWC | J1 step 9 | explain | L1–L2 | A7; docs: rspack | implemented (J1) · version note |
-| 7 | History: Babel/Terser/Webpack → SWC (12) → Turbopack | Atlas build region history field | inspect | L2 | A7 | planned |
+| 7 | History: Babel/Terser/Webpack → SWC (12) → Turbopack | Atlas build region history field | inspect | L2 | A7 | implemented (History field in the `bundler` inspector) |
 | 7 | SWC transforms list (types, JSX, downlevel, minify) | J1 step 3 | transform | L1–L2 | A7 §SWC | implemented (J1) |
 | 7 | Native N-API packages per platform; WASM fallback | J1 step 3 L3 | inspect | L3 | A7 | implemented (J1) |
 | 7 | Next-specific transforms: console removal, `data-testid`, CSS-in-JS | J1 step 3 L3 | inspect | L3 | A7; docs: compiler options | implemented (J1) |
@@ -194,7 +195,7 @@ list is in §Sources at the end.
 | 7 | Bottom-up invalidation; affected subgraph only | C6; J9 step 6 | explain | L1–L2 | A7 | implemented (J9) |
 | 7 | Persistent filesystem cache across builds | J8 step 12 | explain | L1–L2 | A7; docs: turbopack cache | implemented (J8) |
 | 7 | Crates: core, ecmascript, css, resolve, node | J1 step 9 L3 | inspect | L3 | A7 | implemented (J1) |
-| 7 | Unified graph vs separate compilers | C6 | compare | L1 | A7 | planned |
+| 7 | Unified graph vs separate compilers | C6 | compare | L1 | A7 | implemented (C6) |
 | 7 | Next ↔ Turbopack through N-API `Project`; identical manifests | J1 step 9 L3; J1 step 12 | inspect | L2–L3 | A7 §Как Next.js управляет Turbopack | implemented (J1) |
 | 7 | `next build` phases: buildId, config, redirects/rewrites, route discovery, compile, trace, analyze, prerender, standalone, summary | J1 step 1 | explain | L1–L2 | A7 §Другие шаги | implemented (J1) |
 | 7 | Route analysis and prerender | J1 steps 13–14 | explain / transform | L1–L2 | A7 | implemented (J1) |
@@ -259,11 +260,11 @@ list is in §Sources at the end.
 |---|---|---|
 | Runtime layers as depth (RSC over SSR) | J5 step 1 cutaway | implemented (J5) |
 | Caches at different layers | J8 step 1 cache map | implemented (J8) |
-| Version/scope note visible in product | header chip "Articles: Next.js 15→16 (2025) · verified against Next.js <version> (2026-09)" | planned |
-| Source panel with doc links | inspector L3 and step Internals | planned |
-| Reduced-motion static path | every motion verb has a static equivalent (`visual-language.md` §8) | planned |
-| Text equivalent per scene | step `text` + generated `stateDescription` | planned |
-| Predict-the-machine mode | §3.4 | planned |
+| Version/scope note visible in product | header chip "Articles: Next.js 15→16 (2025) · verified against Next.js <version> (2026-09)" | implemented (header chip, `VERSION_NOTE` in `src/ui/App.tsx`: "Articles: Next.js 15→16 era (2025) · verified against Next.js 16.3 (Sept 2026)"; hidden at ≤767px) |
+| Source panel with doc links | inspector L3 and step Internals | implemented (inspector sources behind Show internals; step Internals disclosure) |
+| Reduced-motion static path | every motion verb has a static equivalent (`visual-language.md` §8) | implemented (`useReducedMotion`: camera jump-cut, token without transition; sheet and ruler transitions off in `src/styles.css`) |
+| Text equivalent per scene | step `text` + generated `stateDescription` | implemented (`describeState` in `src/domain/textEquivalent.ts`; visually hidden live region in StepPanel and CompareView, "Read as text" toggle) |
+| Predict-the-machine mode | §3.4 | implemented (Predict view, 22 questions in `src/domain/quiz.ts`) |
 
 ## Sources
 
@@ -348,3 +349,9 @@ Implemented:
 `vite build`: index chunk 181.53 kB (55.06 kB gzip), CSS 20.68 kB (4.74 kB gzip). Lazy chunks (one per journey except J0, one per compare pair, one for the quiz) range from 2.96 kB (1.10 kB gzip, caches pair) to 22.32 kB (7.04 kB gzip, caching journey). `tsc --noEmit` clean, `vitest run` 108 tests in 16 files pass, `playwright test` 107 pass and 7 skip by design (touch tests outside phone-390, minimap test on phone where the minimap is hidden). Canvas supports drag-pan, wheel/trackpad zoom, touch pinch, double-click region fit and `+`/`-`; manual camera is written to `cam=` and restored on reload.
 
 Layout pass (experience-architecture §3.2, §4, §5, §9). A camera breadcrumb (`World › Server › render-server › RSC runtime`, from the pure `breadcrumbFor` in `src/domain/breadcrumb.ts`) sits above the canvas in journey, atlas and predict views; each crumb frames the world, a band, a region or the entity and counts as a manual camera move, and at ≤767px the middle crumbs fold into "…". The step "Internals" disclosure and the inspector's internals toggle keep their open state in sessionStorage (one key each, in-memory fallback, `src/domain/sessionFlags.ts`), collapsed by default at every width. The atlas adds Environment and Region filters (AND with Phase and Reaches; a region takes in the runtimes drawn inside it, `src/domain/atlasFilter.ts`), a live "n of 106" count and Clear. At 768–1023px the journey step panel is a bottom sheet (peek 30 %, expanded 70 % via a 44px keyboard-operable handle) with the minimap in its header; the camera is locked to Follow at Region level (`regionLevel`), Whole system is not offered, and every fit is inset by the peek height. At ≤767px a horizontal swipe on the step panel steps (panel only, so it never competes with drag-pan on the canvas), and Whole system opens a full-screen overlay on its own rig that closes with ✕ or Esc and returns focus. Counts after this pass: `vitest run` 125 tests in 19 files; `playwright test` 126 pass and 16 skip by design (viewport-specific tests: tablet sheet, phone swipe/overlay/touch, minimap on phone); `--repeat-each=2` 252 pass. `vite build`: index chunk 188.02 kB (57.15 kB gzip), CSS 23.76 kB (5.37 kB gzip).
+
+## Coverage pass (2026-10-05)
+
+The last two article gaps are closed. Entities can carry a `history` (releases oldest first, checked by `validateEntities` in `src/domain/validate.ts`: non-empty, every entry has text and a release number, release numbers strictly increase). The inspector shows it as a History field. `next build` holds the Next.js history from Article 1 (1 · 2016 SSR wrapper with getInitialProps, 9.3 getStaticProps / getServerSideProps, 12 SWC, 13 App Router, 16 Turbopack default and Cache Components) and links the release notes. `bundler` holds the toolchain history from Article 7 (Babel + Terser + Webpack, 12 SWC, 15 Turbopack stable for dev, 16 default for dev and build with `--webpack` as the opt-out; concept-model.md V4). The Atlas shows the Next.js history as a one-line strip above the canvas; the strip scrolls inside itself at phone width, and its "Next.js history" button opens the `next build` inspector. J0 step 1 opens with one history sentence (59 words) and lists the full chain in its internals.
+
+Every other `planned` row was re-checked against the code and marked implemented where the journey, compare pair or UI already covers it: J5 (RSC payload, RSC build, both with the "binary" version note), J6 (navigation headers, `_rsc`, tree diff, merge, prefetch and its version notes), J7 (action IDs, `Next-Action`, `a`/`f` rows, invalidation, ID rejection, closure encryption, `.bind()`, forms without JavaScript), C5, C6, and the brief checklist (version chip, source panel, reduced motion, text equivalent, predict mode). Article 4 "Server prepares segment hints (`loading` below?)" was closed with one internals line in J6 step 5; no row stays planned. Counts: `vitest run` 127 tests in 19 files; `playwright test` 130 pass and 16 skip by design.
