@@ -120,6 +120,53 @@ A journey is an ordered list of steps over the world. The UI is the same for eve
   world state: which entities are current, kept, replaced, invalid) exposed in an `aria-live`
   region and in a "Read as text" view.
 
+#### Code lens (all journeys)
+
+A Level 2 drawer inside the step panel, under the story: one specimen app's code (the example app of
+§2) changing form along the journey. On J0: TSX → JS → reference | chunk → manifests → Flight rows →
+HTML + `self.__next_f` → hydrated DOM → Flight patch. Every other journey shows the same specimen in
+the forms that journey changes it into (build output, request and response lines, JSON, CSS, file
+listings, terminal output), with what-if variants (e.g. J8's cookies-up billing page, J9's saved
+edits) badged as such. Full spec and specimen: `code-lens.md` (status per journey in §10.3); one
+design per journey in `code-lens/<slug>.md`; data in `src/domain/codeLens/` (one lazy chunk per
+journey plus the specimen), UI in `src/ui/CodeLens.tsx`. A step whose lens is `off` renders none.
+
+- **Modes, set per step in data** (not inferred from the step kind): `off` (j0-1 renders nothing;
+  predict and check steps are always off), `peek` (a one-line ledger strip with **Show code**; j0-2,
+  j0-5, j0-6 dimmed) and `open` (the panes, with **Hide code**; j0-3, 4, 7, 8, 9, 10, where the
+  artifact form changes). Across all journeys: 52 open, 75 peek, 70 off of 197 steps. An explicit
+  Show or Hide holds for the session (`sessionFlags`).
+- **Fate = hue + mark.** Each line has one *where* hue (⊘ server-only, ⚡ client boundary outline,
+  ⚡ split filled, ⇄ action ID) drawn as the row's left bar and gutter glyph, and at most one
+  *when* mark (○ static shell, ⌛ suspended, ▤ cached, 🔒 shared layout). The first line of each
+  run carries a text chip (`⊘ server-only · data`); others keep the fate as visually hidden text,
+  so color is never the only signal.
+- **Code ↔ map, both ways.** Hovering or focusing a line lights the entities its fate links to at
+  this step (in the line's hue); hovering an entity on the map, or selecting it in the inspector,
+  lights the lines that link to it, including lines inside an opened fold. A fate with nothing on
+  the map at this step shows `off-map`. Lines are one tab stop with ↑/↓ between them; ←/→ still
+  step.
+- **Split panes.** j0-4 turns one column into two: `server · rsc layer` (the
+  `registerClientReference` proxy) next to the browser chunk `layout-3c4d.js` with its `×2` badge.
+  Panes pair once the lens is ~580px wide (a container query) and stack below that.
+- **Wide panel at ≥ 1280 px.** A journey with a lens widens the step panel to
+  `clamp(480px, 100vw − 760px, 700px)` for the whole journey, so the map does not jump between
+  steps; at 1440 the split pairs with ~40 columns per pane.
+- **Tablet (768–1023 px).** The lens sits inside the bottom sheet's panel; the sheet's
+  peek/expand handle is unchanged and the lens toggle reads Hide code so it is never confused with
+  Collapse.
+- **Phone (≤ 767 px).** When the lens shows panes, a sticky 44px **More room for code** handle
+  gives the panel ~4/5 of the height between breadcrumb and transport; the map keeps a ≥112px strip
+  and refits, so a lit line still lights its entity on screen. Peek steps and Escape give the room
+  back; swipe-to-step is unchanged.
+- **Reduced motion.** No line animation; steps marked `side-by-side` / `three-pane` draw a
+  **before** pane next to (Flight forms: above) the after panes: the earlier form (TSX before JS,
+  j0-7 Flight rows before the j0-10 patch) or the specimen source, one pane per file, at most two:
+  past two files the first keeps its pane and the rest fold into one "n more files" pane (a fold
+  per file, opening to the lines as written). Before lines
+  are context only: unlinked, no `off-map`; a before pane whose lines are all gone says `replaced`
+  in its header.
+
 ### 3.2 System Atlas
 
 Free exploration of the world at any zoom. Clicking an entity opens the inspector:
