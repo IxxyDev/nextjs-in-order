@@ -26,7 +26,7 @@ export const REQUEST_ROUTING: Journey = {
       token: { at: 'routing-ladder', glyph: 'manifest', label: 'buildId k7Qm2xLp9 · routes · matchers' },
       states: { 'routing-ladder': 'current', 'routes-manifest': 'active', 'middleware-manifest': 'active', 'public-dir': 'active', 'request-queue': 'kept', 'node-http': 'kept' },
       edges: ['e-manifest-ladder', 'e-public-ladder', 'e-queue-ladder'],
-      internals: ['.next/BUILD_ID: k7Qm2xLp9', 'routes-manifest.json: headers, redirects, rewrites { beforeFiles, afterFiles, fallback }, staticRoutes, dynamicRoutes with regexes', 'server/pages-manifest.json + server/app-paths-manifest.json: pages and handlers', 'server/middleware-manifest.json: the matcher /dashboard/:path* as a regex', 'next dev: the watcher builds the same tables live'],
+      internals: ['.next/BUILD_ID: k7Qm2xLp9', 'routes-manifest.json: headers, redirects, rewrites { beforeFiles, afterFiles, fallback }, staticRoutes, dynamicRoutes with regexes', 'server/pages-manifest.json + server/app-paths-manifest.json: pages and handlers', 'server/functions-config-manifest.json: the Proxy matcher /dashboard/:path* as a regex (16.3; Edge middleware used middleware-manifest.json)', 'next dev: the watcher builds the same tables live'],
       sources: [ORDER]
     },
     {

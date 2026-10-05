@@ -33,8 +33,8 @@ export const RESPONSES: ComparePair = {
       story: 'Both bodies are Flight rows with the same format. The initial payload starts at the root; the patch starts at the billing segment.',
       ruler: [0.35, 0.3],
       lanes: [
-        { ref: { journey: 'app-initial', step: 10 }, rows: ['1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]', '2:I[…,["static/chunks/app/dashboard/settings/page-5e6f.js"],"default"]', '0:{"b":"<buildId>","f":[["",{…},…]]}  ← from the root'] },
-        { ref: { journey: 'app-navigation', step: 10 }, rows: ['0:{"b":"<buildId>","f":[["dashboard","billing",…]]}  ← from the divergent segment', 'no rows for the root or dashboard layouts'] }
+        { ref: { journey: 'app-initial', step: 10 }, rows: ['1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]', '2:I[…,["static/chunks/app/dashboard/settings/page-5e6f.js"],"default"]', '0:{"b":"<buildId>","f":[[["",{…}],[…seed…],…,false]]}  ← from the root'] },
+        { ref: { journey: 'app-navigation', step: 10 }, rows: ['0:{"b":"<buildId>","f":[["children","dashboard","children","billing",[…tree patch…],[…seed…],…,false]]}  ← from the divergent segment', 'no rows for the root or dashboard layouts'] }
       ]
     },
     {

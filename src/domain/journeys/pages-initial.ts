@@ -42,7 +42,7 @@ export const PAGES_INITIAL: Journey = {
       token: { at: 'browser-chunks', glyph: 'browser-chunk', label: 'products/[id] chunk · ✂ hole (no gSSP)' },
       states: { 'pages-renderer': 'active', gssp: 'current', db: 'active', 'browser-chunks': 'kept' },
       edges: ['e-pages-gssp', 'e-db-gssp', 'e-gssp-chunks-strip'],
-      internals: ['getServerSideProps({ params: { id: "42" }, req, res, query }) → { props: { product } }', 'SWC next_ssg transform drops the export and every import only it uses from the client build', 'never cached by the framework; set Cache-Control on res yourself'],
+      internals: ['getServerSideProps({ params: { id: "42" }, req, res, query }) → { props: { product } }', 'next_strip_page_exports (Turbopack) or SWC next_ssg (Webpack) drops the export and every import only it uses from the client build', 'never cached by the framework; set Cache-Control on res yourself'],
       sources: [GSSP]
     },
     {

@@ -26,7 +26,7 @@ export const PAGES_NAVIGATION: Journey = {
       token: { at: 'pages-prefetch', glyph: 'request', label: 'hover → GET posts/7.json (again)' },
       states: { 'pages-product-page': 'active', 'pages-prefetch': 'current', 'pages-data-endpoint': 'active' },
       edges: ['e-product-prefetch', 'e-prefetch-endpoint'],
-      internals: ['article snapshot, observed in source: hover prefetch bypasses the prefetched Set', 'docs: prefetch={false} "will not happen when entering the viewport, but will happen on hover"', 'full opt-out: a plain <a>, or the App Router where prefetch={false} means never'],
+      internals: ['article snapshot, observed in source: hover prefetch bypasses the prefetched Set', '16.3.8: a hover prefetch has priority: true, so with __NEXT_OPTIMISTIC_CLIENT_CACHE (on by default) it sets unstable_skipClientCache and fetchNextData requests the JSON again, then stores the fresh promise in this.sdc', 'docs: prefetch={false} "will not happen when entering the viewport, but will happen on hover"', 'full opt-out: a plain <a>, or the App Router where prefetch={false} means never'],
       sources: [LINK]
     },
     {
@@ -78,12 +78,12 @@ export const PAGES_NAVIGATION: Journey = {
     },
     {
       id: 'j4-7', kind: 'move', title: 'The page chunk',
-      story: 'The click on /posts/7 needs the page component as well as its data. The router looks the page up in the browser copy of the build manifest and loads the posts page chunk. It is code, and here it is already in memory from the viewport prefetch.',
+      story: 'The click on /posts/7 needs the page component as well as its data. The router looks the page up in the browser copy of the build manifest and loads the posts page chunk. It is code: the viewport prefetch only added <link rel="prefetch"> for it, and the hover\'s loadPage already ran it, so the click finds it ready.',
       camera: { kind: 'entities', ids: ['browser-chunks', 'pages-post-page', 'pages-router', 'build-manifest'] },
       token: { at: 'pages-post-page', glyph: 'browser-chunk', label: 'pages/posts/[id] chunk' },
       states: { 'browser-chunks': 'active', 'pages-post-page': 'current', 'pages-router': 'active', 'build-manifest': 'kept' },
       edges: ['e-chunks-post-page'],
-      internals: ['_buildManifest.js: route → chunk list in the browser', 'data and chunk are requested in parallel']
+      internals: ['_buildManifest.js: route → chunk list in the browser', 'data and chunk are requested in parallel', 'route-loader.ts: viewport prefetch → prefetchViaDom (<link rel="prefetch">); hover (priority) → pageLoader.loadPage, which executes the chunk']
     },
     {
       id: 'j4-8', kind: 'transform', title: '_app stays, the page swaps',

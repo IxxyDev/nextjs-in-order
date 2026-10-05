@@ -57,14 +57,15 @@ export const WHOLE_LIFECYCLE: Journey = {
     },
     {
       id: 'j0-7', kind: 'transform', title: 'Two runtimes, one stream',
-      story: 'render-server walks the loader tree. The RSC runtime executes the Server Components and writes Flight rows; when it reaches DashboardNav it writes a reference to the chunk from step 4 instead of running it. The stream is teed: one copy feeds the SSR runtime, which turns it into HTML; the other is kept to inline into the page.',
+      story: 'Settings is ○, so this render ran once at build; the request gets its stored result, and a dynamic route repeats it per request. The RSC runtime executes Server Components and writes Flight rows; at DashboardNav it writes a reference to step 4\'s chunk. The stream is teed: the SSR runtime turns one copy into HTML; the other is inlined.',
       camera: { kind: 'region', id: 'render-server' },
       token: { at: 'flight', glyph: 'flight', label: 'Flight rows' },
       states: {
         'loader-tree': 'active', 'rsc-runtime-entity': 'active', 'client-reference-manifest': 'kept', flight: 'current',
         'flight-tee': 'active', 'ssr-runtime-entity': 'active', html: 'new'
       },
-      edges: ['e-ladder-loader', 'e-loader-rsc', 'e-crm-rsc', 'e-rsc-flight', 'e-flight-tee', 'e-tee-ssr', 'e-ssr-html']
+      edges: ['e-ladder-loader', 'e-loader-rsc', 'e-crm-rsc', 'e-rsc-flight', 'e-flight-tee', 'e-tee-ssr', 'e-ssr-html'],
+      internals: ['○ /dashboard/settings: prerender ran this render at build (J1 step 14); a production GET is served settings.html + settings.rsc from the server cache']
     },
     {
       id: 'j0-8', kind: 'move', title: 'What crosses the network',
@@ -89,7 +90,8 @@ export const WHOLE_LIFECYCLE: Journey = {
       token: { at: 'app-router', glyph: 'flight', label: 'Flight patch · billing' },
       states: {
         'app-router': 'current', 'router-state-tree': 'active', 'loader-tree': 'active', 'rsc-runtime-entity': 'active', flight: 'active',
-        'client-components': 'kept', 'src-root-layout': 'kept', 'src-dashboard-layout': 'kept', 'src-settings-page': 'replaced', 'src-billing-page': 'new'
+        'client-components': 'kept', 'src-root-layout': 'kept', 'src-dashboard-layout': 'kept', 'src-settings-page': 'replaced', 'src-billing-page': 'new',
+        'layout-router': 'active', 'suspense-hole': 'new'
       },
       edges: ['e-tree-loader', 'e-loader-rsc', 'e-rsc-flight', 'e-flight-router-patch'],
       checks: [

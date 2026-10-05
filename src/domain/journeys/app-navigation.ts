@@ -36,7 +36,7 @@ export const APP_NAVIGATION: Journey = {
       token: { at: 'segment-cache', glyph: 'segment', label: 'billing shell · fetched; "" and dashboard · kept' },
       states: { 'prefetch-scheduler': 'active', 'segment-cache': 'current', flight: 'active', 'src-root-layout': 'kept', 'src-dashboard-layout': 'kept', 'src-billing-page': 'new' },
       edges: ['e-scheduler-ladder', 'e-flight-segment-cache'],
-      internals: ['Next-Router-Segment-Prefetch: /dashboard/billing', 'one request per missing segment: small, parallel, HTTP/2-friendly', 'article-era model: one request up to the first loading.tsx; now: tree first, then per-segment']
+      internals: ['Next-Router-Segment-Prefetch: /dashboard/billing/__PAGE__ (the page segment\'s request key)', 'one request per missing segment: small, parallel, HTTP/2-friendly', 'article-era model: one request up to the first loading.tsx; now: tree first, then per-segment']
     },
     {
       id: 'j6-5', kind: 'explain', title: 'What the server is willing to prefetch',
@@ -48,11 +48,11 @@ export const APP_NAVIGATION: Journey = {
     },
     {
       id: 'j6-6', kind: 'move', title: 'Click',
-      story: 'The user clicks. The router sends a navigation request: GET /dashboard/billing with RSC: 1, Next-Router-State-Tree carrying the client copy of the route tree, Next-Url, and ?_rsc= in the query. The query parameter exists so that a CDN never confuses this response with the HTML document at the same URL.',
+      story: 'The user clicks. The router sends GET /dashboard/billing with RSC: 1, Next-Url, ?_rsc= in the query, and Next-Router-State-Tree. Billing was prefetched, so that header carries the target tree, marked "refetch" where the cache has no data. The query parameter keeps a CDN from confusing this response with the HTML document at the same URL.',
       camera: { kind: 'entities', ids: ['app-router', 'router-state-tree', 'routing-ladder'] },
-      token: { at: 'app-router', glyph: 'request', label: 'GET /dashboard/billing?_rsc=1a2b3 · RSC: 1' },
+      token: { at: 'app-router', glyph: 'request', label: 'GET /dashboard/billing?_rsc=qR7vX2mK9pLw3sTb · RSC: 1' },
       states: { 'app-router': 'current', 'router-state-tree': 'active', 'routing-ladder': 'active', 'route-cache': 'kept' }, edges: ['e-router-ladder', 'e-tree-loader', 'e-route-cache-router'],
-      internals: ['RSC: 1', 'Next-Router-State-Tree: URL-encoded JSON of FlightRouterState', 'Next-Url: /dashboard/settings', '?_rsc=<hash of the headers> as the CDN cache key']
+      internals: ['RSC: 1', 'Next-Router-State-Tree: URL-encoded JSON of the target FlightRouterState, "refetch" on the top-most segment the cache cannot fill (createDynamicRequestTree)', 'nothing prefetched: the current tree is sent instead (navigateToUnknownRoute); the article describes only that case', 'Next-Url: /dashboard/settings', '?_rsc=<hash of the headers> as the CDN cache key']
     },
     {
       id: 'j6-7', kind: 'predict', title: 'Two trees on the server',
@@ -74,11 +74,11 @@ export const APP_NAVIGATION: Journey = {
     },
     {
       id: 'j6-8', kind: 'reveal', title: 'The shared prefix is locked',
-      story: 'The server walks both trees in parallel. "" matches, dashboard matches, then settings ≠ billing. The matching prefix is locked: nothing in it renders. Rendering begins at the first divergent node, unless a segment carries an explicit refetch mark. Structure was kept separate from content precisely so this comparison is cheap.',
+      story: 'The server walks the header tree against its loader tree. "" and dashboard carry no mark: the client already has them, so that prefix is locked and nothing in it renders. Rendering begins at billing, where the refetch mark sits. Without a prefetch the header holds the current tree and the first divergence, settings ≠ billing, plays that role.',
       camera: { kind: 'entities', ids: ['loader-tree', 'router-state-tree', 'src-root-layout', 'src-dashboard-layout'] },
-      token: { at: 'loader-tree', glyph: 'segment', label: 'shared: "" → dashboard · diverges at: billing' },
+      token: { at: 'loader-tree', glyph: 'segment', label: 'locked: "" → dashboard · renders from: billing' },
       states: { 'loader-tree': 'current', 'router-state-tree': 'active', 'src-root-layout': 'kept', 'src-dashboard-layout': 'kept', 'src-settings-page': 'replaced', 'src-billing-page': 'new' }, edges: ['e-tree-loader'],
-      internals: ['walkTreeWithFlightRouterState in app-render', 'per-segment marks in FlightRouterState: refetch, refresh, head-only']
+      internals: ['walkTreeWithFlightRouterState in app-render', 'per-segment refresh mark in FlightRouterState: "refetch" | "inside-shared-layout" | "metadata-only" (app-router-types.ts)', '16.3 after a prefetch: the target tree with "refetch" at billing (or its __PAGE__); article era: the current tree, compared node by node']
     },
     {
       id: 'j6-9', kind: 'transform', title: 'Only BillingPage runs',
@@ -154,7 +154,7 @@ export const APP_NAVIGATION: Journey = {
       camera: { kind: 'world' },
       states: { 'app-router': 'active', 'router-state-tree': 'active', 'loader-tree': 'active', flight: 'active', 'layout-router': 'active' }, edges: ['e-router-ladder', 'e-tree-loader', 'e-flight-router-patch'],
       checks: [
-        { statement: 'DashboardLayout re-renders on navigation to /dashboard/billing.', isTrue: false, why: 'It sits in the shared prefix of both trees. The server locks that prefix and starts rendering at the first divergent node, billing.' },
+        { statement: 'DashboardLayout re-renders on navigation to /dashboard/billing.', isTrue: false, why: 'It sits in the prefix the client already holds (no refetch mark above billing). The server locks that prefix and starts rendering at billing.' },
         { statement: 'The navigation response contains HTML.', isTrue: false, why: 'It is text/x-component: a Flight patch with one segment slice and a tree patch. The SSR runtime is never involved.' },
         { statement: 'Shared layouts are downloaded again for every route that uses them.', isTrue: false, why: 'The Segment Cache stores each segment once; the prefetch only asks for segments that are missing.' }
       ]

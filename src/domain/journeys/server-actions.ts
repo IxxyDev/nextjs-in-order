@@ -18,16 +18,17 @@ export const SERVER_ACTIONS: Journey = {
       id: 'j7-2', kind: 'transform', title: 'The compiler assigns an ID',
       story: 'SWC replaces the function with a registration: a hash of the file path, the export name and a per-build salt becomes its action ID, so it changes between deploys. The bundler writes a row into server-reference-manifest mapping that ID to the server module and export. The ID is what the browser will know; the function stays on the server.',
       camera: { kind: 'entities', ids: ['src-actions', 'swc', 'bundler', 'server-reference-manifest'] },
-      token: { at: 'server-reference-manifest', glyph: 'reference', label: '7f3a9c1e2b44… → actions.ts#updateProfile' },
+      token: { at: 'server-reference-manifest', glyph: 'reference', label: '603a9c1e2b44… → actions.ts#updateProfile' },
       states: { 'src-actions': 'kept', swc: 'active', bundler: 'active', 'server-reference-manifest': 'new' }, edges: ['e-actions-swc', 'e-swc-bundler', 'e-bundler-srm'],
-      internals: ['serverActions transform in @next/swc: registerServerReference(fn, id, exportName)', '.next/server/server-reference-manifest.js: { node: { "7f3a…": { workers: {…}, layer: "rsc" } } }']
+      internals: ['serverActions transform in @next/swc: registerServerReference(updateProfile, "603a9c1e2b44…", null)', 'ID = 1 prefix byte (60: two declared arguments, no rest) + sha1(salt + file + ":" + export)', '.next/server/server-reference-manifest.js: { node: { "603a…": { workers: {…}, layer: "rsc" } } }']
     },
     {
       id: 'j7-3', kind: 'transform', title: 'The client sees a proxy',
-      story: 'ProfileForm is a Client Component that imports updateProfile. In the browser layer that import does not resolve to the function: it becomes createServerReference(id), a proxy that knows only the ID and how to POST. No database code, no secrets, no server module ends up in a browser chunk.',
+      story: 'ProfileForm is a Client Component that imports updateProfile. In the browser layer that import does not resolve to the function: it becomes createServerReference(id, callServer, …), a proxy that knows only the ID and how to POST. No database code, no secrets, no server module ends up in a browser chunk.',
       camera: { kind: 'entities', ids: ['src-profile-form', 'swc', 'browser-chunks'] },
-      token: { at: 'browser-chunks', glyph: 'reference', label: 'updateProfile = createServerReference("7f3a…")' },
-      states: { 'src-profile-form': 'active', swc: 'active', 'browser-chunks': 'new', 'src-actions': 'kept' }, edges: ['e-form-swc', 'e-swc-bundler', 'e-bundler-browser-chunks']
+      token: { at: 'browser-chunks', glyph: 'reference', label: 'updateProfile = createServerReference("603a…", callServer, …)' },
+      states: { 'src-profile-form': 'active', swc: 'active', 'browser-chunks': 'new', 'src-actions': 'kept' }, edges: ['e-form-swc', 'e-swc-bundler', 'e-bundler-browser-chunks'],
+      internals: ['createServerReference("603a9c1e2b44…", callServer, void 0, findSourceMapURL, "updateProfile") from private-next-rsc-action-client-wrapper']
     },
     {
       id: 'j7-4', kind: 'transform', title: 'Two envelopes for arguments',
@@ -48,11 +49,11 @@ export const SERVER_ACTIONS: Journey = {
     },
     {
       id: 'j7-6', kind: 'move', title: 'The POST envelope',
-      story: 'The request is a POST to the current page, /dashboard/settings, not to a route named after the action. The header Next-Action carries the ID; the body carries the serialized arguments, including the sealed closure and the plain bound values.',
+      story: 'The request is a POST to the current page, /dashboard/settings, not to a route named after the action. The header Next-Action carries the ID; the body carries the serialized arguments: useActionState\'s previous state, then the form. An action with captured or bound values, like step 4\'s inline one, would send the sealed blob and the plain values too.',
       camera: { kind: 'entities', ids: ['client-components', 'routing-ladder'] },
-      token: { at: 'routing-ladder', glyph: 'request', label: 'POST /dashboard/settings · Next-Action: 7f3a9c1e2b44…' },
+      token: { at: 'routing-ladder', glyph: 'request', label: 'POST /dashboard/settings · Next-Action: 603a9c1e2b44…' },
       states: { 'client-components': 'active', 'routing-ladder': 'current' }, edges: ['e-client-action'],
-      internals: ['Next-Action: 7f3a9c1e2b44…', 'Content-Type: text/plain;charset=UTF-8 (Flight-serialized args) or multipart/form-data', 'body: ["$K1", {…}] rows']
+      internals: ['Next-Action: 603a9c1e2b44…', 'Content-Type: multipart/form-data here (a FormData argument); text/plain;charset=UTF-8 when every argument is plain JSON', 'body fields: 0 = [null,"$K1"] (prevState, then a reference to the form), _1_name = the input (React encodeReply)']
     },
     {
       id: 'j7-7', kind: 'move', title: 'The ladder as usual',
@@ -65,7 +66,7 @@ export const SERVER_ACTIONS: Journey = {
       id: 'j7-8', kind: 'move', title: 'The ID is looked up before anything runs',
       story: 'The handler looks the ID up in server-reference-manifest. If it is there, the module is loaded and the export resolved. If it is not, because it came from a form rendered by an older deploy, the request is rejected before any code runs. There is no fallback and no guessing.',
       camera: { kind: 'entities', ids: ['action-handler', 'server-reference-manifest', 'server-chunks'] },
-      token: { at: 'server-reference-manifest', glyph: 'reference', label: '7f3a… → actions.ts#updateProfile ✓' },
+      token: { at: 'server-reference-manifest', glyph: 'reference', label: '603a… → actions.ts#updateProfile ✓' },
       states: { 'action-handler': 'active', 'server-reference-manifest': 'current', 'server-chunks': 'active' }, edges: ['e-srm-action'],
       internals: ['action-handler.ts: handleAction → getActionModIdOrError', 'unknown ID: "Failed to find Server Action" → 404 / re-render without running']
     },
@@ -115,23 +116,23 @@ export const SERVER_ACTIONS: Journey = {
       camera: { kind: 'entities', ids: ['action-handler', 'rsc-runtime-entity', 'data-cache', 'flight'] },
       token: { at: 'rsc-runtime-entity', glyph: 'component-server', label: 'SettingsPage (re-rendering)' },
       states: { 'action-handler': 'active', 'rsc-runtime-entity': 'current', 'data-cache': 'fresh', flight: 'new', db: 'active' }, edges: ['e-action-rsc', 'e-data-cache-rsc', 'e-db-rsc', 'e-action-flight'],
-      internals: ['article era: revalidateTag(tag) with one argument expired immediately; deprecated in 16', 'Next.js 16: updateTag(tag) = expire now; revalidateTag(tag, "max") = stale-while-revalidate', 'the re-render uses the tree from Next-Router-State-Tree, like a navigation']
+      internals: ['article era: revalidateTag(tag) with one argument expired immediately; deprecated in 16', 'Next.js 16: updateTag(tag) = expire now; revalidateTag(tag, "max") = stale-while-revalidate', 'the action POST has no RSC: 1 header, so the server ignores Next-Router-State-Tree and renders the whole route from the root']
     },
     {
       id: 'j7-14', kind: 'move', title: 'The response',
-      story: 'One response crosses: text/x-component with two named rows. a is the return value serialized as Flight; f is the re-rendered route, absent when nothing was invalidated. No HTML.',
+      story: 'One response crosses: text/x-component whose root row has two named fields. a is the return value serialized as Flight; f is the whole route re-rendered from the root, or an empty string when nothing was invalidated. No HTML.',
       camera: { kind: 'entities', ids: ['flight', 'app-router'] },
       token: { at: 'flight', glyph: 'flight', label: 'a: { ok: true } · f: [tree, segments…]' },
       states: { flight: 'current', 'app-router': 'active', html: 'na' }, edges: ['e-action-flight', 'e-flight-router-patch'],
-      internals: ['Content-Type: text/x-component', 'rows: 0:{"a":"$@1","f":"$@2"}', 'no-JS path: the same render is sent as HTML instead']
+      internals: ['Content-Type: text/x-component', 'rows: 0:{"a":"$@1","f":[[["",{…}],[…seed…],…,false]],"q":"","i":false,…} then 1:{"ok":true}', 'f path: the tree from the root, after slice(1) drops the root \'\' segment', 'a points at row 1 as a promise; f is inline FlightData (16.3; canary renames it t)', 'no-JS path: the same render is sent as HTML instead']
     },
     {
       id: 'j7-15', kind: 'transform', title: 'Merge',
-      story: 'The client router applies f exactly like a navigation patch: the tree is compared, the divergent slots are swapped, everything else keeps its state. useActionState receives a as the new state, and the form shows the fresh profile without a reload.',
+      story: 'The client router turns f into a full route tree and navigates to it, as if to the same URL. React reconciles the new tree with the old one: DashboardNav and the form are the same components in the same places, so they keep their state and take fresh props. useActionState receives a as the new state.',
       camera: { kind: 'entities', ids: ['app-router', 'layout-router', 'client-components'] },
       token: { at: 'client-components', glyph: 'json', label: 'useActionState ← { ok: true }' },
       states: { 'app-router': 'active', 'layout-router': 'current', 'client-components': 'active', dom: 'kept' }, edges: ['e-flight-router-patch'],
-      internals: ['server-action-reducer.ts: applies f via the navigation reducer, hands a to the awaiting promise']
+      internals: ['server-action-reducer.ts: convertServerPatchToFullTree(f) → navigateToKnownRoute(…, FreshnessPolicy.RefreshAll); a resolves the awaiting promise', 'source TODO: "the server always renders from the root in response to a Server Action"']
     },
     {
       id: 'j7-16', kind: 'move', title: 'Alternative branch: redirect()',

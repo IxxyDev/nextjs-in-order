@@ -43,11 +43,12 @@ export const APP_INITIAL: Journey = {
     },
     {
       id: 'j5-6', kind: 'transform', title: 'Server Components execute',
-      story: 'The RSC runtime runs RootLayout, DashboardLayout and SettingsPage. SettingsPage awaits getProfile() from the database; AccountSummary renders to plain elements. None of this code will ever reach the browser: only its result will.',
+      story: 'The RSC runtime runs RootLayout, DashboardLayout and SettingsPage. Settings is a ○ route, so this run happened once at build and requests get its stored result; a dynamic page runs exactly this per request. getProfile() reads the database through "use cache"; AccountSummary renders to plain elements. None of this code reaches the browser: only its result does.',
       camera: { kind: 'entities', ids: ['rsc-runtime-entity', 'db', 'src-settings-page', 'src-account-summary'] },
       token: { at: 'rsc-runtime-entity', glyph: 'component-server', label: 'SettingsPage (executing)' },
       states: { 'rsc-runtime-entity': 'current', db: 'active', 'src-settings-page': 'active', 'src-account-summary': 'active', 'src-root-layout': 'active', 'src-dashboard-layout': 'active' },
-      edges: ['e-loader-rsc', 'e-db-rsc']
+      edges: ['e-loader-rsc', 'e-db-rsc'],
+      internals: ['○ /dashboard/settings: prerender ran this render at build (J1 step 14); a production GET is served settings.html + settings.rsc from the server cache', 'the same render runs per request for a dynamic route, in next dev, and after updateTag("profile") expires the entry']
     },
     {
       id: 'j5-7', kind: 'predict', title: 'The runtime reaches <DashboardNav />',
@@ -64,11 +65,11 @@ export const APP_INITIAL: Journey = {
     },
     {
       id: 'j5-8', kind: 'reveal', title: 'A client reference, not a component',
-      story: 'The runtime looks DashboardNav up in page_client-reference-manifest.js and writes { id, chunks: ["app/dashboard/layout-3c4d"], name: "default" } together with the props it received. The boundary is now a pointer to code that lives on the shelf.',
+      story: 'The runtime looks DashboardNav\'s module path up in page_client-reference-manifest.js, finds its id and chunk, and writes a reference row, I[id, ["static/chunks/app/dashboard/layout-3c4d.js"], "default"], together with the props it received. The boundary is now a pointer to code that lives on the shelf.',
       camera: { kind: 'entities', ids: ['rsc-runtime-entity', 'client-reference-manifest', 'browser-chunks'] },
       token: { at: 'client-reference-manifest', glyph: 'reference', label: 'ref → app/dashboard/layout-3c4d' },
       states: { 'rsc-runtime-entity': 'active', 'client-reference-manifest': 'current', 'browser-chunks': 'kept', 'src-dashboard-nav': 'replaced' }, edges: ['e-crm-rsc'],
-      internals: ['{ id: "(app-pages-browser)/./components/DashboardNav.tsx", chunks: ["app/dashboard/layout-3c4d"], name: "default" }']
+      internals: ['manifest row: "…/components/DashboardNav.tsx": { id: …, name: "*", chunks: ["static/chunks/app/dashboard/layout-3c4d.js"], async: false }', 'Flight row: 1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]: the export name appears only here']
     },
     {
       id: 'j5-9', kind: 'explain', title: 'Structure and content, separately',
@@ -78,11 +79,11 @@ export const APP_INITIAL: Journey = {
     },
     {
       id: 'j5-10', kind: 'transform', title: 'The Flight payload',
-      story: 'Serialization produces numbered rows: the tree, the three segments of content, two client references with props and one Suspense boundary. Rows are text with single-letter keys; binary data goes as base64 rows. It is compact because it is inlined into HTML and re-sent on every navigation.',
+      story: 'Serialization produces numbered rows: two client references (1:, 2:) and a root row 0: holding the tree and the three segments, where the client components appear as $L1 and $L2 with props. Rows are text with single-letter keys; binary data goes as base64 rows. It is compact because it is inlined into HTML and re-sent on every navigation.',
       camera: { kind: 'entities', ids: ['rsc-runtime-entity', 'flight'] },
-      token: { at: 'flight', glyph: 'flight', label: 'Flight rows 0:…6:' },
+      token: { at: 'flight', glyph: 'flight', label: 'Flight rows 0:…2:' },
       states: { 'rsc-runtime-entity': 'kept', flight: 'current', 'segment-slices': 'kept' }, edges: ['e-rsc-flight'],
-      internals: ['0: tree (FlightRouterState)', '1–3: segment slices for "", dashboard, settings', '4: $L ref DashboardNav', '5: $L ref ProfileForm', '6: Suspense boundary placeholder', 'Content-Type on navigation: text/x-component']
+      internals: ['1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]: DashboardNav reference, used as $L1', '2:I[…,["static/chunks/app/dashboard/settings/page-5e6f.js"],"default"]: ProfileForm reference, used as $L2 with {"name":"Ada"}', '0: root row: tree (FlightRouterState: "" → dashboard → settings → __PAGE__) plus the segment slices inline; SettingsPage\'s content sits in the __PAGE__ segment below settings', 'no Suspense row: SettingsPage has no boundary (billing\'s page adds a "$Sreact.suspense" row and a $L hole)', 'Content-Type on navigation: text/x-component']
     },
     {
       id: 'j5-11', kind: 'transform', title: 'Tee',
@@ -109,10 +110,10 @@ export const APP_INITIAL: Journey = {
     },
     {
       id: 'j5-14', kind: 'move', title: 'Streaming around a Suspense boundary',
-      story: 'SettingsPage has a slow part behind a Suspense boundary. The first HTML chunk leaves with the fallback in place. When the data resolves, a later chunk carries the content and a tiny script that swaps it in. The user does not wait for the slowest part to see the page.',
+      story: 'Settings has no Suspense boundary, so its document is complete in one pass. /dashboard/billing has one around InvoiceList: the first HTML chunk leaves with the skeleton in place, and when the invoices resolve a later chunk carries the content and a tiny script that swaps it in. Nobody waits for the slowest part.',
       camera: { kind: 'entities', ids: ['html', 'suspense-hole', 'dom'] },
       token: { at: 'html', glyph: 'html', label: 'chunk 1 (shell) · chunk 2 (late)' },
-      states: { html: 'current', 'suspense-hole': 'new', dom: 'new' }, edges: ['e-html-dom', 'e-html-suspense']
+      states: { html: 'current', 'suspense-hole': 'new', dom: 'new', 'src-billing-page': 'active' }, edges: ['e-html-dom', 'e-html-suspense']
     },
     {
       id: 'j5-15', kind: 'move', title: 'What crosses the network',

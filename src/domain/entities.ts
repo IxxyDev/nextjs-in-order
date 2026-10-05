@@ -22,9 +22,9 @@ export const ENTITIES: Entity[] = [
   {
     id: 'src-settings-page', short: 'settings/page.tsx', name: 'app/dashboard/settings/page.tsx', region: 'source', glyph: 'source-module', x: 160, y: 390,
     phase: ['build', 'request'], env: ['node'], role: 'module',
-    what: 'Async Server Component page. Awaits getProfile() and renders <AccountSummary /> and <ProfileForm />.',
+    what: 'Async Server Component page. Awaits getProfile(), a "use cache" read, and renders <AccountSummary /> and <ProfileForm />. It reads no request data, so the route is ○ static.',
     consumes: ['getProfile() from lib/data.ts'], produces: ['React elements → Flight rows'],
-    exists: 'source at build time; executed per request', connects: ['loader-tree'], reaches: 'data'
+    exists: 'source at build time; executed at prerender (○ route) and again when its cache entry is invalidated, e.g. after updateTag', connects: ['loader-tree'], reaches: 'data'
   },
   {
     id: 'src-billing-page', short: 'billing/page.tsx', name: 'app/dashboard/billing/page.tsx', region: 'source', glyph: 'source-module', x: 160, y: 540,
@@ -52,12 +52,12 @@ export const ENTITIES: Entity[] = [
     id: 'src-account-summary', short: 'AccountSummary.tsx', name: 'components/AccountSummary.tsx', region: 'source', glyph: 'source-module', x: 340, y: 390,
     phase: ['build', 'request'], env: ['node'], role: 'module',
     what: 'Server Component that shows profile fields. Its source never reaches the browser; only its rendered rows do.',
-    consumes: ['profile data'], produces: ['Flight rows'], exists: 'build; executed per request', connects: ['loader-tree'], reaches: 'data'
+    consumes: ['profile data'], produces: ['Flight rows'], exists: 'build; executed whenever SettingsPage renders (at prerender for the ○ route)', connects: ['loader-tree'], reaches: 'data'
   },
   {
     id: 'src-actions', short: 'actions.ts', name: 'app/actions.ts', region: 'source', glyph: 'source-module', x: 340, y: 540,
     badge: '"use server"', phase: ['build', 'request'], env: ['node'], role: 'module',
-    what: 'updateProfile(formData): mutates the database, then updateTag("profile"). Gets a stable action ID at build.',
+    what: 'updateProfile(prevState, formData): mutates the database, then updateTag("profile"). Gets a stable action ID at build.',
     consumes: ['serialized form data'], produces: ['return value', 'cache invalidation'],
     exists: 'build; executed per POST', connects: ['server-reference-manifest', 'action-handler'], reaches: 'no'
   },
@@ -173,10 +173,10 @@ export const ENTITIES: Entity[] = [
   {
     id: 'flight-manifest-plugin', short: 'flight-manifest', name: 'Client reference writer · flight-manifest-plugin', region: 'build', glyph: 'machine', x: 1260, y: 540,
     phase: ['build', 'dev'], env: ['node'], role: 'bundler',
-    what: 'Once chunks exist, writes one row per client module: its id, the chunk files that contain it and the export name. The RSC runtime will read these rows instead of running the module.',
+    what: 'Once chunks exist, writes one row per client module, keyed by its path: the module id and the chunk files that contain it, with name "*" standing for every export. The RSC runtime will read these rows instead of running the module.',
     consumes: ['client entries', 'chunk graph'], produces: ['page_client-reference-manifest.js per route'],
     exists: 'build; per compilation in dev', connects: ['client-reference-manifest'], reaches: 'no',
-    internals: ['next/src/build/webpack/plugins/flight-manifest-plugin.ts', '{ id: "(app-pages-browser)/./components/ProfileForm.tsx", chunks: ["app/dashboard/settings/page-5e6f"], name: "default" }']
+    internals: ['next/src/build/webpack/plugins/flight-manifest-plugin.ts', 'clientModules: { "…/components/ProfileForm.tsx": { id: …, name: "*", chunks: ["static/chunks/app/dashboard/settings/page-5e6f.js"], async: false } } (Turbopack, the default)', 'with --webpack, chunks is one flat list of ids and files: [chunkId, file, chunkId, file, …]']
   },
   {
     id: 'standalone', short: 'standalone', name: 'Standalone output · .next/standalone', region: 'build', glyph: 'server-chunk', x: 1650, y: 540, badge: 'Node',
@@ -216,18 +216,24 @@ export const ENTITIES: Entity[] = [
     consumes: ['route analysis'], produces: ['ISR decisions'], exists: 'per deploy', connects: ['server-cache'], reaches: 'no'
   },
   {
-    id: 'middleware-manifest', short: 'middleware-manifest', name: 'middleware-manifest.json', region: 'artifacts', glyph: 'manifest', x: 838, y: 740,
+    id: 'middleware-manifest', short: 'proxy matchers', name: 'server/functions-config-manifest.json · proxy matchers', region: 'artifacts', glyph: 'manifest', x: 838, y: 740,
     phase: ['build', 'startup'], env: ['storage', 'node'], role: 'manifest',
-    what: 'Proxy matchers compiled to regexes plus header and cookie conditions.',
-    consumes: ['proxy.ts config'], produces: ['ladder step 3 decision input'], exists: 'per deploy', connects: ['proxy'], reaches: 'no'
+    what: 'Proxy matchers compiled to regexes plus header and cookie conditions. A Node proxy keeps them under functions["/_middleware"]; router-server loads them at startup to decide which requests reach ladder step 3.',
+    consumes: ['proxy.ts config'], produces: ['ladder step 3 decision input'], exists: 'per deploy', connects: ['proxy'], reaches: 'no',
+    internals: ['{ "/_middleware": { runtime: "nodejs", matchers: [{ regexp, originalSource: "/dashboard/:path*" }] } }', 'packages/next/src/build/index.ts writes it; server/lib/router-utils/filesystem.ts reads it'],
+    versionNote: {
+      article: 'Middleware matchers live in server/middleware-manifest.json, next to the Edge function they belong to.',
+      current: 'proxy.ts always runs on Node, so 16.3 writes its matchers to server/functions-config-manifest.json. middleware-manifest.json is still written and holds only Edge middleware.',
+      why: 'The file followed the runtime: Edge functions have their manifest, Node functions theirs.'
+    }
   },
   {
     id: 'client-reference-manifest', short: 'client-ref manifest', name: 'page_client-reference-manifest.js', region: 'artifacts', glyph: 'manifest', x: 1020, y: 740,
     phase: ['build', 'request'], env: ['storage', 'node'], role: 'manifest',
-    what: 'Client module id → browser chunks and export names. The RSC runtime reads it whenever it meets a "use client" boundary.',
-    consumes: ['flight-client-entry-plugin output'], produces: ['{ id, chunks, name } references placed into Flight'],
+    what: 'Client module path → module id and browser chunks. The RSC runtime reads it whenever it meets a "use client" boundary; the row says name "*", and the runtime adds the export it needs in the Flight reference.',
+    consumes: ['flight-client-entry-plugin output'], produces: ['I[id, chunks, name] references placed into Flight'],
     exists: 'per deploy', connects: ['rsc-runtime-entity', 'browser-chunks'], reaches: 'no',
-    internals: ['{ id: "(app-pages-browser)/./components/DashboardNav.tsx", chunks: ["app/dashboard/layout-3c4d"], name: "default" }']
+    internals: ['globalThis.__RSC_MANIFEST["/dashboard/settings/page"] = { clientModules: {…}, ssrModuleMapping: {…}, … }', 'clientModules: { "…/components/DashboardNav.tsx": { id: …, name: "*", chunks: ["static/chunks/app/dashboard/layout-3c4d.js"], async: false } }', 'the export name appears only in the Flight row: 1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]']
   },
   {
     id: 'server-reference-manifest', short: 'server-ref manifest', name: 'server-reference-manifest', region: 'artifacts', glyph: 'manifest', x: 1202, y: 740,
@@ -554,7 +560,7 @@ export const ENTITIES: Entity[] = [
   {
     id: 'router-state-tree', short: 'FlightRouterState', name: 'FlightRouterState · client copy', region: 'client-router', glyph: 'segment', x: 1450, y: 1660,
     phase: ['browser', 'request'], env: ['browser', 'network'], role: 'protocol',
-    what: 'The route shape the client has, sent as Next-Router-State-Tree. The server walks it against the loader tree to find the shared prefix.',
+    what: 'The route shape the client holds, sent as Next-Router-State-Tree. After a prefetch the request carries the target tree with a "refetch" mark where the cache runs out; otherwise the current tree. The server walks it against the loader tree to find where rendering starts.',
     consumes: ['initial Flight', 'patches'], produces: ['navigation diff input'], exists: 'tab', connects: ['loader-tree', 'app-router'], reaches: 'data'
   },
   {

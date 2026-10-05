@@ -44,7 +44,7 @@ app/
     billing/
       page.tsx               BillingPage     async Server Component
                                              <Suspense fallback={<InvoicesSkeleton/>}><InvoiceList /></Suspense>
-  actions.ts                 "use server"    updateProfile(formData) → db.update(); updateTag("profile")
+  actions.ts                 "use server"    updateProfile(prevState, formData) → db.update(); updateTag("profile")
                                              (revalidateTag("profile", "max") shown as the SWR alternative)
 components/
   DashboardNav.tsx           "use client"    useState(open), usePathname()
@@ -86,12 +86,13 @@ Stable artifact values:
 | `buildId` | `k7Qm2xLp9` |
 | Browser chunks | `static/chunks/framework-a1b2c3.js`, `static/chunks/main-app-d4e5f6.js`, `static/chunks/webpack-9c0d.js`, `static/chunks/app/layout-1a2b.js`, `static/chunks/app/dashboard/layout-3c4d.js` (contains `DashboardNav`), `static/chunks/app/dashboard/settings/page-5e6f.js` (contains `ProfileForm`), `static/chunks/app/dashboard/billing/page-7a8b.js` |
 | Server chunks | `.next/server/app/layout.js`, `.next/server/app/dashboard/layout.js`, `.next/server/app/dashboard/settings/page.js`, `.next/server/app/dashboard/billing/page.js`, `.next/server/app/dashboard/settings/page_client-reference-manifest.js` |
-| Client reference for `DashboardNav` | `{ id: "(app-pages-browser)/./components/DashboardNav.tsx", chunks: ["app/dashboard/layout-3c4d"], name: "default" }` |
-| Action ID | `7f3a9c1e2b44…` (truncated on canvas, full in inspector) |
+| Client-reference manifest row for `DashboardNav` | `"…/components/DashboardNav.tsx": { id: …, name: "*", chunks: ["static/chunks/app/dashboard/layout-3c4d.js"], async: false }` (keyed by module path; `name: "*"` covers every export; with `--webpack`, `chunks` is one flat list `[chunkId, file, chunkId, file, …]`) |
+| Flight reference for `DashboardNav` | `1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]`: the export name appears only here |
+| Action ID | `603a9c1e2b44…` (truncated on canvas, full in inspector). Prefix byte `60` = two declared arguments, as in `updateProfile(prevState, formData)`; the rest is illustrative |
 | Cache keys | server cache (prerendered HTML + RSC): `/dashboard/settings`; `"use cache"` entry `getProfile()` with tag `profile`; image: `/hero.jpg|640|75|webp` |
-| Navigation headers | `RSC: 1`, `Next-Router-State-Tree: %5B%22%22%2C%7B%22children%22…`, `Next-Url: /dashboard/settings`, `?_rsc=1a2b3` |
+| Navigation headers | `RSC: 1`, `Next-Router-State-Tree: %5B%22%22%2C%7B%22children%22…`, `Next-Url: /dashboard/settings`, `?_rsc=qR7vX2mK9pLw3sTb` |
 | Prefetch headers | `Next-Router-Prefetch: 1`, `Next-Router-Segment-Prefetch: /_tree` then `/dashboard/billing` |
-| Action request | `POST /dashboard/settings`, `Next-Action: 7f3a9c1e2b44…` |
+| Action request | `POST /dashboard/settings`, `Next-Action: 603a9c1e2b44…` |
 | Pages data URL | `/_next/data/k7Qm2xLp9/products/42.json` |
 | FlightRouterState (client, before nav) | `["", { children: ["dashboard", { children: ["settings", { children: ["__PAGE__", {}] }] }] }]` |
 
@@ -216,7 +217,7 @@ What should click: *a document is built once; after that the client patches a tr
 4. Bundler · pack · token enters the graph, is assigned to the browser layer and packed into `app/dashboard/layout-3c4d.js`; a reference row appears in the client-reference manifest.
 5. Shelf · explain · manifests, server chunks, browser chunks, prerenders lined up; build band dims.
 6. HTTP entry → router-server · gate · token = request; ladder runs, lands on "page".
-7. render-server · transform · RSC runtime produces Flight; tee; SSR runtime produces HTML.
+7. render-server · transform · RSC runtime produces Flight; tee; SSR runtime produces HTML. Settings is ○: this render ran at build and a production request gets its stored result; a dynamic route runs it per request.
 8. Network · move · HTML with inline Flight crosses (chip `data + refs`); browser chunks cross (chip `code`).
 9. Browser · light-up · paint, then only `DashboardNav` and `ProfileForm` hydrate.
 10. Client router · swap · navigation to billing: a Flight patch crosses, one segment swaps, layouts locked. The central claim is shown as text on the canvas.
@@ -231,7 +232,7 @@ What should click: *the compiler sees one file; the bundler sees the whole graph
 1. Build band · explain · `next build` pipeline as a horizontal list: buildId → config → route discovery → compile+bundle → trace → analyze → prerender → standalone → summary.
 2. Route discovery · assemble · `app/` and `pages/` folders become the route map; loader tree for `/dashboard/settings` drawn.
 3. Compiler · transform · SWC strips types/JSX from `ProfileForm.tsx`; ✂ marks. N-API + WASM fallback noted (L3).
-4. Compiler · transform · `"use client"` transform marks the boundary; `"use server"` transform assigns `updateProfile` its ID `7f3a9c1e2b44…`.
+4. Compiler · transform · `"use client"` transform marks the boundary; `"use server"` transform assigns `updateProfile` its ID `603a9c1e2b44…`.
 5. Compiler · transform · `optimizePackageImports` rewrites `import { Button } from 'ui-kit'` into a direct path (module list shrinks).
 6. predict · "Which tool decides that `ProfileForm` ends up in the browser bundle: compiler or bundler?"
 7. reveal · Bundler · the graph forms from entrypoints; the compiler never saw the graph.
@@ -317,15 +318,15 @@ What should click: *the RSC runtime produces Flight, not HTML; the SSR runtime c
 3. Loader tree · assemble · `["", {children: ["dashboard", {children: ["settings", {children: ["__PAGE__", {}]}]}]}]` with `modules` per node.
 4. Traversal · assemble · recursive walk root → dashboard → settings; parallel slots shown as an empty `@modal` example.
 5. LayoutRouter · explain · a `⟦ ⟧` bracket placed at each parent→child transition.
-6. Execution · transform · `RootLayout`, `DashboardLayout`, `SettingsPage` run in the RSC runtime; `await getProfile()` resolves; `AccountSummary` renders to elements.
+6. Execution · transform · `RootLayout`, `DashboardLayout`, `SettingsPage` run in the RSC runtime; `await getProfile()` resolves; `AccountSummary` renders to elements. Settings is ○, so this is the render prerender ran at build; a production request is served its stored result.
 7. predict · "The RSC runtime reaches `<DashboardNav />`. What does it emit?"
-8. reveal · reference · not HTML, not the component: a client reference looked up in `page_client-reference-manifest.js` → `{ id, chunks: ["app/dashboard/layout-3c4d"], name }` + props.
+8. reveal · reference · not HTML, not the component: a client reference looked up in `page_client-reference-manifest.js` → the row keyed by DashboardNav's module path gives id and chunks; the runtime writes `I[id, ["static/chunks/app/dashboard/layout-3c4d.js"], "default"]` + props.
 9. Structure vs content · explain · `FlightRouterState` (shape) and segment slices `[segment, tree patch, content, head]` drawn as separate ribbons.
-10. Flight · transform · the payload: rows for the tree, the three segments' content, two references, a Suspense boundary; textual rows and a base64 binary row.
+10. Flight · transform · the payload: rows for the tree, the three segments' content, two references (settings has no Suspense boundary); textual rows and a base64 binary row.
 11. Tee · split · one stream becomes two identical streams.
 12. SSR runtime · transform · copy 1 deserialized to elements; `DashboardNav` reference resolved to the real module on the server; HTML produced. The SSR runtime does **not** re-run `SettingsPage`.
 13. Inline · transform · copy 2 serialized into `<script>self.__next_f.push([1, "…"])</script>` chunks interleaved into the HTML stream.
-14. Streaming · move · HTML leaves with a Suspense placeholder for a slow boundary; later chunk fills it.
+14. Streaming · move · settings has no boundary, so its document is complete at once; on billing, HTML leaves with a Suspense placeholder for `InvoiceList`; a later chunk fills it.
 15. Network · move · document crosses (`data + refs`); browser chunks listed in the references cross (`code`).
 16. Paint · explain · visible page; nothing interactive yet.
 17. Reconstruction · transform · browser drains `self.__next_f` (existing chunks) then listens for late ones; Flight rebuilt into an element tree with references.
@@ -369,16 +370,16 @@ What should click: *an action is a POST to an ID; invalidation is a separate ste
 3. Client proxy · reference · in `ProfileForm` the import becomes a reference that knows only the ID.
 4. Closure encryption · transform · captured `secret` encrypted with the deploy key, bound to the ID; `.bind(null, value)` arguments stay plain JSON (two envelopes side by side).
 5. Form · explain · `<form action={updateProfile}>`; with JS: fetch; without JS: native POST (both paths drawn).
-6. Request · move · `POST /dashboard/settings`, `Next-Action: 7f3a9c1e2b44…`, serialized args.
+6. Request · move · `POST /dashboard/settings`, `Next-Action: 603a9c1e2b44…`, serialized args.
 7. Router · gate · ladder as usual; handoff.
 8. Lookup · connect · action handler resolves the ID in the manifest; an old deploy's ID is rejected before anything runs.
 9. Boundary · explain · auth, authorization and validation happen inside the function (Next does none of it).
 10. Mutation · transform · `db.update()`; the data source glyph changes.
 11. predict · "The action returns `{ ok: true }` and calls nothing else. Does the page update?"
 12. reveal · invalidate · no: field `f` is empty. Now with `updateTag("profile")`: the tag hatch sweeps the Data Cache and incremental cache entries immediately (same for `revalidatePath`, `refresh()`, cookie writes, `redirect()`).
-13. Rerender · transform · because the action expired data, the current route renders again in the same request → Flight in `f`; return value in `a`. Alternative lane: `revalidateTag("profile", "max")` only marks the tag stale-while-revalidate, so `f` stays empty and a later read refreshes (version chip: single-argument `revalidateTag` is the article-era form, deprecated in 16).
+13. Rerender · transform · because the action expired data, the current route renders again from the root in the same request (no `RSC: 1`, so the router state header is ignored) → Flight in `f`; return value in `a`. Alternative lane: `revalidateTag("profile", "max")` only marks the tag stale-while-revalidate, so `f` stays empty and a later read refreshes (version chip: single-argument `revalidateTag` is the article-era form, deprecated in 16).
 14. Response · move · `text/x-component` with `a` and `f` crosses.
-15. Merge · swap · client router applies `f` like a navigation patch; `useActionState` receives `a`.
+15. Merge · swap · `f` holds the whole route from the root; the client router turns it into a full tree and navigates to it, and React reconciliation keeps `DashboardNav`'s state; `useActionState` receives `a`.
 16. `redirect()` · move · alternative branch: redirect path travels instead.
 17. check · "`.bind()` arguments are encrypted" (false); "Every action re-renders the page" (false); "`revalidateTag(tag, 'max')` makes the same response carry fresh UI" (false: that is `updateTag`).
 

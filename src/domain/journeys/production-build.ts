@@ -36,12 +36,12 @@ export const PRODUCTION_BUILD: Journey = {
     },
     {
       id: 'j1-4', kind: 'transform', title: 'Directives become marks and IDs',
-      story: 'The "use client" line at the top of ProfileForm is turned into a boundary mark the bundler will recognize. The "use server" file gets the other treatment: updateProfile is registered under an action ID, 7f3a9c1e2b44…, so the browser will only ever hold the ID.',
+      story: 'The "use client" line at the top of ProfileForm is turned into a boundary mark the bundler will recognize. The "use server" file gets the other treatment: updateProfile is registered under an action ID, 603a9c1e2b44…, so the browser will only ever hold the ID.',
       camera: { kind: 'entities', ids: ['src-profile-form', 'src-actions', 'swc', 'server-reference-manifest'] },
-      token: { at: 'swc', glyph: 'reference', label: 'boundary mark · ID 7f3a9c1e2b44…' },
+      token: { at: 'swc', glyph: 'reference', label: 'boundary mark · ID 603a9c1e2b44…' },
       states: { 'src-profile-form': 'active', 'src-actions': 'active', swc: 'current', 'server-reference-manifest': 'new' },
       edges: ['e-form-swc', 'e-actions-swc'],
-      internals: ['serverComponents transform: marks the client boundary', 'serverActions transform: registerServerReference(fn, "7f3a9c1e2b44…", "updateProfile")', 'next-flight-loader adds client/server boundary markers in the rsc layer (Webpack path)']
+      internals: ['serverComponents transform: marks the client boundary', 'serverActions transform: registerServerReference(updateProfile, "603a9c1e2b44…", null); the export name goes into the action-entry comment and the client stub', 'ID = 1 prefix byte (60: two declared arguments) + sha1(salt + file + ":" + export)', 'next-flight-loader adds client/server boundary markers in the rsc layer (Webpack path)']
     },
     {
       id: 'j1-5', kind: 'transform', title: 'Barrel imports shrink',
@@ -101,12 +101,12 @@ export const PRODUCTION_BUILD: Journey = {
     },
     {
       id: 'j1-11', kind: 'transform', title: 'ProfileForm becomes a reference',
-      story: 'On the server side ProfileForm collapses into a reference: an id, the chunk that contains it, an export name. That row is written into the settings page\'s client-reference manifest, which is what the RSC runtime will read instead of running the component.',
+      story: 'On the server side ProfileForm collapses into a reference. The settings page\'s client-reference manifest gets a row keyed by the module\'s path: its id and the chunk that contains it. The RSC runtime will read that row instead of running the component, and adds the export name itself when it writes the reference.',
       camera: { kind: 'entities', ids: ['split-chunks', 'flight-manifest-plugin', 'client-reference-manifest'] },
       token: { at: 'client-reference-manifest', glyph: 'reference', label: 'ref → app/dashboard/settings/page-5e6f' },
       states: { 'split-chunks': 'kept', 'flight-manifest-plugin': 'current', 'client-reference-manifest': 'new', 'src-profile-form': 'replaced', 'browser-chunks': 'kept' },
       edges: ['e-split-flight-manifest', 'e-flight-manifest-crm'],
-      internals: ['.next/server/app/dashboard/settings/page_client-reference-manifest.js', '{ id: "(app-pages-browser)/./components/ProfileForm.tsx", chunks: ["app/dashboard/settings/page-5e6f"], name: "default" }', 'flight-manifest-plugin (Webpack path)']
+      internals: ['.next/server/app/dashboard/settings/page_client-reference-manifest.js', 'clientModules: { "…/components/ProfileForm.tsx": { id: …, name: "*", chunks: ["static/chunks/app/dashboard/settings/page-5e6f.js"], async: false } }', 'name "*": the row covers every export; "default" appears only in the Flight row 2:I[…,[…],"default"]', 'chunks as Turbopack (the default) writes them; with --webpack, flight-manifest-plugin writes one flat list [chunkId, file, chunkId, file, …]']
     },
     {
       id: 'j1-12', kind: 'explain', title: 'Every manifest has a reader',
@@ -117,7 +117,7 @@ export const PRODUCTION_BUILD: Journey = {
         'routing-ladder': 'active', 'server-chunks': 'active', html: 'active', 'server-cache': 'active', proxy: 'active', 'rsc-runtime-entity': 'active', 'action-handler': 'active'
       },
       edges: ['e-crm-rsc'],
-      internals: ['routes-manifest.json → router-server at startup', 'server/pages-manifest.json + app-paths-manifest.json → render-server module lookup', 'build-manifest.json → <script> tags', 'prerender-manifest.json → ISR decisions', 'server/middleware-manifest.json → ladder step 3 (Proxy)', '*_client-reference-manifest.js → RSC runtime', 'server-reference-manifest → action handler', 'Turbopack writes identical manifests']
+      internals: ['routes-manifest.json → router-server at startup', 'server/pages-manifest.json + app-paths-manifest.json → render-server module lookup', 'build-manifest.json → <script> tags', 'prerender-manifest.json → ISR decisions', 'server/functions-config-manifest.json → Proxy matchers for ladder step 3 (middleware-manifest.json: Edge middleware only)', '*_client-reference-manifest.js → RSC runtime', 'server-reference-manifest → action handler', 'Turbopack writes identical manifests']
     },
     {
       id: 'j1-13', kind: 'explain', title: 'Each route gets a strategy',
@@ -168,7 +168,7 @@ export const PRODUCTION_BUILD: Journey = {
         'server-chunks': 'kept', 'browser-chunks': 'kept', 'prerendered-outputs': 'kept', 'next-cache-dir': 'kept', standalone: 'kept'
       },
       edges: ['e-analysis-summary'],
-      internals: ['legend: ○ (Static) prerendered as static content · ● (SSG) prerendered as static HTML · ◐ (Partial Prerender) prerendered as static HTML with dynamic server-streamed content · ƒ (Dynamic) server-rendered on demand', '○ /dashboard/settings', '◐ /dashboard/billing', 'ƒ /products/[id]', '● /posts/[id] ├ /posts/7 · Revalidate 1m', '.next/: server/, static/, cache/, standalone/, *.json manifests, BUILD_ID']
+      internals: ['legend: ○ (Static) prerendered as static content · ● (SSG) prerendered as static HTML (uses generateStaticParams: with an app/ dir the legend names only that, getStaticProps pages included) · ◐ (Partial Prerender) prerendered as static HTML with dynamic server-streamed content · ƒ (Dynamic) server-rendered on demand', '○ /dashboard/settings', '◐ /dashboard/billing', 'ƒ /products/[id]', '  /posts/[id] · Revalidate 1m · Expire 1y (on the grouped row) └ ● /posts/7', '.next/: server/, static/, cache/, standalone/, *.json manifests, BUILD_ID']
     },
     {
       id: 'j1-18', kind: 'check', title: 'Check yourself',

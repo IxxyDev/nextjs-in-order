@@ -27,7 +27,7 @@ export const INITIAL_LOAD: ComparePair = {
     },
     {
       id: 'c1-4', title: 'The first bytes leave',
-      story: 'Pages can only start the document once getServerSideProps has finished and the tree is rendered. App streams the shell first and fills the Suspense boundary later, so its first byte leaves earlier.',
+      story: 'Pages can only start the document once getServerSideProps has finished and the tree is rendered. App streams: what is ready leaves first, and a Suspense boundary like billing\'s fills in later. Settings, a ○ route, goes further: its document was rendered at build.',
       ruler: [0.55, 0.35],
       lanes: [{ ref: { journey: 'pages-initial', step: 8 } }, { ref: { journey: 'app-initial', step: 14 } }]
     },

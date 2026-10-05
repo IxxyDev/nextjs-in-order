@@ -117,7 +117,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { 'custom-server': 'active', 'custom-handle': 'current', 'routing-ladder': 'active', proxy: 'active' },
       edges: ['e-custom-handle', 'e-handle-ladder'],
       internals: [
-        'render(req, res, pathname, query, parsedUrl) → this.requestHandler(req, res, parsedUrl)',
+        'render(req, res, pathname, query, parsedUrl) → req.url = formatUrl({ ...parsedUrl, pathname, query }) → this.requestHandler(req, res)',
         'renderToHTML, render404 and renderError delegate to the inner server directly',
         'all four warn: "Use app.getRequestHandler() with an adjusted parsed URL instead"',
         'article: these methods once bypassed router-server'
@@ -146,12 +146,12 @@ export const CUSTOM_SERVER: Journey = {
     },
     {
       id: 'j10-12', kind: 'explain', title: 'Hiding file routes',
-      story: 'useFileSystemPublicRoutes: false stops the server from answering pages by their file names, so server.js alone decides which paths reach a page. It hides them from the server only: a client-side navigation can still reach those pages, so it is not access control.',
+      story: 'useFileSystemPublicRoutes: false stops the server from answering pages by their file names. server.js cannot map a path to a page by hand: handle() with a new pathname and app.render() re-enter the same check, so only a next.config rewrite reaches a page. Client-side navigation still reaches them: this is not access control.',
       camera: { kind: 'entities', ids: ['custom-server', 'custom-handle', 'rung-filesystem', 'app-router'] },
       token: { at: 'app-router', glyph: 'request', label: 'client navigation → hidden page' },
       states: { 'custom-server': 'active', 'custom-handle': 'active', 'rung-filesystem': 'na', 'app-router': 'current' },
       edges: ['e-custom-handle'],
-      internals: ['next.config.js: useFileSystemPublicRoutes: false', 'docs: "disables filename routes from SSR; client-side routing may still access those paths"', 'server.js then maps paths to pages with handle(req, res, { ...parsedUrl, pathname })'],
+      internals: ['next.config.js: useFileSystemPublicRoutes: false', 'docs: "disables filename routes from SSR; client-side routing may still access those paths"', '16.3.8 resolve-routes.ts: an appFile/pageFile output is used only if useFileSystemPublicRoutes || didRewrite', 'handle(req, res, parsedUrl) and app.render() only rewrite req.url and call the same requestHandler, so a hand-mapped pathname finds no page'],
       sources: [{ label: 'Custom server (Pages)', url: 'https://nextjs.org/docs/pages/building-your-application/configuring/custom-server' }]
     },
     {

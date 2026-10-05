@@ -32,9 +32,9 @@ export const CACHING: Journey = {
     },
     {
       id: 'j8-2', kind: 'explain', title: 'Request memoization',
-      story: 'While /dashboard/settings renders, the page and AccountSummary both ask for the profile. Identical calls inside one request run once and share the result; when the request ends the memo is thrown away, so the next visitor starts empty.',
+      story: 'Here SettingsPage asks for the profile and hands it to AccountSummary as a prop. Had AccountSummary called getProfile() itself, the two identical calls inside one request would run once and share the result. When the request ends the memo is thrown away, so the next visitor starts empty.',
       camera: { kind: 'entities', ids: ['request-memo', 'rsc-runtime-entity', 'src-settings-page', 'src-account-summary', 'db'] },
-      token: { at: 'request-memo', glyph: 'cache', label: 'getProfile() ×2 → one run' },
+      token: { at: 'request-memo', glyph: 'cache', label: 'getProfile() ×2 → one run (if asked twice)' },
       states: { 'request-memo': 'current', 'rsc-runtime-entity': 'active', 'src-settings-page': 'active', 'src-account-summary': 'active', db: 'active' },
       edges: ['e-memo-rsc', 'e-db-rsc'],
       internals: ['fetch GET with the same URL and options is memoized automatically', 'other calls: React cache(fn)', 'different arguments → a second execution'],
@@ -199,7 +199,7 @@ export const CACHING: Journey = {
     },
     {
       id: 'j8-16', kind: 'predict', title: 'Move one call up',
-      story: 'Now cookies() moves out of InvoiceList and into BillingPage, above the Suspense boundary. Nothing else in the code changes.',
+      story: 'Now cookies() moves out of InvoiceList and into BillingPage, above the Suspense boundary. A loading.tsx next to the page gives the route a fallback; nothing else in the code changes.',
       camera: { kind: 'region', id: 'source' },
       token: { at: 'src-billing-page', glyph: 'source-module', label: 'cookies() in BillingPage' },
       states: { 'src-billing-page': 'current', 'src-dashboard-layout': 'kept', 'ppr-shell': 'kept', 'suspense-hole': 'active' },
@@ -218,12 +218,12 @@ export const CACHING: Journey = {
     },
     {
       id: 'j8-17', kind: 'reveal', title: 'The hole swallowed the page',
-      story: 'The boundary jumped up to the page root. The shell now holds only the root and dashboard layouts, and all of BillingPage, including parts that never needed cookies, renders on every request. Reading request data as deep in the tree as possible is what keeps the shell large.',
+      story: 'The boundary jumped up to the page root. The shell now holds only the root and dashboard layouts and the loading.tsx fallback, and all of BillingPage, including parts that never needed cookies, renders on every request. Reading request data as deep in the tree as possible is what keeps the shell large.',
       camera: { kind: 'region', id: 'source' },
       token: { at: 'src-dashboard-layout', glyph: 'html', label: 'shell ends here' },
       states: { 'src-root-layout': 'kept', 'src-dashboard-layout': 'kept', 'src-billing-page': 'replaced', 'ppr-shell': 'replaced', 'suspense-hole': 'current' },
       edges: ['e-prerender-ppr'],
-      internals: ['the same holds for headers(), searchParams and any uncached async read outside <Suspense>', 'Cache Components: the dev overlay reports such a route as blocking', 'the docs recommend reading runtime data, and awaiting params, inside a boundary'],
+      internals: ['the same holds for headers(), searchParams and any uncached async read outside <Suspense>', 'Cache Components: without loading.tsx or a <Suspense> above the page, the route is reported as blocking (uncached data outside <Suspense>)', 'the docs recommend reading runtime data, and awaiting params, inside a boundary'],
       sources: [CACHING_DOCS, CACHE_COMPONENTS]
     },
     {

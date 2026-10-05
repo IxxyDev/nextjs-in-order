@@ -12,12 +12,12 @@ export const QUIZ: QuizQuestion[] = [
     prompt: 'You add "use client" to the top of ProfileForm.tsx and run next build. Which artifacts on the .next shelf let ProfileForm\'s code reach the browser?',
     candidates: ['server-chunks', 'browser-chunks', 'client-reference-manifest', 'server-reference-manifest', 'routes-manifest', 'prerender-manifest', 'build-manifest'],
     answer: ['browser-chunks', 'client-reference-manifest'],
-    why: 'The compiler turns the directive into a boundary mark, and the bundler opens a browser entry where the settings page imports ProfileForm, so the module\'s code lands in a browser chunk. On the server side ProfileForm collapses into a reference whose row (id, chunk, export name) is written into the page\'s client-reference manifest. At request time the RSC runtime writes that reference into Flight, and the browser fetches exactly the chunk it names. Without the directive ProfileForm stays server-only and only its rendered output crosses.',
+    why: 'The compiler turns the directive into a boundary mark, and the bundler opens a browser entry where the settings page imports ProfileForm, so the module\'s code lands in a browser chunk. On the server side ProfileForm collapses into a reference whose row (keyed by module path: id and chunk) is written into the page\'s client-reference manifest. At request time the RSC runtime writes that reference into Flight, and the browser fetches exactly the chunk it names. Without the directive ProfileForm stays server-only and only its rendered output crosses.',
     replays: [{ journey: 'production-build', step: 4 }, { journey: 'production-build', step: 10 }, { journey: 'production-build', step: 11 }]
   },
   {
     id: 'r2', source: 'reviewer', type: 'regions', title: 'Two React runtimes',
-    prompt: 'The first request for /dashboard/settings reaches render-server. Pick every region in which a React build executes on the server to answer it.',
+    prompt: 'render-server renders /dashboard/settings (for this ○ route that happens once, at build; a dynamic route does it per request). Pick every region in which a React build executes on the server to render it.',
     candidates: ['http-entry', 'router-server', 'render-server', 'rsc-runtime', 'ssr-runtime', 'data-caches', 'browser', 'client-router'],
     answer: ['rsc-runtime', 'ssr-runtime'],
     why: 'render-server holds two React builds. The react-server build runs Server Components and turns them into Flight rows, but cannot render HTML or touch the DOM. The stream is teed: react-dom/server consumes one copy, loads Client Components such as DashboardNav from the ssr layer and renders the HTML, without running SettingsPage again. render-server itself only hosts them, and the browser\'s React runs later, in the tab.',
@@ -182,7 +182,7 @@ export const QUIZ: QuizQuestion[] = [
   },
   {
     id: 's7', source: 'scenario', journey: 'server-actions', type: 'entities', title: 'From an ID to a function',
-    prompt: 'The ProfileForm POST carries a Next-Action header with the ID 7f3a9c1e2b44…. Which artifacts does the action handler use to turn that ID into a function it can run?',
+    prompt: 'The ProfileForm POST carries a Next-Action header with the ID 603a9c1e2b44…. Which artifacts does the action handler use to turn that ID into a function it can run?',
     candidates: ['server-reference-manifest', 'client-reference-manifest', 'routes-manifest', 'middleware-manifest', 'server-chunks', 'browser-chunks'],
     answer: ['server-reference-manifest', 'server-chunks'],
     why: 'The browser only ever holds the ID that the compiler assigned at build time. The handler looks it up in the server-reference manifest and loads the module from the server chunks to resolve the export. An ID that is not there, for example from a form rendered by an older deploy, is rejected before any code runs ("Failed to find Server Action"). There is no fallback and no guessing.',
