@@ -32,6 +32,9 @@ export interface VersionNote {
   why: string
 }
 
+/** one dated change; version is the release that brought it, entries run oldest first */
+export interface HistoryEntry { version: string; text: string }
+
 export interface Entity {
   id: string
   name: string
@@ -55,6 +58,7 @@ export interface Entity {
   internals?: string[]
   sources?: SourceLink[]
   versionNote?: VersionNote
+  history?: HistoryEntry[]
   /** optional badge text such as '"use client"' or 'Node' */
   badge?: string
 }

@@ -175,16 +175,23 @@ a { color: var(--accent); }
 .inspector dd { margin: 0; color: var(--fg); }
 .inspector .close { position: absolute; top: 10px; right: 10px; min-height: 32px; min-width: 32px; padding: 4px 8px; }
 .inspector ul { padding-left: 18px; font-size: 13px; color: var(--hi); }
+.inspector ol.history { list-style: none; margin: 0; padding: 0 0 0 10px; border-left: 1px solid var(--line); display: grid; gap: 4px; }
+.history strong, .history-strip strong { color: var(--accent); font-weight: 500; margin-right: 6px; }
 .version-note { border: 1px solid var(--warn); padding: 10px 14px; margin-top: 12px; font-size: 14px; color: var(--hi); }
 .version-note strong { color: var(--fg); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
 
 /* atlas */
-.atlas { display: grid; grid-template-rows: auto auto minmax(0, 1fr); height: 100%; }
-.atlas .crumbs { grid-row: 2; }
-.atlas .stage { grid-row: 3; }
+.atlas { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); height: 100%; }
+.atlas .crumbs { grid-row: 3; }
+.atlas .stage { grid-row: 4; }
 .atlas-filters { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 20px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .atlas-filters label { display: flex; gap: 8px; align-items: center; }
 .atlas-count { color: var(--fg); font-weight: 500; }
+/* the Source region's history strip: one line, scrolls inside itself so the page never does */
+.history-strip { display: flex; gap: 12px; align-items: center; min-width: 0; padding: 6px 20px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; color: var(--hi); }
+.history-strip button { flex: none; font: inherit; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: transparent; border: 1px solid var(--line); padding: 4px 10px; cursor: pointer; }
+.history-strip button:hover { color: var(--fg); border-color: var(--mid); }
+.history-strip ol { display: flex; gap: 18px; min-width: 0; margin: 0; padding: 0; list-style: none; overflow-x: auto; white-space: nowrap; }
 
 /* tablet sheet header (shown only in the 768–1023px band) and the phone whole-system overlay */
 .sheet-head { display: none; }
@@ -301,6 +308,8 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
   .atlas-filters label { flex-direction: column; align-items: stretch; gap: 2px; min-width: 0; }
   .atlas-filters select, .atlas-filters button { min-height: 44px; min-width: 0; width: 100%; }
   .atlas-filters > span { grid-column: 1 / -1; }
+  .history-strip { padding: 4px 12px; }
+  .history-strip button { min-height: 44px; }
   .transport { gap: 6px; padding: 8px; }
   .transport button, .panel button { min-height: 44px; min-width: 44px; padding: 6px 8px; }
   .compare { display: block; overflow-y: auto; }

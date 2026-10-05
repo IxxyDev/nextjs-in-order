@@ -1,7 +1,7 @@
 // src/ui/AtlasView.tsx
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { Camera, CameraTarget, EntityState } from '../domain/types'
-import { ENTITIES } from '../domain/entities'
+import { ENTITIES, entityById } from '../domain/entities'
 import { REGIONS } from '../domain/regions'
 import { ENVS, PHASES, REACHES, isFiltering, matchesFilter, type AtlasFilter } from '../domain/atlasFilter'
 import { breadcrumbFor } from '../domain/breadcrumb'
@@ -46,6 +46,10 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
         <label>Reaches the browser <select value={filter.reaches ?? ''} onChange={set('reaches')}><option value="">all</option>{REACHES.map((r) => <option key={r} value={r}>{r}</option>)}</select></label>
         <button type="button" onClick={() => setFilter({})} disabled={!filtering}>Clear</button>
         <span aria-live="polite"><strong class="atlas-count">{matching} of {ENTITIES.length}</strong> entities. Click any to inspect. Press Escape to return to the whole system.</span>
+      </div>
+      <div class="history-strip">
+        <button type="button" onClick={() => onSelect('next-build')} aria-label="Next.js history. Inspect next build">Next.js history</button>
+        <ol tabIndex={0} aria-label="Next.js releases, oldest first">{entityById('next-build').history!.map((h) => <li key={h.version}><strong>{h.version}</strong> {h.text}</li>)}</ol>
       </div>
       <Breadcrumb crumbs={breadcrumbFor({ target, entity })} onGo={(t) => onManual(goTo(t, reducedMotion.value))} />
       <div class="stage" ref={stage}>

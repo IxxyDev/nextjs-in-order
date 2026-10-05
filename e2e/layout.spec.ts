@@ -163,3 +163,17 @@ test.describe('phone', () => {
     errors.assertClean()
   })
 })
+
+test('atlas: the history strip opens next build, whose inspector lists the releases in order', async ({ page }) => {
+  const errors = watchErrors(page)
+  await page.goto('/#/atlas')
+  const releases = page.getByRole('list', { name: 'Next.js releases, oldest first' })
+  await expect(releases.getByRole('listitem')).toHaveCount(5)
+  await expect(releases.getByRole('listitem').first()).toContainText('getInitialProps')
+  await page.getByRole('button', { name: /^Next\.js history/ }).click()
+  await expect(page).toHaveURL(/entity=next-build/)
+  const history = page.getByRole('complementary', { name: 'Inspector: next build · pipeline' }).locator('ol.history li strong')
+  await expect(history).toHaveText(['1 · 2016', '9.3', '12', '13', '16'])
+  await expectNoHorizontalScroll(page)
+  errors.assertClean()
+})

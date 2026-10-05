@@ -39,6 +39,7 @@ export function Inspector({ id, onClose }: { id: string; onClose: () => void }) 
         <dt>Consumes</dt><dd>{e.consumes.join('; ') || '—'}</dd>
         <dt>Produces</dt><dd>{e.produces.join('; ') || '—'}</dd>
         <dt>Connected through</dt><dd>{e.connects.length ? e.connects.map((c) => entityById(c).name.split(' · ')[0]).join(', ') : '—'}</dd>
+        {e.history && <><dt>History</dt><dd><ol class="history">{e.history.map((h) => <li key={h.version}><strong>{h.version}</strong> {h.text}</li>)}</ol></dd></>}
         <dt>Crosses to the browser</dt><dd>{e.reaches === 'no' ? 'no' : e.reaches === 'code' ? 'yes, as code' : `yes, as ${e.reaches}`}</dd>
         <dt>Appears in</dt>
         <dd>{failed ? <span role="alert">Couldn't load the journeys. <button onClick={load}>Retry</button></span> : !journeys ? '…' : appearances.length ? appearances.map(({ journey: j, step: i }) => <a key={`${j.id}-${i}`} href={formatRoute({ mode: 'journey', slug: j.slug, step: i })}>{j.title} · step {i + 1}</a>).reduce<ComponentChildren[]>((acc, el, k) => (k ? [...acc, ', ', el] : [el]), []) : '—'}</dd>

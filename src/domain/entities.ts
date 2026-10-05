@@ -78,7 +78,14 @@ export const ENTITIES: Entity[] = [
     consumes: ['source tree', 'next.config.js'], produces: ['.next/', 'build summary'],
     exists: 'one run per deploy', connects: ['route-discovery', 'bundler', 'route-analysis', 'tracing'], reaches: 'no',
     internals: ['buildId k7Qm2xLp9 → .next/BUILD_ID', 'next.config.js loaded once; redirects, rewrites and headers resolved before routes are written', 'packages/next/src/build/index.ts'],
-    sources: [{ label: 'next build (CLI)', url: `${DOCS}/api-reference/cli/next` }]
+    history: [
+      { version: '1 · 2016', text: 'SSR wrapper: pages/ routing, getInitialProps, Webpack + Babel' },
+      { version: '9.3', text: 'getStaticProps / getServerSideProps split getInitialProps' },
+      { version: '12', text: 'SWC replaces Babel' },
+      { version: '13', text: 'App Router: Server Components, streaming' },
+      { version: '16', text: 'Turbopack default, Cache Components (PPR)' }
+    ],
+    sources: [{ label: 'next build (CLI)', url: `${DOCS}/api-reference/cli/next` }, { label: 'Release notes (Next.js blog)', url: 'https://nextjs.org/blog' }]
   },
   {
     id: 'route-discovery', short: 'Route discovery', name: 'Route discovery · app/ + pages/ walk', region: 'build', glyph: 'segment', x: 900, y: 110,
@@ -109,6 +116,12 @@ export const ENTITIES: Entity[] = [
       current: 'Turbopack is the default for next dev and next build since 16.0; Webpack stays available with --webpack.',
       why: 'The three-compiler stitching model belongs to Webpack; Turbopack uses one unified graph.'
     },
+    history: [
+      { version: '≤11', text: 'JavaScript toolchain: Babel compiles, Terser minifies, Webpack bundles' },
+      { version: '12', text: 'SWC (Rust) replaces Babel by default; Webpack calls it through N-API' },
+      { version: '15', text: 'Turbopack, one Rust tool with SWC inside, is stable for next dev' },
+      { version: '16', text: 'Turbopack is the default for next dev and next build; Webpack via --webpack' }
+    ],
     sources: [{ label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
   },
   {

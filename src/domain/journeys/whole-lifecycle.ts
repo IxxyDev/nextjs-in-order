@@ -10,8 +10,9 @@ export const WHOLE_LIFECYCLE: Journey = {
   steps: [
     {
       id: 'j0-1', kind: 'explain', title: 'Three bands of time',
-      story: 'Everything Next.js does happens in one of three bands: once per deploy at build time, once per request on the server, and once per tab in the browser. The double line is the network. Every arrow that crosses it carries either code or data, never both by accident.',
-      camera: { kind: 'world' }, states: {}, edges: []
+      story: 'Next.js began in 2016 as an SSR wrapper around React. Today everything it does happens in one of three bands: once per deploy at build time, once per request on the server, and once per tab in the browser. The double line is the network. Every arrow that crosses it carries either code or data, never both by accident.',
+      camera: { kind: 'world' }, states: {}, edges: [],
+      internals: ['history (next build in the Atlas): 2016 SSR wrapper + getInitialProps → 9.3 getStaticProps / getServerSideProps → 12 SWC replaces Babel → 13 App Router, RSC, streaming → 16 Turbopack default, Cache Components']
     },
     {
       id: 'j0-2', kind: 'move', title: 'A module with a directive',

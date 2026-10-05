@@ -1,5 +1,5 @@
 // src/domain/validate.ts
-import type { ComparePair, Journey, LaneScene, QuizQuestion, StepRef } from './types'
+import type { ComparePair, Entity, Journey, LaneScene, QuizQuestion, StepRef } from './types'
 import { ENTITIES } from './entities'
 import { EDGES } from './edges'
 import { REGIONS } from './regions'
@@ -20,6 +20,25 @@ function sceneErrors(where: string, scene: LaneScene, errors: string[]): void {
   if (scene.token && !entityIds.has(scene.token.at)) errors.push(`${where}: token at unknown entity ${scene.token.at}`)
   if (scene.camera.kind === 'region' && !regionIds.has(scene.camera.id)) errors.push(`${where}: unknown region ${scene.camera.id}`)
   if (scene.camera.kind === 'entities') for (const id of scene.camera.ids) if (!entityIds.has(id)) errors.push(`${where}: camera on unknown entity ${id}`)
+}
+
+/** the release number in a history label ('1 · 2016' → [1], '9.3' → [9, 3], '≤11' → [11]) */
+const release = (version: string) => (version.match(/\d+(?:\.\d+)*/)?.[0] ?? '').split('.').filter(Boolean).map(Number)
+const after = (a: number[], b: number[]) => { for (let i = 0; i < Math.max(a.length, b.length); i++) if ((a[i] ?? 0) !== (b[i] ?? 0)) return (a[i] ?? 0) > (b[i] ?? 0); return false }
+
+/** a history, when present, is non-empty, every entry has text and a release number, and releases strictly increase */
+export function validateEntities(entities: Entity[]): string[] {
+  const errors: string[] = []
+  for (const e of entities) {
+    if (!e.history) continue
+    if (!e.history.length) errors.push(`${e.id}: empty history`)
+    e.history.forEach((h, i) => {
+      if (!h.text.trim()) errors.push(`${e.id} history ${i + 1}: empty text`)
+      if (!release(h.version).length) errors.push(`${e.id} history ${i + 1}: no release number in "${h.version}"`)
+      else if (i > 0 && !after(release(h.version), release(e.history![i - 1].version))) errors.push(`${e.id} history ${i + 1}: ${h.version} does not come after ${e.history![i - 1].version}`)
+    })
+  }
+  return errors
 }
 
 export function validateJourney(journey: Journey): string[] {
