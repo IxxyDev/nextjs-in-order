@@ -19,5 +19,6 @@
   "dependencies": {
     "@preact/signals": "^2.11.2",
     "preact": "^10.29.8"
-  }
+  },
+  "packageManager": "pnpm@12.6.0"
 }
