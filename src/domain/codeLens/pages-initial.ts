@@ -1,10 +1,9 @@
 // src/domain/codeLens/pages-initial.ts
 import type { LensStep } from '../types'
-import { source } from './specimen'
+import { PRODUCT_CHUNK, source } from './specimen'
 
 /** illustrative chunk names, in the style of experience-architecture.md §2 (details in docs/code-lens/pages-initial.md) */
 const APP_CHUNK = 'static/chunks/pages/_app-2c3d.js'
-const PRODUCT_CHUNK = 'static/chunks/pages/products/[id]-6e7f.js'
 
 const PR_GSSP = ['PR2', 'PR3', 'PR4', 'PR5']
 const PR_PAGE = ['PR7', 'PR9', 'PR10', 'PR11']

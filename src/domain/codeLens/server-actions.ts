@@ -1,8 +1,7 @@
 // src/domain/codeLens/server-actions.ts
 import type { LensStep } from '../types'
-import { source } from './specimen'
+import { ACTION_ID, source } from './specimen'
 
-const ID = '603a9c1e2b44…'
 const BODY = ['AC5', 'AC6', 'AC7']
 
 /**
@@ -27,7 +26,7 @@ export const STEPS: LensStep[] = [
       {
         title: 'app/actions.js', hint: 'the server compile: the function stays, an ID is registered for it', abridged: true,
         rows: [
-          { text: `/* __next_internal_action_entry… {"${ID}":{"name":"updateProfile"}} */`, from: ['AC1'], fate: 'action-id', change: 'same', morph: ID, note: "'use server' → action-entry comment" },
+          { text: `/* __next_internal_action_entry… {"${ACTION_ID}":{"name":"updateProfile"}} */`, from: ['AC1'], fate: 'action-id', change: 'same', morph: ACTION_ID, note: "'use server' → action-entry comment" },
           { text: 'import { registerServerReference } from "private-next-rsc-server-reference";', fate: 'action-id', change: 'new' },
           { fold: 2, label: '2 import lines, unchanged', from: ['AC2', 'AC3'], change: 'same' },
           { text: 'export async function updateProfile(prevState, formData) {', from: ['AC4'], fate: 'action-id', change: 'same', cut: ': unknown · : FormData' },
@@ -37,13 +36,13 @@ export const STEPS: LensStep[] = [
             fold: 2, label: '2 lines: a check that every export is an async function', change: 'new',
             lines: ['import { ensureServerEntryExports } from "private-next-rsc-action-validate";', 'ensureServerEntryExports([updateProfile]);']
           },
-          { text: `registerServerReference(updateProfile, "${ID}", null);`, from: ['AC4'], fate: 'action-id', change: 'new', note: 'the ID: a hash of salt + file + export' }
+          { text: `registerServerReference(updateProfile, "${ACTION_ID}", null);`, from: ['AC4'], fate: 'action-id', change: 'new', note: 'the ID: a hash of salt + file + export' }
         ]
       },
       {
         title: 'server/server-reference-manifest.json', entity: 'server-reference-manifest', abridged: true,
         rows: [
-          { text: `{ node: { "${ID}": { workers: { "app/dashboard/settings/page": { moduleId: …, async: false } },`, from: ['AC4'], fate: 'action-id', change: 'new', note: 'written by the bundler' },
+          { text: `{ node: { "${ACTION_ID}": { workers: { "app/dashboard/settings/page": { moduleId: …, async: false } },`, from: ['AC4'], fate: 'action-id', change: 'new', note: 'written by the bundler' },
           { text: '  exportedName: "updateProfile", filename: "app/actions.ts" } }, edge: {}, encryptionKey: "…" }', from: ['AC4'], fate: 'action-id', change: 'new' }
         ]
       }
@@ -63,7 +62,7 @@ export const STEPS: LensStep[] = [
           { text: 'export async function updateProfile(prevState, formData) {', from: ['AC4'], fate: 'action-id', change: 'same' },
           { fold: 3, label: '3 lines of the body: db.update, updateTag, return', from: BODY, change: 'same' },
           { text: '}' },
-          { text: `registerServerReference(updateProfile, "${ID}", null);`, from: ['AC4'], fate: 'action-id', change: 'same', morph: ID }
+          { text: `registerServerReference(updateProfile, "${ACTION_ID}", null);`, from: ['AC4'], fate: 'action-id', change: 'same', morph: ACTION_ID }
         ]
       },
       {
@@ -72,7 +71,7 @@ export const STEPS: LensStep[] = [
         rows: [
           { text: 'import { … } from "private-next-rsc-action-client-wrapper";', from: ['PF3'], fate: 'action-id', change: 'new' },
           { text: 'const $$RSC_SERVER_ACTION_0 = createServerReference(', from: ['PF3', 'AC4'], fate: 'action-id', change: 'new' },
-          { text: `    "${ID}", …);`, from: ['PF3', 'AC4'], fate: 'action-id', change: 'new', morph: ID },
+          { text: `    "${ACTION_ID}", …);`, from: ['PF3', 'AC4'], fate: 'action-id', change: 'new', morph: ACTION_ID },
           { text: 'export { $$RSC_SERVER_ACTION_0 as updateProfile };', from: ['PF3'], fate: 'action-id', change: 'new' },
           { fold: 3, label: '3 lines of the body: not in any browser chunk (0 B)', from: BODY, change: 'gone' }
         ]
@@ -112,7 +111,7 @@ export const STEPS: LensStep[] = [
   {
     step: 'j7-5', mode: 'peek', form: 'html',
     summary: [
-      `PF7 <form action={formAction}> · with JS: React intercepts submit and fetches · without JS: <form method="POST" enctype="multipart/form-data"> + <input type="hidden" name="$ACTION_ID_${ID}"/> (useActionState adds $ACTION_KEY)`
+      `PF7 <form action={formAction}> · with JS: React intercepts submit and fetches · without JS: <form method="POST" enctype="multipart/form-data"> + <input type="hidden" name="$ACTION_ID_${ACTION_ID}"/> (useActionState adds $ACTION_KEY)`
     ],
     panes: [{ title: 'components/ProfileForm.tsx', entity: 'src-profile-form', abridged: true, rows: source(['PF5', 'PF7', 'PF8', 'PF9']) }],
     links: [{ fate: 'split', entities: ['client-components', 'dom'] }],
@@ -124,7 +123,7 @@ export const STEPS: LensStep[] = [
       title: 'POST /dashboard/settings · request', entity: 'client-components', abridged: true,
       rows: [
         { text: 'POST /dashboard/settings', change: 'new', note: 'the current page, not a route named after the action' },
-        { text: `Next-Action: ${ID}`, from: ['AC4', 'PF3'], fate: 'action-id', change: 'new', morph: ID, note: 'the only thing that names the function' },
+        { text: `Next-Action: ${ACTION_ID}`, from: ['AC4', 'PF3'], fate: 'action-id', change: 'new', morph: ACTION_ID, note: 'the only thing that names the function' },
         { text: 'Accept: text/x-component', change: 'new' },
         { text: 'Next-Router-State-Tree: …"settings"…', change: 'new', note: 'sent, but with no RSC: 1 header the server ignores it: a re-render starts at the root' },
         { text: 'Content-Type: multipart/form-data; boundary=…', from: ['PF7'], fate: 'split', change: 'new', note: 'a FormData argument' },
@@ -141,10 +140,10 @@ export const STEPS: LensStep[] = [
   { step: 'j7-7', mode: 'off', panes: [], links: [], motion: [] },
   {
     step: 'j7-8', mode: 'peek', form: 'manifest',
-    summary: [`⇄ Next-Action ${ID} → server-reference-manifest → workers["app/dashboard/settings/page"] · exportedName "updateProfile" ✓ · unknown ID: "Failed to find Server Action", nothing runs`],
+    summary: [`⇄ Next-Action ${ACTION_ID} → server-reference-manifest → workers["app/dashboard/settings/page"] · exportedName "updateProfile" ✓ · unknown ID: "Failed to find Server Action", nothing runs`],
     panes: [{
       title: 'server/server-reference-manifest.json', entity: 'server-reference-manifest', abridged: true,
-      rows: [{ text: `{ node: { "${ID}": { workers: { "app/dashboard/settings/page": { moduleId: …, async: false } }, exportedName: "updateProfile", … } } }`, from: ['AC4'], fate: 'action-id', change: 'same', note: 'found: the module loads, the export resolves' }]
+      rows: [{ text: `{ node: { "${ACTION_ID}": { workers: { "app/dashboard/settings/page": { moduleId: …, async: false } }, exportedName: "updateProfile", … } } }`, from: ['AC4'], fate: 'action-id', change: 'same', note: 'found: the module loads, the export resolves' }]
     }],
     links: [{ fate: 'action-id', entities: ['server-reference-manifest', 'action-handler'] }],
     motion: [], reduced: 'static'

@@ -1,7 +1,6 @@
 import type { LensStep } from '../types'
-import { source } from './specimen'
+import { ACTION_ID, source } from './specimen'
 
-const ID = '603a9c1e2b44…'
 const ENTRY = `/* __next_internal_action_entry… {…} */`
 
 /**
@@ -77,7 +76,7 @@ export const STEPS: LensStep[] = [
           { text: 'export async function updateProfile(prevState, formData) {', from: ['AC4'], fate: 'action-id', change: 'same', cut: 'types' },
           { fold: 3, label: '3 lines of the body: stay here and run on the POST (J7)', from: ['AC5', 'AC6', 'AC7'], change: 'same' },
           { fold: 2, label: '2 lines: a check that every export is an async function', lines: ['import { ensureServerEntryExports } from "private-next-rsc-action-validate";', 'ensureServerEntryExports([updateProfile]);'] },
-          { text: `registerServerReference(updateProfile, "${ID}", null);`, from: ['AC4'], fate: 'action-id', change: 'new', morph: ID, note: 'in the manifest' }
+          { text: `registerServerReference(updateProfile, "${ACTION_ID}", null);`, from: ['AC4'], fate: 'action-id', change: 'new', morph: ACTION_ID, note: 'in the manifest' }
         ]
       },
       {
@@ -87,7 +86,7 @@ export const STEPS: LensStep[] = [
           { fold: 1, label: '1 line: the same action-entry comment', lines: [ENTRY] },
           { text: 'import { … } from "private-next-rsc-action-client-wrapper";', fate: 'action-id', change: 'new' },
           { text: 'const $$RSC_SERVER_ACTION_0 = createServerReference(', from: ['AC4'], fate: 'action-id', change: 'new' },
-          { text: `    "${ID}", …);`, from: ['AC4'], fate: 'action-id', change: 'new', morph: ID },
+          { text: `    "${ACTION_ID}", …);`, from: ['AC4'], fate: 'action-id', change: 'new', morph: ACTION_ID },
           { text: 'export { $$RSC_SERVER_ACTION_0 as updateProfile };', from: ['PF3'], fate: 'action-id', change: 'new', note: 'the name PF3 imports' },
           { fold: 3, label: '3 lines of the body: not in the browser build', from: ['AC5', 'AC6', 'AC7'], change: 'gone' }
         ]

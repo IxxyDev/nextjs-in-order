@@ -1,11 +1,7 @@
 // src/domain/codeLens/app-initial.ts
 import type { LensStep } from '../types'
-import { DN_NAV, PF_FORM, source } from './specimen'
+import { DN_NAV, PF_FORM, REF_FORM, REF_NAV, ROOT_ROW, source } from './specimen'
 
-const REF_NAV = '1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]'
-const REF_FORM = '2:I[…,["static/chunks/app/dashboard/settings/page-5e6f.js"],"default"]'
-/** the root row exactly as j0-7 writes it */
-const ROOT_ROW = '0:{"P":…,"c":["","dashboard","settings"],"q":"","i":false,"f":[[["",{…}],…,…,false]],"S":true,…,"b":"k7Qm2xLp9"}'
 const ROUTE_STATE = '["",{"children":["dashboard",{"children":["settings",{"children":["__PAGE__",{}]}]}]},…]'
 const PRERENDERED = '○ route: this render ran at build; a production GET is served its stored result (settings.html + settings.rsc)'
 

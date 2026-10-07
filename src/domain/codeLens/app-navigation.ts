@@ -1,6 +1,6 @@
 // src/domain/codeLens/app-navigation.ts
 import type { LensStep } from '../types'
-import { PF_FORM, source } from './specimen'
+import { PF_FORM, REF_FORM, REF_NAV, source } from './specimen'
 
 /** Next-Router-State-Tree after a prefetch: the target tree, with "refetch" on the first segment the client cache cannot fill */
 const TARGET_TREE = '["",{"children":["dashboard",{"children":["billing",{…"refetch"…}]}]}]'
@@ -133,7 +133,7 @@ export const STEPS: LensStep[] = [
         { text: `RSC: 1 · Next-Router-State-Tree: ${TARGET_TREE}`, note: 'the request (context)' },
         {
           fold: 3, label: '3 settings rows from the first load: not in this patch', from: ['DL5', 'SP9', 'AS2'], change: 'gone',
-          lines: ['1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]', '2:I[…,["static/chunks/app/dashboard/settings/page-5e6f.js"],"default"]', '0:{"P":…,"c":["","dashboard","settings"],…}']
+          lines: [REF_NAV, REF_FORM, '0:{"P":…,"c":["","dashboard","settings"],…}']
         },
         { text: '1:"$Sreact.suspense"', change: 'new' },
         { text: '0:{"f":[["children","dashboard","children","billing",[…tree patch…],[…seed…],…,false]],"q":"","i":false,"S":false,…,"b":"k7Qm2xLp9"}', from: ['BP3'], fate: 'server-only', change: 'new', note: 'starts at billing' },

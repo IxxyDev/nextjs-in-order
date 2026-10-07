@@ -1,6 +1,6 @@
 // src/domain/codeLens/dev-mode.ts
 import type { LensStep } from '../types'
-import { source } from './specimen'
+import { REF_NAV, source } from './specimen'
 
 const off = (step: string): LensStep => ({ step, mode: 'off', panes: [], links: [], motion: [] })
 
@@ -144,7 +144,7 @@ export const STEPS: LensStep[] = [
       title: 'GET /dashboard/settings?_rsc=… · text/x-component', entity: 'flight', abridged: true,
       rows: [
         { text: 'GET /dashboard/settings?_rsc=… · RSC: 1 · Next-Router-State-Tree: … · next-hmr-refresh: 1', note: 'header line (context)' },
-        { text: '1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]', from: ['DL5'], fate: 'client-boundary', change: 'same', note: 'the same reference as before' },
+        { text: REF_NAV, from: ['DL5'], fate: 'client-boundary', change: 'same', note: 'the same reference as before' },
         { text: '0:{"f":[[["",{"children":["dashboard",…]}],…]],"S":false,…}', fate: 'server-only', change: 'new', note: 'rendered again on the server, with the new module' },
         { text: '   …["$","dl",null,{"children":[["$","dt",null,{"children":"Email address"}],…]}]…', from: ['AS2', 'AE1'], fate: 'server-only', change: 'new', morph: 'Email address', note: "AccountSummary's new output" },
         { text: '   …["$","$L1",null,{}]…', from: ['DL5'], fate: 'client-boundary', change: 'same', morph: '$L1', note: 'same type, same place: React keeps it' },

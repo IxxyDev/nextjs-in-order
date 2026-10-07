@@ -1,6 +1,6 @@
 // src/domain/codeLens/whole-lifecycle.ts
 import type { LensStep } from '../types'
-import { DN_NAV, PF_FORM, source } from './specimen'
+import { ACTION_ID, DN_NAV, PF_FORM, REF_FORM, REF_NAV, ROOT_ROW, source } from './specimen'
 
 const DN_SPLIT = ['DN2', 'DN3', 'DN4', 'DN5', 'DN6', 'DN7', 'DN9', 'DN10', 'DN11', 'DN12']
 
@@ -8,7 +8,7 @@ const DN_SPLIT = ['DN2', 'DN3', 'DN4', 'DN5', 'DN6', 'DN7', 'DN9', 'DN10', 'DN11
 const SHELF_LEDGER = [
   '⚡ "…/components/DashboardNav.tsx" → chunks ["static/chunks/app/dashboard/layout-3c4d.js"] · client-reference-manifest',
   '⚡ "…/components/ProfileForm.tsx" → chunks ["static/chunks/app/dashboard/settings/page-5e6f.js"] · client-reference-manifest',
-  '⇄ "603a9c1e2b44…" → updateProfile · app/actions.ts · worker app/dashboard/settings/page · server-reference-manifest',
+  `⇄ "${ACTION_ID}" → updateProfile · app/actions.ts · worker app/dashboard/settings/page · server-reference-manifest`,
   '⊘ server/app/layout.js · server/app/dashboard/layout.js · server/app/dashboard/settings/page.js · server-chunks only',
   '○ server/app/dashboard/settings.html · settings.rsc (○ because SP5 is ▤) · prerendered-outputs'
 ]
@@ -100,7 +100,7 @@ export const STEPS: LensStep[] = [
       {
         title: 'server/server-reference-manifest.json', entity: 'server-reference-manifest', abridged: true,
         rows: [
-          { text: '{ node: { "603a9c1e2b44…": { workers: { "app/dashboard/settings/page": { moduleId: …, async: false } },', from: ['AC4'], fate: 'action-id', change: 'new' },
+          { text: `{ node: { "${ACTION_ID}": { workers: { "app/dashboard/settings/page": { moduleId: …, async: false } },`, from: ['AC4'], fate: 'action-id', change: 'new' },
           { text: '  exportedName: "updateProfile", filename: "app/actions.ts" } }, edge: {}, encryptionKey: "…" }', from: ['AC4'], fate: 'action-id', change: 'new' }
         ]
       }
@@ -124,9 +124,9 @@ export const STEPS: LensStep[] = [
     panes: [{
       title: 'Flight · GET /dashboard/settings', entity: 'flight', badge: '⑂ ×2', hint: 'teed: one copy renders HTML (step 8), one is inlined for the browser', abridged: true,
       rows: [
-        { text: '1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]', from: ['DL5'], fate: 'client-boundary', change: 'new', note: "reference to step 4's chunk" },
-        { text: '2:I[…,["static/chunks/app/dashboard/settings/page-5e6f.js"],"default"]', from: ['SP9'], fate: 'client-boundary', change: 'new' },
-        { text: '0:{"P":…,"c":["","dashboard","settings"],"q":"","i":false,"f":[[["",{…}],…,…,false]],"S":true,…,"b":"k7Qm2xLp9"}', fate: 'server-only', change: 'new', note: 'tree + seed' },
+        { text: REF_NAV, from: ['DL5'], fate: 'client-boundary', change: 'new', note: "reference to step 4's chunk" },
+        { text: REF_FORM, from: ['SP9'], fate: 'client-boundary', change: 'new' },
+        { text: ROOT_ROW, fate: 'server-only', change: 'new', note: 'tree + seed' },
         { text: '   …["$","section",null,{"className":"dashboard","children":[["$","$L1",null,{}],…]}]…', from: ['DL4', 'DL5'], fate: 'client-boundary', change: 'same', morph: '$L1', note: '<DashboardNav /> → ["$","$L1",null,{}]' },
         { text: '   …["$","dl",null,{"children":[…,["$","dd",null,{"children":"ada@example.com"}],…]}]…', from: ['AS2'], fate: 'server-only', change: 'same', morph: 'dl', note: '<AccountSummary …/> → its output' },
         { text: '   …["$","$L2",null,{"name":"Ada"}]…', from: ['SP9'], fate: 'client-boundary', change: 'same', morph: '$L2', note: 'props become data' },
@@ -145,7 +145,7 @@ export const STEPS: LensStep[] = [
     step: 'j0-8', mode: 'open', form: 'html',
     footer: [
       '0 B of JS in the browser · ⊘ RootLayout · DashboardLayout · SettingsPage · AccountSummary · getProfile · updateProfile body',
-      '1 ID · ⇄ updateProfile → createServerReference("603a9c1e2b44…", callServer, void 0, findSourceMapURL, "updateProfile") in page-5e6f.js'
+      `1 ID · ⇄ updateProfile → createServerReference("${ACTION_ID}", callServer, void 0, findSourceMapURL, "updateProfile") in page-5e6f.js`
     ],
     panes: [{
       title: 'GET /dashboard/settings · text/html', entity: 'html', abridged: true,
@@ -194,7 +194,7 @@ export const STEPS: LensStep[] = [
         { text: 'GET /dashboard/billing?_rsc=qR7vX2mK9pLw3sTb · RSC: 1 · Next-Router-State-Tree: …"settings"…', note: 'header line (context)' },
         {
           fold: 3, label: '3 settings rows from step 7: not in this patch', from: ['DL5', 'SP9', 'AS2'], change: 'gone',
-          lines: ['1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]', '2:I[…,["static/chunks/app/dashboard/settings/page-5e6f.js"],"default"]', '0:{"P":…,"c":["","dashboard","settings"],…}']
+          lines: [REF_NAV, REF_FORM, '0:{"P":…,"c":["","dashboard","settings"],…}']
         },
         { text: '1:"$Sreact.suspense"', change: 'new' },
         { text: '0:{"f":[["children","dashboard","children","billing",[…tree patch…],[…seed…],…,false]],"q":"","i":false,"S":false,…,"b":"k7Qm2xLp9"}', from: ['BP3'], fate: 'server-only', change: 'new', note: 'starts at billing' },

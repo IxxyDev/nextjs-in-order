@@ -1,10 +1,9 @@
 // src/domain/codeLens/pages-navigation.ts
 import type { LensStep } from '../types'
-import { source } from './specimen'
+import { PRODUCT_CHUNK, source } from './specimen'
 
 /** illustrative chunk names, as in docs/code-lens/pages-initial.md */
 const POST_CHUNK = 'static/chunks/pages/posts/[id]-8a9b.js'
-const PRODUCT_CHUNK = 'static/chunks/pages/products/[id]-6e7f.js'
 
 /**
  * the lens along J4: one entry per journey step, in order (docs/code-lens.md §10, details in docs/code-lens/pages-navigation.md).
