@@ -160,7 +160,7 @@ export const STEPS: LensStep[] = [
         { text: '<section class="dashboard">', from: ['DL4'], fate: 'server-only', mark: 'shared-layout', change: 'same', note: 'kept: the same node' },
         { text: '<nav data-open="true">…</nav>', from: ['DN6', 'DN9'], fate: 'split', mark: 'shared-layout', change: 'same', note: 'kept: the menu stays open' },
         { text: '<dl>…ada@example.com…</dl>', from: ['AS2'], fate: 'server-only', change: 'gone', note: 'settings unmounted' },
-        { text: '<form>…</form>', from: ['PF7', 'PF8'], fate: 'split', change: 'gone' },
+        { text: '<form>…</form>', from: ['PF7', 'PF8', 'PF9'], fate: 'split', change: 'gone' },
         { text: '<h1>Billing</h1>', from: ['BP6'], fate: 'server-only', mark: 'static-shell', change: 'new', morph: 'Billing' },
         { text: '<ul><li>€12.00</li>…</ul>', from: ['IL6'], fate: 'server-only', mark: 'suspended', change: 'new', note: 'fills the hole when row 2 arrives' }
       ]
@@ -169,7 +169,7 @@ export const STEPS: LensStep[] = [
       { fate: 'shared-layout', entities: ['client-components', 'dom'] },
       { fate: 'split', entities: ['client-components'], from: ['DN6', 'DN9'] },
       { fate: 'server-only', entities: ['src-settings-page'], from: ['AS2'] },
-      { fate: 'split', entities: ['src-settings-page'], from: ['PF7', 'PF8'] },
+      { fate: 'split', entities: ['src-settings-page'], from: ['PF7', 'PF8', 'PF9'] },
       { fate: 'server-only', entities: ['layout-router', 'src-billing-page'], from: ['BP6', 'IL6'] },
       { fate: 'static-shell', entities: ['layout-router'] },
       { fate: 'suspended', entities: ['layout-router'] }

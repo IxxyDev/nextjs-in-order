@@ -87,7 +87,7 @@ j6-11, where the swap happens.
 ### j6-11 · open · dom
 `<section class="dashboard">` (DL4, 🔒 kept: the same node), `<nav data-open="true">…</nav>` (DN6 +
 DN9, 🔒 "kept: the menu stays open"), struck `<dl>…</dl>` (AS2, "settings unmounted") and `<form>…</form>`
-(PF7–PF8), new `<h1>Billing</h1>` ○ and `<ul><li>€12.00</li>…</ul>` ⌛ ("fills the hole when row 2
+(PF7–PF9), new `<h1>Billing</h1>` ○ and `<ul><li>€12.00</li>…</ul>` ⌛ ("fills the hole when row 2
 arrives"). The pane hint names the swap: "the LayoutRouter for dashboard/children swaps settings → billing".
 `data-open="true"` assumes the user opened the menu before clicking Billing (the story's "keeps its
 open state").

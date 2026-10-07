@@ -22,7 +22,7 @@ Same open steps as the §10.2 plan.
 | j5-9 | peek | json | FlightRouterState vs CacheNodeSeedData (the two halves of `f`) | ⊘ → `segment-slices` | fade-in · static |
 | j5-10 | **open** | flight | `1:I`, `2:I`, `0:`, then one excerpt per segment (`""`, dashboard, `__PAGE__`), folds for the layout-less settings segment and Next's own rows | ⊘ → `rsc-runtime-entity` (RL2/AS2 also → `segment-slices`) · ⚡B → `flight` | reference · static |
 | j5-11 | peek | flight | ledger only: `⑂ ×2` | — | — |
-| j5-12 | **open** | html | the document SSR writes from copy 1: DN9–DN12 as `<nav>` HTML, AS2 as `<dl>`, PF7–PF8 as `<form>` | ⚡S → `ssr-runtime-entity`, `html` (DN lines also → `src-dashboard-nav`) · ⊘ → `html` | transform · static |
+| j5-12 | **open** | html | the document SSR writes from copy 1: DN9–DN12 as `<nav>` HTML, AS2 as `<dl>`, PF7–PF9 as `<form>` | ⚡S → `ssr-runtime-entity`, `html` (DN lines also → `src-dashboard-nav`) · ⊘ → `html` | transform · static |
 | j5-13 | peek | html | the four `__next_f` push types | ⚡B → `next-f` | wrap · static |
 | j5-14 | peek | html | billing: `<h1>`, the `B:0` template + fallback, the late `S:0` div, `$RC("B:0","S:0")` | ○ → `html` · ⌛ → `suspense-hole` · ⊘ → `src-billing-page` | fill · static |
 | j5-15 | peek | files | the four chunks fetched + 0 B ledger | ⚡S → `browser-chunks`, `client-components` | fade-to-zero · static |
@@ -93,7 +93,7 @@ self.__next_f…". No pane: there is nothing new to show line by line (the tee c
 Rows: `<html lang="en"><body><section class="dashboard">` (⊘ RL2 DL4), `<nav data-open="false">`
 (DN9 + DN6, morph `nav`), `<button>Menu</button>` (DN10, "no onClick in HTML"), the two `<a>` (DN11
 with `aria-current="true"`, DN12), `</nav>`, `<dl>…</dl>` (AS2, "from row 0: AccountSummary not run
-again"), `<form …><input name="name" value="Ada"/><button>Save</button></form>` (PF7–PF8). 8 shown.
+again"), `<form …><input name="name" value="Ada"/><button>Save</button></form>` (PF7–PF9). 8 shown.
 **Reduced motion:** static; a source before pane would be five specimen files.
 
 ### j5-13 · peek · html
@@ -115,7 +115,7 @@ decoded again: `1:I`, `2:I`, `0:` (same text as j5-10), `$L1`, the `<dl>` output
 (the reverse of j5-13's wrap). Motion: transform; reduced: static.
 
 ### j5-18 · peek · files
-The two chunks named by `1:I` and `2:I`, from DN5–DN12 and PF4/PF7/PF8.
+The two chunks named by `1:I` and `2:I`, from DN5–DN12 and PF4/PF7–PF9.
 
 ### j5-19 · open · dom
 As j0-9: `<section>` static, `<nav>` hydrated, `<dl>` static ("still in the React tree"), `<form>`
