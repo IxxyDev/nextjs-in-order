@@ -1,5 +1,5 @@
 import type { LensStep } from '../types'
-import { source } from './specimen'
+import { off, source } from './specimen'
 
 /** routes-manifest.json rows as next build writes them (regexes from Next's path-to-regexp, docs/code-lens/request-routing.md) */
 const HEADER_ROW = '{ "source": "/:path*", "headers": [{ "key": "X-Frame-Options", "value": "DENY" }], "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$" }'
@@ -10,7 +10,7 @@ const TRAILING = '{ "source": "/:path+/", "destination": "/:path+", "internal": 
  * the lens along J2: one entry per journey step, in order (docs/code-lens.md §10, details in docs/code-lens/request-routing.md).
  */
 export const STEPS: LensStep[] = [
-  { step: 'j2-1', mode: 'off', panes: [], links: [], motion: [] },
+  off('j2-1'),
   {
     step: 'j2-2', mode: 'peek', form: 'json',
     summary: ['in memory before the first request: BUILD_ID k7Qm2xLp9 · routes-manifest headers ← NC3 · redirects ← NC4 · the Proxy matcher ← PX8'],
@@ -90,7 +90,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['transform'], reduced: 'side-by-side'
   },
-  { step: 'j2-6', mode: 'off', panes: [], links: [], motion: [] },
+  off('j2-6'),
   {
     step: 'j2-7', mode: 'peek', form: 'json',
     summary: ['step 5 · /dashboard/settings is a static route: app-paths-manifest "/dashboard/settings/page" → app/dashboard/settings/page.js'],
@@ -107,13 +107,13 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'server-only', entities: ['rung-filesystem'] }],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j2-8', mode: 'off', panes: [], links: [], motion: [] },
+  off('j2-8'),
   {
     step: 'j2-9', mode: 'peek', form: 'http',
     summary: ['router-server → render-server: /dashboard/settings · params {} · App or Pages is decided inside render-server'],
     panes: [], links: [], motion: []
   },
-  { step: 'j2-10', mode: 'off', panes: [], links: [], motion: [] },
+  off('j2-10'),
   {
     step: 'j2-11', mode: 'peek', form: 'http',
     summary: ['GET /_next/static/chunks/framework-a1b2c3.js → 200 from .next/static · cache-control: public, max-age=31536000, immutable · PX8 did not match: Proxy never ran'],
@@ -140,6 +140,6 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'server-only', entities: ['route-handler'] }],
     motion: ['transform'], reduced: 'side-by-side'
   },
-  { step: 'j2-13', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j2-14', mode: 'off', panes: [], links: [], motion: [] }
+  off('j2-13'),
+  off('j2-14')
 ]

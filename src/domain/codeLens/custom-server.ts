@@ -1,11 +1,11 @@
 import type { LensStep } from '../types'
-import { source } from './specimen'
+import { off, source } from './specimen'
 
 /**
  * the lens along J10: one entry per journey step, in order (docs/code-lens.md §10, details in docs/code-lens/custom-server.md).
  */
 export const STEPS: LensStep[] = [
-  { step: 'j10-1', mode: 'off', panes: [], links: [], motion: [] },
+  off('j10-1'),
   {
     step: 'j10-2', mode: 'peek', form: 'js',
     summary: ['server.js · plain Node, never compiled by Next.js · SV4 next({ dev }) · SV5 handle = app.getRequestHandler() · SV6 app.prepare() loads the tables'],
@@ -68,7 +68,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['transform'], reduced: 'side-by-side'
   },
-  { step: 'j10-6', mode: 'off', panes: [], links: [], motion: [] },
+  off('j10-6'),
   {
     step: 'j10-7', mode: 'open', form: 'http',
     panes: [{
@@ -87,7 +87,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['swap'], reduced: 'side-by-side'
   },
-  { step: 'j10-8', mode: 'off', panes: [], links: [], motion: [] },
+  off('j10-8'),
   {
     step: 'j10-9', mode: 'peek', form: 'js',
     summary: ['what if SR1 app.render(req, res, "/dashboard/settings") → req.url = formatUrl({ …parsedUrl, pathname, query }) → this.requestHandler(req, res): deprecated, warns, skips nothing'],
@@ -95,7 +95,7 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'server-only', entities: ['custom-handle', 'routing-ladder', 'proxy'], from: ['SR1'] }],
     motion: []
   },
-  { step: 'j10-10', mode: 'off', panes: [], links: [], motion: [] },
+  off('j10-10'),
   {
     step: 'j10-11', mode: 'peek', form: 'files',
     summary: ["NC6 output: 'standalone' traces the route entries, not server.js: .next/standalone/server.js is Next's own, yours fails with Cannot find module"],
@@ -126,6 +126,6 @@ export const STEPS: LensStep[] = [
     ],
     motion: []
   },
-  { step: 'j10-13', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j10-14', mode: 'off', panes: [], links: [], motion: [] }
+  off('j10-13'),
+  off('j10-14')
 ]

@@ -1,8 +1,6 @@
 // src/domain/codeLens/caching.ts
 import type { LensStep } from '../types'
-import { source } from './specimen'
-
-const off = (step: string): LensStep => ({ step, mode: 'off', panes: [], links: [], motion: [] })
+import { off, source } from './specimen'
 
 /**
  * the lens along J8: one entry per journey step, in order (docs/code-lens.md §10, details in docs/code-lens/caching.md).

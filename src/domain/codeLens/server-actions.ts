@@ -1,6 +1,6 @@
 // src/domain/codeLens/server-actions.ts
 import type { LensStep } from '../types'
-import { ACTION_ID, source } from './specimen'
+import { ACTION_ID, off, source } from './specimen'
 
 const BODY = ['AC5', 'AC6', 'AC7']
 
@@ -137,7 +137,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j7-7', mode: 'off', panes: [], links: [], motion: [] },
+  off('j7-7'),
   {
     step: 'j7-8', mode: 'peek', form: 'manifest',
     summary: [`⇄ Next-Action ${ACTION_ID} → server-reference-manifest → workers["app/dashboard/settings/page"] · exportedName "updateProfile" ✓ · unknown ID: "Failed to find Server Action", nothing runs`],
@@ -148,7 +148,7 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'action-id', entities: ['server-reference-manifest', 'action-handler'] }],
     motion: [], reduced: 'static'
   },
-  { step: 'j7-9', mode: 'off', panes: [], links: [], motion: [] },
+  off('j7-9'),
   {
     step: 'j7-10', mode: 'peek', form: 'tsx',
     summary: ["⊘ AC5 db.update('profile', …) runs: the row changes · ▤ DA4 getProfile's entry (tag profile) still holds the old name"],
@@ -162,7 +162,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: [], reduced: 'static'
   },
-  { step: 'j7-11', mode: 'off', panes: [], links: [], motion: [] },
+  off('j7-11'),
   {
     step: 'j7-12', mode: 'peek', form: 'tsx',
     summary: ["⊘ AC6 updateTag('profile') → ▤ DA4 cacheTag('profile'): every entry with that tag expires now, in this request"],
@@ -245,5 +245,5 @@ export const STEPS: LensStep[] = [
     ],
     motion: []
   },
-  { step: 'j7-17', mode: 'off', panes: [], links: [], motion: [] }
+  off('j7-17')
 ]

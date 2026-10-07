@@ -1,6 +1,6 @@
 // src/domain/codeLens/whole-lifecycle.ts
 import type { LensStep } from '../types'
-import { ACTION_ID, DN_NAV, PF_FORM, REF_FORM, REF_NAV, ROOT_ROW, source } from './specimen'
+import { ACTION_ID, DN_NAV, off, PF_FORM, REF_FORM, REF_NAV, ROOT_ROW, source } from './specimen'
 
 const DN_SPLIT = ['DN2', 'DN3', 'DN4', 'DN5', 'DN6', 'DN7', 'DN9', 'DN10', 'DN11', 'DN12']
 
@@ -15,7 +15,7 @@ const SHELF_LEDGER = [
 
 /** docs/code-lens.md §5: the lens along J0 */
 export const STEPS: LensStep[] = [
-  { step: 'j0-1', mode: 'off', panes: [], links: [], motion: [] },
+  off('j0-1'),
   {
     step: 'j0-2', mode: 'peek', form: 'tsx',
     summary: ['DashboardNav.tsx · 15 lines · ⚡B 1 (DN1) · ⚡S 10 (DN2–DN7, DN9–DN12) · imported by dashboard/layout.tsx DL5 ⚡B'],

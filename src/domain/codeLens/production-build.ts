@@ -1,5 +1,5 @@
 import type { LensStep } from '../types'
-import { ACTION_ID, source } from './specimen'
+import { ACTION_ID, off, source } from './specimen'
 
 const ENTRY = `/* __next_internal_action_entry… {…} */`
 
@@ -7,7 +7,7 @@ const ENTRY = `/* __next_internal_action_entry… {…} */`
  * the lens along J1: one entry per journey step, in order (docs/code-lens.md §10, details in docs/code-lens/production-build.md).
  */
 export const STEPS: LensStep[] = [
-  { step: 'j1-1', mode: 'off', panes: [], links: [], motion: [] },
+  off('j1-1'),
   {
     step: 'j1-2', mode: 'peek', form: 'files',
     summary: [
@@ -125,7 +125,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['transform'], reduced: 'side-by-side'
   },
-  { step: 'j1-6', mode: 'off', panes: [], links: [], motion: [] },
+  off('j1-6'),
   {
     step: 'j1-7', mode: 'peek', form: 'tsx',
     summary: ['settings/page.tsx SP3 imports ProfileForm.tsx, whose PF1 is \'use client\': the edge only the bundler sees'],
@@ -160,7 +160,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j1-9', mode: 'off', panes: [], links: [], motion: [] },
+  off('j1-9'),
   {
     step: 'j1-10', mode: 'open', form: 'files',
     panes: [{
@@ -327,5 +327,5 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j1-18', mode: 'off', panes: [], links: [], motion: [] }
+  off('j1-18')
 ]

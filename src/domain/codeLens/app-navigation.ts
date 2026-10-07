@@ -1,6 +1,6 @@
 // src/domain/codeLens/app-navigation.ts
 import type { LensStep } from '../types'
-import { PF_FORM, REF_FORM, REF_NAV, source } from './specimen'
+import { off, PF_FORM, REF_FORM, REF_NAV, source } from './specimen'
 
 /** Next-Router-State-Tree after a prefetch: the target tree, with "refetch" on the first segment the client cache cannot fill */
 const TARGET_TREE = '["",{"children":["dashboard",{"children":["billing",{…"refetch"…}]}]}]'
@@ -20,7 +20,7 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'split', entities: ['client-components', 'prefetch-scheduler'] }],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j6-2', mode: 'off', panes: [], links: [], motion: [] },
+  off('j6-2'),
   {
     step: 'j6-3', mode: 'open', form: 'http',
     panes: [
@@ -69,7 +69,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['fill'], reduced: 'static'
   },
-  { step: 'j6-5', mode: 'off', panes: [], links: [], motion: [] },
+  off('j6-5'),
   {
     step: 'j6-6', mode: 'open', form: 'http',
     panes: [{
@@ -85,7 +85,7 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'split', entities: ['app-router', 'routing-ladder'] }],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j6-7', mode: 'off', panes: [], links: [], motion: [] },
+  off('j6-7'),
   {
     step: 'j6-8', mode: 'peek', form: 'json',
     summary: ['🔒 "" and dashboard: no mark in the header tree, so they are locked and not rendered · the "refetch" mark sits in billing\'s subtree: rendering starts there'],
@@ -189,10 +189,10 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'server-only', entities: ['router-state-tree', 'app-router'] }],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j6-13', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j6-14', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j6-15', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j6-16', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j6-17', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j6-18', mode: 'off', panes: [], links: [], motion: [] }
+  off('j6-13'),
+  off('j6-14'),
+  off('j6-15'),
+  off('j6-16'),
+  off('j6-17'),
+  off('j6-18')
 ]

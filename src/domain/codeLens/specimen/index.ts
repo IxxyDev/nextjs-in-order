@@ -1,4 +1,4 @@
-import type { CodeLine, LineChange, SpecimenFile } from '../../types'
+import type { CodeLine, LensStep, LineChange, SpecimenFile } from '../../types'
 import { FILE as rootLayout } from './root-layout'
 import { FILE as dashboardLayout } from './dashboard-layout'
 import { FILE as dashboardNav } from './dashboard-nav'
@@ -55,3 +55,6 @@ export const source = (ids: string[], change?: LineChange): CodeLine[] => ids.ma
   if (!l) throw new Error(`no specimen line ${id}`)
   return { text: l.text, from: [id], fate: l.fate, mark: l.mark, change }
 })
+
+/** a lens step that shows no code: no panes, nothing lit on the map */
+export const off = (step: string): LensStep => ({ step, mode: 'off', panes: [], links: [], motion: [] })

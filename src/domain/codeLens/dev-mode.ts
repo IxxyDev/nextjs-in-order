@@ -1,8 +1,6 @@
 // src/domain/codeLens/dev-mode.ts
 import type { LensStep } from '../types'
-import { REF_NAV, source } from './specimen'
-
-const off = (step: string): LensStep => ({ step, mode: 'off', panes: [], links: [], motion: [] })
+import { off, REF_NAV, source } from './specimen'
 
 /**
  * the lens along J9: one entry per journey step, in order (docs/code-lens.md §10, details in docs/code-lens/dev-mode.md).

@@ -1,6 +1,6 @@
 // src/domain/codeLens/pages-navigation.ts
 import type { LensStep } from '../types'
-import { PRODUCT_CHUNK, source } from './specimen'
+import { off, PRODUCT_CHUNK, source } from './specimen'
 
 /** illustrative chunk names, as in docs/code-lens/pages-initial.md */
 const POST_CHUNK = 'static/chunks/pages/posts/[id]-8a9b.js'
@@ -44,7 +44,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: []
   },
-  { step: 'j4-3', mode: 'off', panes: [], links: [], motion: [] },
+  off('j4-3'),
   {
     step: 'j4-4', mode: 'open', form: 'json',
     chip: 'no HTML is rendered: the endpoint runs getServerSideProps and sends its result as JSON',
@@ -141,8 +141,8 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['swap'], reduced: 'static'
   },
-  { step: 'j4-9', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j4-10', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j4-11', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j4-12', mode: 'off', panes: [], links: [], motion: [] }
+  off('j4-9'),
+  off('j4-10'),
+  off('j4-11'),
+  off('j4-12')
 ]

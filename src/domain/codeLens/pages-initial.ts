@@ -1,6 +1,6 @@
 // src/domain/codeLens/pages-initial.ts
 import type { LensStep } from '../types'
-import { PRODUCT_CHUNK, source } from './specimen'
+import { off, PRODUCT_CHUNK, source } from './specimen'
 
 /** illustrative chunk names, in the style of experience-architecture.md §2 (details in docs/code-lens/pages-initial.md) */
 const APP_CHUNK = 'static/chunks/pages/_app-2c3d.js'
@@ -201,7 +201,7 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'server-only', entities: ['next-data', 'html'] }],
     motion: ['wrap'], reduced: 'side-by-side'
   },
-  { step: 'j3-10', mode: 'off', panes: [], links: [], motion: [] },
+  off('j3-10'),
   {
     step: 'j3-11', mode: 'open', form: 'html',
     footer: [
@@ -248,8 +248,8 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['light-up'], reduced: 'static'
   },
-  { step: 'j3-13', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j3-14', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j3-15', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j3-16', mode: 'off', panes: [], links: [], motion: [] }
+  off('j3-13'),
+  off('j3-14'),
+  off('j3-15'),
+  off('j3-16')
 ]

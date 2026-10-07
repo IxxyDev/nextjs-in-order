@@ -1,6 +1,6 @@
 // src/domain/codeLens/app-initial.ts
 import type { LensStep } from '../types'
-import { DN_NAV, PF_FORM, REF_FORM, REF_NAV, ROOT_ROW, source } from './specimen'
+import { DN_NAV, off, PF_FORM, REF_FORM, REF_NAV, ROOT_ROW, source } from './specimen'
 
 const ROUTE_STATE = '["",{"children":["dashboard",{"children":["settings",{"children":["__PAGE__",{}]}]}]},…]'
 const PRERENDERED = '○ route: this render ran at build; a production GET is served its stored result (settings.html + settings.rsc)'
@@ -11,7 +11,7 @@ const PRERENDERED = '○ route: this render ran at build; a production GET is se
  */
 export const STEPS: LensStep[] = [
   /** e2e relies on j5-1 being off */
-  { step: 'j5-1', mode: 'off', panes: [], links: [], motion: [] },
+  off('j5-1'),
   {
     step: 'j5-2', mode: 'peek', form: 'js',
     summary: ['import "react" resolves twice: rsc layer → react.react-server.js (no useState) · ssr + browser layers → index.js (full React) · the "react-server" export condition, set at build'],
@@ -46,7 +46,7 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'server-only', entities: ['loader-tree'] }],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j5-4', mode: 'off', panes: [], links: [], motion: [] },
+  off('j5-4'),
   {
     step: 'j5-5', mode: 'peek', form: 'tsx',
     summary: ['DL6 {children} is a slot: the renderer wraps it in a LayoutRouter (a Client Component from Next) at the dashboard → settings boundary'],
@@ -82,7 +82,7 @@ export const STEPS: LensStep[] = [
     ],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j5-7', mode: 'off', panes: [], links: [], motion: [] },
+  off('j5-7'),
   {
     step: 'j5-8', mode: 'open', form: 'manifest',
     panes: [
@@ -226,7 +226,7 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'split', entities: ['browser-chunks', 'client-components'] }],
     motion: ['fade-to-zero'], reduced: 'static'
   },
-  { step: 'j5-16', mode: 'off', panes: [], links: [], motion: [] },
+  off('j5-16'),
   {
     step: 'j5-17', mode: 'open', form: 'flight',
     panes: [{
@@ -286,6 +286,6 @@ export const STEPS: LensStep[] = [
     links: [{ fate: 'server-only', entities: ['router-state-tree', 'app-router'] }],
     motion: ['fade-in'], reduced: 'static'
   },
-  { step: 'j5-21', mode: 'off', panes: [], links: [], motion: [] },
-  { step: 'j5-22', mode: 'off', panes: [], links: [], motion: [] }
+  off('j5-21'),
+  off('j5-22')
 ]
