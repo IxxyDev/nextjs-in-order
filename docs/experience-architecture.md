@@ -132,7 +132,8 @@ design per journey in `code-lens/<slug>.md`; data in `src/domain/codeLens/` (one
 journey plus the specimen), UI in `src/ui/CodeLens.tsx`. A step whose lens is `off` renders none.
 
 - **Modes, set per step in data** (not inferred from the step kind): `off` (j0-1 renders nothing;
-  predict and check steps are always off), `peek` (a one-line ledger strip with **Show code**; j0-2,
+  predict steps are always off; check steps are off unless their form changes, which only j0-10's
+  document → patch does, `code-lens.md` rule 7), `peek` (a one-line ledger strip with **Show code**; j0-2,
   j0-5, j0-6 dimmed) and `open` (the panes, with **Hide code**; j0-3, 4, 7, 8, 9, 10, where the
   artifact form changes). Across all journeys: 52 open, 75 peek, 70 off of 197 steps. An explicit
   Show or Hide holds for the session (`sessionFlags`).
