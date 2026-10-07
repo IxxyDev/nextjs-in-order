@@ -57,6 +57,8 @@ describe('validateEntities', () => {
 })
 
 describe('validateCodeLens', () => {
+  const at = (id: string) => WHOLE_LIFECYCLE_LENS.steps.find((s) => s.step === id)!
+
   it('accepts the J0 lens', () => {
     expect(validateCodeLens(WHOLE_LIFECYCLE_LENS, WHOLE_LIFECYCLE, SPECIMEN, FATES)).toEqual([])
   })
@@ -73,8 +75,16 @@ describe('validateCodeLens', () => {
     expect(one).toHaveLength(WHOLE_LIFECYCLE.steps.length - 1)
     expect(one[0]).toBe('lens j0-2: missing')
   })
+  it('keeps a predict step off and a check step off unless its form changes', () => {
+    const journey = { ...WHOLE_LIFECYCLE, steps: [{ ...WHOLE_LIFECYCLE.steps[1], kind: 'predict' as const }, WHOLE_LIFECYCLE.steps[9]] }
+    const lens: CodeLens = { journey: 'j0', steps: [at('j0-2'), { ...at('j0-10'), mode: 'peek', summary: ['patch'] }] }
+
+    expect(validateCodeLens(lens, journey, SPECIMEN, FATES)).toEqual([
+      'lens j0-2: predict step with a lens',
+      'lens j0-10: check step peeks, off unless its form changes'
+    ])
+  })
   it('reports every broken rule with its own message', () => {
-    const at = (id: string) => WHOLE_LIFECYCLE_LENS.steps.find((s) => s.step === id)!
     const ghost = 'ghost' as FateId
     const pane = at('j0-7').panes[0]
     const steps: LensStep[] = [

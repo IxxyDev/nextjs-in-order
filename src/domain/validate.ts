@@ -161,6 +161,9 @@ export function validateCodeLens(lens: CodeLens, journey: Journey, specimen: Spe
     if (ls.mode === 'off' && (ls.panes.length || ls.links.length)) errors.push(`${where}: off but has panes or links`)
     if (ls.mode !== 'off' && !ls.form) errors.push(`${where}: ${ls.mode} without a form`)
     if (ls.mode === 'peek' && !ls.summary?.length) errors.push(`${where}: peek without a summary`)
+    /** experience-architecture.md §3.1: the question stays alone; a check step opens only where its form changes, which the open rule below checks */
+    if (step.kind === 'predict' && ls.mode !== 'off') errors.push(`${where}: predict step with a lens`)
+    if (step.kind === 'check' && ls.mode === 'peek') errors.push(`${where}: check step peeks, off unless its form changes`)
     /** rule 7: an open step must show a new form. An off step has no form, so it resets the comparison on purpose:
      * the reader saw no code there, and the next open may repeat the form last seen before it */
     if (ls.mode === 'open' && ls.form === previousForm) errors.push(`${where}: open but the form did not change`)
