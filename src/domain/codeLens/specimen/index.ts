@@ -41,6 +41,11 @@ export const SPECIMEN: SpecimenFile[] = [
   dashboardNavEdits, accountSummaryEdit, actionsRedirect, billingLoading, customServerRender, nextConfigFileRoutes
 ]
 
+/** the lines inside DashboardNav's <nav>: the button and the two links its HTML renders */
+export const DN_NAV = ['DN9', 'DN10', 'DN11', 'DN12']
+/** the lines inside ProfileForm's <form>: the input and the Save button its HTML renders */
+export const PF_FORM = ['PF7', 'PF8', 'PF9']
+
 const LINES = new Map(SPECIMEN.flatMap((f) => f.lines.map((l) => [l.id, l] as const)))
 
 /** specimen lines shown as written, colored once: the usual first pane of a lens step */

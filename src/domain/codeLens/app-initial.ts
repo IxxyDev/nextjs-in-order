@@ -1,9 +1,6 @@
 // src/domain/codeLens/app-initial.ts
 import type { LensStep } from '../types'
-import { source } from './specimen'
-
-const DN_NAV = ['DN9', 'DN10', 'DN11', 'DN12']
-const PF_FORM = ['PF7', 'PF8', 'PF9']
+import { DN_NAV, PF_FORM, source } from './specimen'
 
 const REF_NAV = '1:I[…,["static/chunks/app/dashboard/layout-3c4d.js"],"default"]'
 const REF_FORM = '2:I[…,["static/chunks/app/dashboard/settings/page-5e6f.js"],"default"]'

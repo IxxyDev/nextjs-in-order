@@ -1,10 +1,8 @@
 // src/domain/codeLens/whole-lifecycle.ts
 import type { LensStep } from '../types'
-import { source } from './specimen'
+import { DN_NAV, PF_FORM, source } from './specimen'
 
 const DN_SPLIT = ['DN2', 'DN3', 'DN4', 'DN5', 'DN6', 'DN7', 'DN9', 'DN10', 'DN11', 'DN12']
-const DN_NAV = ['DN9', 'DN10', 'DN11', 'DN12']
-const PF_FORM = ['PF7', 'PF8', 'PF9']
 
 /** the shelf ledger: j0-5 shows it, j0-6 keeps it dimmed */
 const SHELF_LEDGER = [
