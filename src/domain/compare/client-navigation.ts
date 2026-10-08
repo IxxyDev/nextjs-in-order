@@ -1,9 +1,8 @@
 import type { ComparePair } from '../types'
+import { COMPARE_META } from './meta'
 
 export const CLIENT_NAVIGATION: ComparePair = {
-  id: 'c2',
-  slug: 'client-navigation',
-  title: 'Client navigation: Pages vs App',
+  ...COMPARE_META.clientNavigation,
   lanes: [{ title: 'Pages Router · /products/42 → /posts/7', short: 'Pages' }, { title: 'App Router · settings → billing', short: 'App' }],
   synchronized: 'prefetch → request → payload → merge',
   steps: [

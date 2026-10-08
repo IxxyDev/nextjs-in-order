@@ -1,9 +1,8 @@
 import type { ComparePair } from '../types'
+import { COMPARE_META } from './meta'
 
 export const INITIAL_LOAD: ComparePair = {
-  id: 'c1',
-  slug: 'initial-load',
-  title: 'Initial load: Pages vs App',
+  ...COMPARE_META.initialLoad,
   lanes: [{ title: 'Pages Router · /products/42', short: 'Pages' }, { title: 'App Router · /dashboard/settings', short: 'App' }],
   synchronized: 'request → response → paint → hydrate',
   steps: [

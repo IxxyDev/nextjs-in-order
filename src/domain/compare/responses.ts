@@ -1,9 +1,8 @@
 import type { ComparePair } from '../types'
+import { COMPARE_META } from './meta'
 
 export const RESPONSES: ComparePair = {
-  id: 'c4',
-  slug: 'responses',
-  title: 'Initial response vs navigation response',
+  ...COMPARE_META.responses,
   lanes: [{ title: 'Initial response · HTML + inline Flight', short: 'Initial' }, { title: 'Navigation response · Flight patch only', short: 'Nav' }],
   synchronized: 'byte-level rows shown side by side',
   steps: [

@@ -1,19 +1,20 @@
 import type { ComparePair, Journey, ResolvedPair } from '../types'
 import { loadJourney } from '../journeys'
 import { createLazyCatalog } from '../lazyCatalog'
+import { COMPARE_META } from './meta'
 
 export interface CompareEntry { id: string; slug: string; title: string; load: () => Promise<ComparePair> }
 
 export const COMPARE_CATALOG: CompareEntry[] = [
-  { id: 'c1', slug: 'initial-load', title: 'Initial load: Pages vs App', load: () => import('./initial-load').then((m) => m.INITIAL_LOAD) },
-  { id: 'c2', slug: 'client-navigation', title: 'Client navigation: Pages vs App', load: () => import('./client-navigation').then((m) => m.CLIENT_NAVIGATION) },
-  { id: 'c3', slug: 'runtimes', title: 'RSC runtime vs SSR runtime', load: () => import('./runtimes').then((m) => m.RUNTIMES) },
-  { id: 'c4', slug: 'responses', title: 'Initial response vs navigation response', load: () => import('./responses').then((m) => m.RESPONSES) },
-  { id: 'c5', slug: 'hydration', title: 'Hydration: full tree vs islands', load: () => import('./hydration').then((m) => m.HYDRATION) },
-  { id: 'c6', slug: 'bundlers', title: 'Bundlers: Webpack vs Turbopack', load: () => import('./bundlers').then((m) => m.BUNDLERS) },
-  { id: 'c7', slug: 'prod-vs-dev', title: 'next start vs next dev', load: () => import('./prod-vs-dev').then((m) => m.PROD_VS_DEV) },
-  { id: 'c8', slug: 'rendering-strategies', title: 'Static, ISR and PPR', load: () => import('./rendering-strategies').then((m) => m.RENDERING_STRATEGIES) },
-  { id: 'c9', slug: 'caches', title: 'Server cache vs browser Segment Cache', load: () => import('./caches').then((m) => m.CACHES) }
+  { ...COMPARE_META.initialLoad, load: () => import('./initial-load').then((m) => m.INITIAL_LOAD) },
+  { ...COMPARE_META.clientNavigation, load: () => import('./client-navigation').then((m) => m.CLIENT_NAVIGATION) },
+  { ...COMPARE_META.runtimes, load: () => import('./runtimes').then((m) => m.RUNTIMES) },
+  { ...COMPARE_META.responses, load: () => import('./responses').then((m) => m.RESPONSES) },
+  { ...COMPARE_META.hydration, load: () => import('./hydration').then((m) => m.HYDRATION) },
+  { ...COMPARE_META.bundlers, load: () => import('./bundlers').then((m) => m.BUNDLERS) },
+  { ...COMPARE_META.prodVsDev, load: () => import('./prod-vs-dev').then((m) => m.PROD_VS_DEV) },
+  { ...COMPARE_META.renderingStrategies, load: () => import('./rendering-strategies').then((m) => m.RENDERING_STRATEGIES) },
+  { ...COMPARE_META.caches, load: () => import('./caches').then((m) => m.CACHES) }
 ]
 
 export function compareBySlug(slug: string): CompareEntry | undefined {

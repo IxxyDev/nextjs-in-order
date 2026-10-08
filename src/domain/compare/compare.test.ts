@@ -16,10 +16,9 @@ describe('compare pairs', () => {
     expect(await loadCompare('nope')).toBeUndefined()
   })
   for (const e of COMPARE_CATALOG) {
-    it(`${e.slug}: metadata, 5–9 steps, lane count and valid references`, async () => {
+    it(`${e.slug}: 5–9 steps, lane count and valid references`, async () => {
       await loadAllJourneys()
       const pair = await e.load()
-      expect({ id: pair.id, slug: pair.slug, title: pair.title }).toEqual({ id: e.id, slug: e.slug, title: e.title })
       expect(pair.steps.length).toBeGreaterThanOrEqual(5)
       expect(pair.steps.length).toBeLessThanOrEqual(9)
       expect(pair.lanes).toHaveLength(LANES[e.id])

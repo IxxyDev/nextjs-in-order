@@ -1,9 +1,8 @@
 import type { ComparePair } from '../types'
+import { COMPARE_META } from './meta'
 
 export const CACHES: ComparePair = {
-  id: 'c9',
-  slug: 'caches',
-  title: 'Server cache vs browser Segment Cache',
+  ...COMPARE_META.caches,
   lanes: [{ title: 'Server incremental cache', short: 'Server' }, { title: 'Browser Segment Cache', short: 'Browser' }],
   synchronized: 'populate → hit → invalidate',
   steps: [

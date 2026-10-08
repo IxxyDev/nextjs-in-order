@@ -1,9 +1,8 @@
 import type { ComparePair } from '../types'
+import { COMPARE_META } from './meta'
 
 export const HYDRATION: ComparePair = {
-  id: 'c5',
-  slug: 'hydration',
-  title: 'Hydration: full tree vs islands',
+  ...COMPARE_META.hydration,
   lanes: [{ title: 'Pages Router · full-tree hydration', short: 'Pages' }, { title: 'App Router · Client Components only', short: 'App' }],
   synchronized: 'light-up scope',
   steps: [

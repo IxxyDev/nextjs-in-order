@@ -1,9 +1,8 @@
 import type { ComparePair } from '../types'
+import { COMPARE_META } from './meta'
 
 export const BUNDLERS: ComparePair = {
-  id: 'c6',
-  slug: 'bundlers',
-  title: 'Bundlers: Webpack vs Turbopack',
+  ...COMPARE_META.bundlers,
   lanes: [{ title: 'Webpack · --webpack · three compilers stitched', short: 'Webpack' }, { title: 'Turbopack · default since 16 · one unified graph', short: 'Turbopack' }],
   synchronized: 'same source, target layers',
   steps: [

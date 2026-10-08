@@ -1,9 +1,8 @@
 import type { ComparePair } from '../types'
+import { COMPARE_META } from './meta'
 
 export const RENDERING_STRATEGIES: ComparePair = {
-  id: 'c8',
-  slug: 'rendering-strategies',
-  title: 'Static, ISR and PPR',
+  ...COMPARE_META.renderingStrategies,
   lanes: [{ title: 'Static', short: 'Static' }, { title: 'ISR · revalidate', short: 'ISR' }, { title: 'PPR · shell + holes', short: 'PPR' }],
   synchronized: 'what leaves at build, what at request',
   steps: [

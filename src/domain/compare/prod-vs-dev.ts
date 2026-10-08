@@ -1,9 +1,8 @@
 import type { ComparePair } from '../types'
+import { COMPARE_META } from './meta'
 
 export const PROD_VS_DEV: ComparePair = {
-  id: 'c7',
-  slug: 'prod-vs-dev',
-  title: 'next start vs next dev',
+  ...COMPARE_META.prodVsDev,
   lanes: [{ title: 'next start · production', short: 'start' }, { title: 'next dev · development', short: 'dev' }],
   synchronized: 'manifests vs watcher, chunks vs on-demand, prefetch, caching, Strict Mode',
   steps: [

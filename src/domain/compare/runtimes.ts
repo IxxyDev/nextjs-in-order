@@ -1,9 +1,8 @@
 import type { ComparePair } from '../types'
+import { COMPARE_META } from './meta'
 
 export const RUNTIMES: ComparePair = {
-  id: 'c3',
-  slug: 'runtimes',
-  title: 'RSC runtime vs SSR runtime',
+  ...COMPARE_META.runtimes,
   lanes: [{ title: 'RSC runtime · react-server', short: 'RSC' }, { title: 'SSR runtime · react-dom/server', short: 'SSR' }],
   synchronized: 'same Flight stream, different output',
   steps: [
