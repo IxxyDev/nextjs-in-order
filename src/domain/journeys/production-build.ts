@@ -14,7 +14,7 @@ export const PRODUCTION_BUILD: Journey = {
       states: { 'next-build': 'current', 'route-discovery': 'active', swc: 'active', bundler: 'active', tracing: 'active', 'route-analysis': 'active', prerender: 'active', standalone: 'active' },
       edges: ['e-build-discovery'],
       internals: ['buildId k7Qm2xLp9 → .next/BUILD_ID', 'order: buildId → config → redirects/rewrites/headers → route discovery → compile + bundle → trace → analyze → prerender → standalone → summary', 'packages/next/src/build/index.ts'],
-      sources: [{ label: 'next build (CLI)', url: 'https://nextjs.org/docs/app/api-reference/cli/next' }]
+      sources: [{ label: 'next CLI', url: 'https://nextjs.org/docs/app/api-reference/cli/next' }]
     },
     {
       id: 'j1-2', kind: 'move', title: 'Folders become a route map',
@@ -146,7 +146,7 @@ export const PRODUCTION_BUILD: Journey = {
       token: { at: 'tracing', glyph: 'server-chunk', label: 'settings/page.js.nft.json' },
       states: { 'server-chunks': 'active', tracing: 'current', standalone: 'dimmed' }, edges: ['e-server-chunks-tracing'],
       internals: ['@vercel/nft', '.next/server/app/dashboard/settings/page.js.nft.json: { version: 1, files: [...] }', 'outputFileTracingIncludes / outputFileTracingExcludes to adjust'],
-      sources: [{ label: 'output: standalone', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/output' }]
+      sources: [{ label: 'output', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/output' }]
     },
     {
       id: 'j1-16', kind: 'transform', title: 'A folder that runs on its own',
@@ -155,7 +155,7 @@ export const PRODUCTION_BUILD: Journey = {
       token: { at: 'standalone', glyph: 'server-chunk', label: '.next/standalone/server.js' },
       states: { tracing: 'kept', standalone: 'current', 'server-chunks': 'kept' }, edges: ['e-tracing-standalone'],
       internals: ['.next/standalone/server.js · .next/standalone/node_modules (traced subset)', 'cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/', 'a custom server is not traced and cannot be combined with standalone'],
-      sources: [{ label: 'output: standalone', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/output' }]
+      sources: [{ label: 'output', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/output' }]
     },
     {
       id: 'j1-17', kind: 'explain', title: 'The summary',

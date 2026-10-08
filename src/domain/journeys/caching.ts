@@ -254,7 +254,7 @@ export const CACHING: Journey = {
         'prefetch={false}: no prefetch at all, not even on hover; the cache fills on navigation',
         'next dev: prefetching is off, so the client cache fills only on navigation'
       ],
-      sources: [CACHING_DOCS, { label: 'Draft mode', url: 'https://nextjs.org/docs/app/guides/draft-mode' }, { label: 'Link prefetch', url: 'https://nextjs.org/docs/app/api-reference/components/link#prefetch' }]
+      sources: [CACHING_DOCS, { label: 'Draft mode', url: 'https://nextjs.org/docs/app/guides/draft-mode' }, { label: 'Link prefetching', url: 'https://nextjs.org/docs/app/api-reference/components/link#prefetch' }]
     },
     {
       id: 'j8-20', kind: 'check', title: 'Check yourself',

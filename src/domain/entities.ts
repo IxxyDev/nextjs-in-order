@@ -85,7 +85,7 @@ export const ENTITIES: Entity[] = [
       { version: '13', text: 'App Router: Server Components, streaming' },
       { version: '16', text: 'Turbopack default, Cache Components (PPR)' }
     ],
-    sources: [{ label: 'next build (CLI)', url: `${DOCS}/api-reference/cli/next` }, { label: 'Release notes (Next.js blog)', url: 'https://nextjs.org/blog' }]
+    sources: [{ label: 'next CLI', url: `${DOCS}/api-reference/cli/next` }, { label: 'Release notes (Next.js blog)', url: 'https://nextjs.org/blog' }]
   },
   {
     id: 'route-discovery', short: 'Route discovery', name: 'Route discovery · app/ + pages/ walk', region: 'build', glyph: 'segment', x: 900, y: 110,
@@ -153,7 +153,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['server entries'], produces: ['.nft.json lists', '.next/standalone'],
     exists: 'build', connects: ['standalone'], reaches: 'no',
     internals: ['@vercel/nft', '.next/server/app/dashboard/settings/page.js.nft.json'],
-    sources: [{ label: 'output: standalone', url: `${DOCS}/api-reference/config/next-config-js/output` }]
+    sources: [{ label: 'output', url: `${DOCS}/api-reference/config/next-config-js/output` }]
   },
   {
     id: 'flight-client-entry-plugin', short: 'client entries', name: 'Client entry creation · flight-client-entry-plugin', region: 'build', glyph: 'machine', x: 740, y: 540,
@@ -198,7 +198,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['traced file lists'], produces: ['.next/standalone/'],
     exists: 'per deploy', connects: [], reaches: 'no',
     internals: ['.next/standalone/server.js', 'public/ and .next/static are not copied; the deploy step adds them', 'custom server files are not traced'],
-    sources: [{ label: 'output: standalone', url: `${DOCS}/api-reference/config/next-config-js/output` }]
+    sources: [{ label: 'output', url: `${DOCS}/api-reference/config/next-config-js/output` }]
   },
 
   // ---------- Artifact shelf ----------
@@ -301,7 +301,7 @@ export const ENTITIES: Entity[] = [
     what: 'The socket accepts connections before router-server has finished loading. Requests that arrive in that window wait and are handled once initialization completes.',
     consumes: ['requests during startup'], produces: ['the same requests, released to router-server'], exists: 'startup only', connects: ['node-http', 'routing-ladder'], reaches: 'no',
     internals: ['packages/next/src/server/lib/start-server.ts: listen first, then await the request handler'],
-    sources: [{ label: 'next start', url: `${DOCS}/api-reference/cli/next` }]
+    sources: [{ label: 'next CLI', url: `${DOCS}/api-reference/cli/next` }]
   },
   {
     id: 'custom-server', short: 'server.js', name: 'server.js · custom server ring', region: 'http-entry', glyph: 'process', x: 220, y: 1180,
@@ -336,14 +336,14 @@ export const ENTITIES: Entity[] = [
     what: 'headers → redirects → Proxy → beforeFiles rewrites → filesystem check → afterFiles rewrites → dynamic routes → fallback rewrites. Most requests leave before React.',
     consumes: ['raw request', 'routing manifests loaded at startup'], produces: ['an early response or a resolved route for render-server'],
     exists: 'per request', connects: ['routes-manifest', 'proxy', 'early-exits', 'loader-tree'], reaches: 'no',
-    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
   },
   {
     id: 'rung-headers', short: '1 headers', name: 'Ladder step 1 · config headers', region: 'router-server', glyph: 'machine', x: 410, y: 1040,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'Headers from next.config.js whose source matches the path are added to the response. Nothing exits here; the request always climbs on.',
     consumes: ['request path'], produces: ['response headers (X-Frame-Options on /:path*)'], exists: 'per request', connects: ['routes-manifest', 'rung-redirects'], reaches: 'no',
-    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
   },
   {
     id: 'rung-redirects', short: '2 redirects', name: 'Ladder step 2 · config redirects', region: 'router-server', glyph: 'machine', x: 550, y: 1040,
@@ -351,7 +351,7 @@ export const ENTITIES: Entity[] = [
     what: 'Redirects from next.config.js. A match ends the request here with a 307/308 and a Location header; Proxy never runs for it.',
     consumes: ['request path'], produces: ['redirect response, or continue'], exists: 'per request', connects: ['routes-manifest', 'proxy'], reaches: 'no',
     internals: ['redirects: /old-settings → /dashboard/settings (permanent: true → 308)'],
-    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
   },
   {
     id: 'proxy', short: '3 Proxy', name: 'Proxy (formerly Middleware)', region: 'router-server', glyph: 'machine', x: 690, y: 1040, badge: 'Node',
@@ -370,7 +370,7 @@ export const ENTITIES: Entity[] = [
     phase: ['request'], env: ['node'], role: 'router',
     what: 'Rewrites listed under beforeFiles run before any file or page is checked, so they can shadow both.',
     consumes: ['request path'], produces: ['rewritten path, or unchanged'], exists: 'per request', connects: ['routes-manifest', 'rung-filesystem'], reaches: 'no',
-    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
   },
   {
     id: 'rung-filesystem', short: '5 filesystem', name: 'Ladder step 5 · filesystem check', region: 'router-server', glyph: 'machine', x: 410, y: 1150,
@@ -378,28 +378,28 @@ export const ENTITIES: Entity[] = [
     what: 'Checks the path against what is known to exist: build chunks under /_next/static, files in public/, the image endpoint and every page and handler route. A match exits here or is handed to render-server.',
     consumes: ['request path', 'page and file lists loaded at startup'], produces: ['static file, image request, or a resolved route'], exists: 'per request', connects: ['early-exits', 'image-optimizer', 'loader-tree', 'route-handler', 'public-dir'], reaches: 'no',
     internals: ['static routes match before dynamic ones: /dashboard/settings before /products/[id]', 'packages/next/src/server/lib/router-utils/filesystem.ts'],
-    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
   },
   {
     id: 'rung-after-files', short: '6 afterFiles', name: 'Ladder step 6 · afterFiles rewrites', region: 'router-server', glyph: 'machine', x: 550, y: 1150,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'Rewrites that apply only when no file or static page matched. They map the path to another one and the filesystem check is repeated.',
     consumes: ['unmatched path'], produces: ['rewritten path'], exists: 'per request', connects: ['routes-manifest', 'rung-dynamic'], reaches: 'no',
-    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
   },
   {
     id: 'rung-dynamic', short: '7 dynamic', name: 'Ladder step 7 · dynamic routes', region: 'router-server', glyph: 'machine', x: 690, y: 1150,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'Dynamic routes such as /products/[id] are tried in priority order, using regexes from the routes manifest.',
     consumes: ['unmatched path'], produces: ['route + params'], exists: 'per request', connects: ['routes-manifest', 'rung-fallback'], reaches: 'no',
-    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
   },
   {
     id: 'rung-fallback', short: '8 fallback', name: 'Ladder step 8 · fallback rewrites', region: 'router-server', glyph: 'machine', x: 830, y: 1150,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'The last chance: fallback rewrites run after every page and dynamic route failed, typically to proxy to another app. After this comes the 404.',
     consumes: ['unmatched path'], produces: ['rewritten path, or 404'], exists: 'per request', connects: ['routes-manifest'], reaches: 'no',
-    sources: [{ label: 'Execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
   },
   {
     id: 'early-exits', short: 'Early exits', name: 'Early exits · static, public/, image, handlers', region: 'router-server', glyph: 'machine', x: 410, y: 1265,
@@ -504,7 +504,7 @@ export const ENTITIES: Entity[] = [
       current: 'Current docs call it the Next.js server cache; "Full Route Cache" is a retired name.',
       why: 'Three names, one mechanism: rendered HTML + RSC per route key, shared by every user.'
     },
-    sources: [{ label: 'Caching', url: `${DOCS}/getting-started/caching` }, { label: 'Self-hosting: caching', url: `${DOCS}/guides/self-hosting` }]
+    sources: [{ label: 'Caching', url: `${DOCS}/getting-started/caching` }, { label: 'Self-hosting', url: `${DOCS}/guides/self-hosting` }]
   },
   {
     id: 'data-cache', short: '"use cache"', name: '"use cache" entries', region: 'data-caches', glyph: 'cache', x: 850, y: 1395, badge: 'server memory',
@@ -854,7 +854,7 @@ export const ENTITIES: Entity[] = [
     what: 'The process next dev starts first. It does no serving itself: it spawns the child and restarts it with the same options when the child exits because next.config changed.',
     consumes: ['child exit codes'], produces: ['a fresh child process'], exists: 'dev session', connects: ['dev-child'], reaches: 'no',
     internals: ['cli/next-dev.ts: forks server/lib/start-server.ts as the child', 'child exits with RESTART_EXIT_CODE (77, server/lib/utils.ts) → parent forks again'],
-    sources: [{ label: 'next dev (CLI)', url: `${DOCS}/api-reference/cli/next` }]
+    sources: [{ label: 'next CLI', url: `${DOCS}/api-reference/cli/next` }]
   },
   {
     id: 'dev-child', short: 'Child', name: 'Child process · server + bundler', region: 'dev', glyph: 'process', x: 2300, y: 370,

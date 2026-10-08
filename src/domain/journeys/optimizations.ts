@@ -27,7 +27,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'server-cache': 'stale', 'isr-regeneration': 'current', 'pages-renderer': 'active', html: 'active', dom: 'new' },
       edges: ['e-pages-regen', 'e-regen-server-cache'],
       internals: ['getStaticProps → { revalidate: 60 }', 'App Router counterpart: cacheLife("hours") on getProfile(); revalidateTag("profile", "max") for stale-while-revalidate'],
-      sources: [{ label: 'ISR', url: 'https://nextjs.org/docs/pages/guides/incremental-static-regeneration' }]
+      sources: [{ label: 'ISR (Pages)', url: 'https://nextjs.org/docs/pages/guides/incremental-static-regeneration' }]
     },
     {
       id: 'j11-3', kind: 'explain', title: 'PPR: only the stable part is prebuilt',

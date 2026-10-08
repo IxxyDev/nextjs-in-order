@@ -1,7 +1,7 @@
 import type { Journey } from '../types'
 
 const ON_DEMAND = { label: 'on-demand-entry-handler.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/dev/on-demand-entry-handler.ts' }
-const FAST_REFRESH = { label: 'Fast Refresh', url: 'https://nextjs.org/docs/architecture/fast-refresh' }
+const FAST_REFRESH = { label: 'Fast Refresh', url: 'https://nextjs.org/docs/app/architecture/fast-refresh' }
 const TURBOPACK = { label: 'Turbopack', url: 'https://nextjs.org/docs/app/api-reference/turbopack' }
 const SERVER_LIB = { label: 'server/lib', url: 'https://github.com/vercel/next.js/tree/canary/packages/next/src/server/lib' }
 

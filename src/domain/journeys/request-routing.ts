@@ -17,7 +17,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'node-http': 'current', 'request-queue': 'new', 'routing-ladder': 'dimmed' },
       edges: ['e-http-queue'],
       internals: ['http.createServer((req, res) => requestHandler(req, res))', 'packages/next/src/server/lib/start-server.ts: listen first, then await the request handler', 'two layers: lib/router-server.ts decides, lib/render-server.ts renders'],
-      sources: [{ label: 'next start (CLI)', url: 'https://nextjs.org/docs/app/api-reference/cli/next' }]
+      sources: [{ label: 'next CLI', url: 'https://nextjs.org/docs/app/api-reference/cli/next' }]
     },
     {
       id: 'j2-2', kind: 'move', title: 'Startup loads the tables',
@@ -97,7 +97,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-filesystem': 'kept', 'rung-after-files': 'dimmed', 'loader-tree': 'current', 'rsc-runtime-entity': 'dimmed', 'routing-ladder': 'kept' },
       edges: ['e-filesystem-loader', 'e-loader-after-files'],
       internals: ['router-server and render-server talk over server/lib/server-ipc', 'render-server hosts BaseServer → NextNodeServer; the article\'s NextWebServer was removed in 15.x', 'App and Pages routes share this handoff; the router choice happens inside render-server'],
-      sources: [{ label: 'packages/next/src/server/lib', url: 'https://github.com/vercel/next.js/tree/canary/packages/next/src/server/lib' }]
+      sources: [{ label: 'server/lib', url: 'https://github.com/vercel/next.js/tree/canary/packages/next/src/server/lib' }]
     },
     {
       id: 'j2-10', kind: 'predict', title: 'A request for a chunk',
