@@ -1,6 +1,6 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
-const LINK = { label: 'Link (Pages)', url: 'https://nextjs.org/docs/pages/api-reference/components/link' }
 
 export const PAGES_NAVIGATION: Journey = {
   id: 'j4',
@@ -17,7 +17,7 @@ export const PAGES_NAVIGATION: Journey = {
       states: { 'pages-product-page': 'active', 'pages-prefetch': 'current', 'browser-chunks': 'active', 'pages-data-endpoint': 'active', 'pages-app': 'kept' },
       edges: ['e-product-prefetch', 'e-chunks-prefetch', 'e-prefetch-endpoint'],
       internals: ['IntersectionObserver in next/link (pages)', 'SSG target: page chunk + /_next/data/k7Qm2xLp9/posts/7.json', 'SSR target: page chunk only (data would be stale by click time)', 'prefetch is off in next dev'],
-      sources: [LINK]
+      sources: [SOURCES.linkPages]
     },
     {
       id: 'j4-2', kind: 'move', title: 'Hover prefetch',
@@ -27,7 +27,7 @@ export const PAGES_NAVIGATION: Journey = {
       states: { 'pages-product-page': 'active', 'pages-prefetch': 'current', 'pages-data-endpoint': 'active' },
       edges: ['e-product-prefetch', 'e-prefetch-endpoint'],
       internals: ['article snapshot, observed in source: hover prefetch bypasses the prefetched Set', '16.3.8: a hover prefetch has priority: true, so with __NEXT_OPTIMISTIC_CLIENT_CACHE (on by default) it sets unstable_skipClientCache and fetchNextData requests the JSON again, then stores the fresh promise in this.sdc', 'docs: prefetch={false} "will not happen when entering the viewport, but will happen on hover"', 'full opt-out: a plain <a>, or the App Router where prefetch={false} means never'],
-      sources: [LINK]
+      sources: [SOURCES.linkPages]
     },
     {
       id: 'j4-3', kind: 'predict', title: 'A link to an SSR page',
@@ -55,7 +55,7 @@ export const PAGES_NAVIGATION: Journey = {
       states: { 'pages-router': 'active', 'routing-ladder': 'active', 'pages-data-endpoint': 'current', gssp: 'active', db: 'active', 'pages-document': 'dimmed' },
       edges: ['e-pages-router-ladder', 'e-ladder-data-endpoint', 'e-endpoint-gssp', 'e-db-gssp', 'e-endpoint-router'],
       internals: ['the buildId in the path ties the data to one deploy; after a redeploy the old id 404s and the router falls back to a full page load', 'request header x-nextjs-data: 1 on data requests'],
-      sources: [{ label: 'getServerSideProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-server-side-props' }]
+      sources: [SOURCES.getServerSideProps]
     },
     {
       id: 'j4-5', kind: 'move', title: 'The SSG lane',
@@ -74,7 +74,7 @@ export const PAGES_NAVIGATION: Journey = {
       states: { 'pages-router': 'current', 'pages-product-page': 'active', gip: 'active', 'browser-chunks': 'kept', 'pages-data-endpoint': 'na' },
       edges: ['e-gip-chunks', 'e-router-gip'],
       internals: ['ctx in the browser: pathname, query, asPath; no req or res', 'with _app.getInitialProps, a navigation to a getServerSideProps page runs both: _app\'s in the browser, the page\'s on the server'],
-      sources: [{ label: 'getInitialProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-initial-props' }]
+      sources: [SOURCES.getInitialProps]
     },
     {
       id: 'j4-7', kind: 'move', title: 'The page chunk',
@@ -93,7 +93,7 @@ export const PAGES_NAVIGATION: Journey = {
       states: { 'pages-router': 'active', 'pages-app': 'kept', 'pages-product-page': 'replaced', 'pages-post-page': 'new', 'pages-document': 'dimmed' },
       edges: ['e-router-pages-app', 'e-pages-app-post'],
       internals: ['<App Component={PostPage} pageProps={{ post }} />', '_document is not rendered: it exists only in the first HTML'],
-      sources: [{ label: 'Custom App', url: 'https://nextjs.org/docs/pages/building-your-application/routing/custom-app' }]
+      sources: [SOURCES.customApp]
     },
     {
       id: 'j4-9', kind: 'explain', title: 'History',
@@ -112,7 +112,7 @@ export const PAGES_NAVIGATION: Journey = {
       states: { 'pages-router': 'current', 'browser-history': 'active', 'pages-post-page': 'kept', 'pages-data-endpoint': 'na' },
       edges: ['e-pages-router-history'],
       internals: ['router.push("/posts/7?tab=comments", undefined, { shallow: true })', 'useEffect on router.query reacts to the change; getStaticProps / getServerSideProps do not run'],
-      sources: [{ label: 'Shallow routing', url: 'https://nextjs.org/docs/pages/building-your-application/routing/linking-and-navigating#shallow-routing' }]
+      sources: [SOURCES.shallowRouting]
     },
     {
       id: 'j4-11', kind: 'explain', title: 'Then and now',
@@ -120,7 +120,7 @@ export const PAGES_NAVIGATION: Journey = {
       camera: { kind: 'entities', ids: ['pages-prefetch', 'pages-router', 'prefetch-scheduler'] },
       states: { 'pages-prefetch': 'current', 'pages-router': 'kept', 'prefetch-scheduler': 'kept' }, edges: [],
       internals: ['V13: prefetch={false} disables the viewport prefetch only; hover still prefetches (docs)', 'App Router contrast: prefetch={false} means never, hover does not re-prefetch unless expired'],
-      sources: [LINK, { label: 'Link (App)', url: 'https://nextjs.org/docs/app/api-reference/components/link' }]
+      sources: [SOURCES.linkPages, SOURCES.linkApp]
     },
     {
       id: 'j4-12', kind: 'check', title: 'Check yourself',

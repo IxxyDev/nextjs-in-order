@@ -1,4 +1,5 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
 export const APP_INITIAL: Journey = {
   id: 'j5',
@@ -164,8 +165,8 @@ export const APP_INITIAL: Journey = {
       states: { 'rsc-runtime-entity': 'active', 'ssr-runtime-entity': 'active', flight: 'active', 'client-reference-manifest': 'active' }, edges: [],
       internals: ['next/src/server/app-render/app-render.tsx: renderToHTMLOrFlight', 'react-server-dom-webpack/server.node: renderToReadableStream (Flight)', 'react-dom/server: renderToReadableStream (HTML) consuming createFromReadableStream', 'headers: rsc, next-router-state-tree, next-url; query _rsc'],
       sources: [
-        { label: 'Server and Client Components', url: 'https://nextjs.org/docs/app/getting-started/server-and-client-components' },
-        { label: 'Streaming', url: 'https://nextjs.org/docs/app/guides/streaming' }
+        SOURCES.serverAndClientComponents,
+        SOURCES.streaming
       ]
     },
     {

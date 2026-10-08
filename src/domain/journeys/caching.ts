@@ -1,8 +1,6 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
-const CACHING_DOCS = { label: 'Caching', url: 'https://nextjs.org/docs/app/getting-started/caching' }
-const CACHE_COMPONENTS = { label: 'cacheComponents', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents' }
-const ISR = { label: 'ISR', url: 'https://nextjs.org/docs/app/guides/incremental-static-regeneration' }
 
 export const CACHING: Journey = {
   id: 'j8',
@@ -28,7 +26,7 @@ export const CACHING: Journey = {
         'build cache · .next/cache · key: module / task inputs',
         'Route Cache + Segment Cache · browser tab memory · key: URL / segment path'
       ],
-      sources: [CACHING_DOCS]
+      sources: [SOURCES.caching]
     },
     {
       id: 'j8-2', kind: 'explain', title: 'Request memoization',
@@ -38,7 +36,7 @@ export const CACHING: Journey = {
       states: { 'request-memo': 'current', 'rsc-runtime-entity': 'active', 'src-settings-page': 'active', 'src-account-summary': 'active', db: 'active' },
       edges: ['e-memo-rsc', 'e-db-rsc'],
       internals: ['fetch GET with the same URL and options is memoized automatically', 'other calls: React cache(fn)', 'different arguments → a second execution'],
-      sources: [CACHING_DOCS]
+      sources: [SOURCES.caching]
     },
     {
       id: 'j8-3', kind: 'explain', title: '"use cache" is opt-in',
@@ -56,7 +54,7 @@ export const CACHING: Journey = {
         '"use cache: remote" → a shared cache handler; "use cache: private" → browser only',
         'unstable_cache still exists; the docs describe it as replaced by "use cache"'
       ],
-      sources: [CACHE_COMPONENTS, { label: '"use cache"', url: 'https://nextjs.org/docs/app/api-reference/directives/use-cache' }, { label: 'Caching without Cache Components', url: 'https://nextjs.org/docs/app/guides/caching-without-cache-components' }]
+      sources: [SOURCES.cacheComponents, SOURCES.useCache, SOURCES.cachingWithoutCacheComponents]
     },
     {
       id: 'j8-4', kind: 'explain', title: 'Whole routes in the server cache',
@@ -72,7 +70,7 @@ export const CACHING: Journey = {
         'three branches before any render: miss → render and store; fresh → serve; stale → serve and regenerate',
         'self-hosting: cacheHandler and cacheMaxMemorySize choose where it lives'
       ],
-      sources: [CACHING_DOCS, { label: 'Self-hosting', url: 'https://nextjs.org/docs/app/guides/self-hosting' }]
+      sources: [SOURCES.caching, SOURCES.selfHosting]
     },
     {
       id: 'j8-5', kind: 'move', title: 'A fresh hit renders nothing',
@@ -82,7 +80,7 @@ export const CACHING: Journey = {
       states: { 'routing-ladder': 'active', 'pages-renderer': 'kept', 'server-cache': 'fresh', html: 'active', dom: 'new', 'rsc-runtime-entity': 'dimmed', 'ssr-runtime-entity': 'dimmed' },
       edges: ['e-ladder-pages', 'e-pages-server-cache', 'e-server-cache-html', 'e-html-dom'],
       internals: ['prerender-manifest: /posts/7 initialRevalidateSeconds 60', '.next/server/pages/posts/7.html + posts/7.json', 'a plain static route is the same branch with an entry that never goes stale (revalidate: false)'],
-      sources: [ISR]
+      sources: [SOURCES.isr]
     },
     {
       id: 'j8-6', kind: 'predict', title: 'A stale entry',
@@ -111,7 +109,7 @@ export const CACHING: Journey = {
       states: { 'server-cache': 'stale', html: 'active', dom: 'new', 'isr-regeneration': 'current', 'pages-renderer': 'active' },
       edges: ['e-server-cache-html', 'e-html-dom', 'e-pages-regen'],
       internals: ['stale-while-revalidate: the response never waits for the regeneration', 'a failed regeneration keeps the old entry and retries on a later stale hit', 'App Router: revalidateTag(tag, "max") puts tagged entries into the same stale state'],
-      sources: [ISR, { label: 'getStaticProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-static-props' }]
+      sources: [SOURCES.isr, SOURCES.getStaticProps]
     },
     {
       id: 'j8-8', kind: 'transform', title: 'A miss renders and stores',
@@ -121,7 +119,7 @@ export const CACHING: Journey = {
       states: { 'routing-ladder': 'kept', 'pages-renderer': 'current', db: 'active', html: 'new', dom: 'new', 'server-cache': 'new' },
       edges: ['e-ladder-pages', 'e-db-pages', 'e-pages-html', 'e-pages-store', 'e-html-dom'],
       internals: ['getStaticPaths → { paths, fallback: "blocking" }', 'getStaticProps → { props, revalidate: 60 }', 'stored entry: HTML + props JSON + revalidate'],
-      sources: [ISR, { label: 'getStaticPaths', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-static-paths' }]
+      sources: [SOURCES.isr, SOURCES.getStaticPaths]
     },
     {
       id: 'j8-9', kind: 'explain', title: 'One store, several names',
@@ -135,7 +133,7 @@ export const CACHING: Journey = {
         'HTML + RSC per route: "incremental cache" (article) · "Full Route Cache" (older docs, retired) · "Next.js server cache" (docs now)',
         'browser: Route Cache + Segment Cache (article) · "Router Cache" (older docs, retired) · "Client Cache" (docs now)'
       ],
-      sources: [CACHING_DOCS, { label: 'Linking and navigating', url: 'https://nextjs.org/docs/app/getting-started/linking-and-navigating' }]
+      sources: [SOURCES.caching, SOURCES.linkingAndNavigating]
     },
     {
       id: 'j8-10', kind: 'explain', title: 'Caches in the tab',
@@ -145,7 +143,7 @@ export const CACHING: Journey = {
       states: { 'route-cache': 'fresh', 'segment-cache': 'fresh', 'app-router': 'active', 'prefetch-scheduler': 'active' },
       edges: ['e-scheduler-route-cache', 'e-scheduler-segment-cache', 'e-route-cache-router', 'e-segment-cache-router'],
       internals: ['docs name: "Client Cache"; lifetime from staleTimes or cacheLife.stale', 'emptied by router.refresh(), an action response with f, updateTag / revalidatePath / revalidateTag, cookie writes, expiry', '16.3: small prefetch payloads are inlined into one response'],
-      sources: [{ label: 'Linking and navigating', url: 'https://nextjs.org/docs/app/getting-started/linking-and-navigating' }, { label: 'Next.js 16.3', url: 'https://nextjs.org/blog/next-16-3' }]
+      sources: [SOURCES.linkingAndNavigating, SOURCES.next163]
     },
     {
       id: 'j8-11', kind: 'explain', title: 'Images have their own store',
@@ -155,7 +153,7 @@ export const CACHING: Journey = {
       states: { 'image-cache': 'fresh', 'image-optimizer': 'active', 'next-cache-dir': 'kept', 'public-dir': 'active' },
       edges: ['e-image-cache', 'e-image-cache-dir'],
       internals: ['GET /_next/image?url=/hero.jpg&w=640&q=75 with Accept: image/avif,image/webp,…', 'stored in .next/cache/images', '16.0 defaults: minimumCacheTTL 4 h, qualities [75]', 'the default loader does not optimize SVG, which is why the example image is a JPEG'],
-      sources: [{ label: 'Image component', url: 'https://nextjs.org/docs/app/api-reference/components/image' }, { label: 'Upgrading to 16', url: 'https://nextjs.org/docs/app/guides/upgrading/version-16' }]
+      sources: [SOURCES.image, SOURCES.upgradingTo16]
     },
     {
       id: 'j8-12', kind: 'explain', title: 'The build remembers',
@@ -165,7 +163,7 @@ export const CACHING: Journey = {
       states: { 'next-cache-dir': 'fresh', bundler: 'active', 'next-build': 'active' },
       edges: ['e-bundler-cache-dir'],
       internals: ['key: module and task inputs; value: transformed modules and turbo-tasks results', '16.3: persistent filesystem cache on by default for next dev and next build', 'Webpack path (--webpack): its own filesystem cache in the same directory', 'lost with --no-cache or a CI job that does not keep .next/cache'],
-      sources: [{ label: 'turbopackFileSystemCache', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopackFileSystemCache' }, { label: 'Next.js 16.3', url: 'https://nextjs.org/blog/next-16-3' }]
+      sources: [SOURCES.turbopackFileSystemCache, SOURCES.next163]
     },
     {
       id: 'j8-13', kind: 'transform', title: 'The build stops at a boundary',
@@ -175,7 +173,7 @@ export const CACHING: Journey = {
       states: { 'src-billing-page': 'active', prerender: 'current', 'ppr-shell': 'new', 'server-cache': 'new', 'rsc-runtime-entity': 'active', 'ssr-runtime-entity': 'active' },
       edges: ['e-prerender-ppr', 'e-ppr-server-cache'],
       internals: ['cacheComponents: true implements PPR; experimental.ppr was removed in 16.0', 'saved resume point = "postponed state" (implementation term; the docs no longer name it)', 'build summary: ◐ /dashboard/billing'],
-      sources: [CACHE_COMPONENTS, { label: 'Upgrading to 16', url: 'https://nextjs.org/docs/app/guides/upgrading/version-16' }]
+      sources: [SOURCES.cacheComponents, SOURCES.upgradingTo16]
     },
     {
       id: 'j8-14', kind: 'move', title: 'The shell leaves first',
@@ -185,7 +183,7 @@ export const CACHING: Journey = {
       states: { 'ppr-shell': 'kept', 'server-cache': 'fresh', html: 'active', dom: 'current', 'suspense-hole': 'active' },
       edges: ['e-ppr-server-cache', 'e-server-cache-html', 'e-html-dom'],
       internals: ['response header x-nextjs-postponed marks a response that will be resumed', 'the shell is a cache hit: no cookies have been read yet'],
-      sources: [CACHE_COMPONENTS]
+      sources: [SOURCES.cacheComponents]
     },
     {
       id: 'j8-15', kind: 'transform', title: 'The render resumes',
@@ -195,7 +193,7 @@ export const CACHING: Journey = {
       states: { 'ppr-shell': 'active', 'rsc-runtime-entity': 'current', db: 'active', flight: 'new', html: 'active', 'suspense-hole': 'current', dom: 'active' },
       edges: ['e-ppr-resume', 'e-db-rsc', 'e-html-suspense'],
       internals: ['resume input: the saved resume point + the real request (cookies)', 'getInvoices() is uncached and runs on every request', 'one response: shell bytes first, dynamic rows later in the same stream'],
-      sources: [CACHE_COMPONENTS]
+      sources: [SOURCES.cacheComponents]
     },
     {
       id: 'j8-16', kind: 'predict', title: 'Move one call up',
@@ -224,7 +222,7 @@ export const CACHING: Journey = {
       states: { 'src-root-layout': 'kept', 'src-dashboard-layout': 'kept', 'src-billing-page': 'replaced', 'ppr-shell': 'replaced', 'suspense-hole': 'current' },
       edges: ['e-prerender-ppr'],
       internals: ['the same holds for headers(), searchParams and any uncached async read outside <Suspense>', 'Cache Components: without loading.tsx or a <Suspense> above the page, the route is reported as blocking (uncached data outside <Suspense>)', 'the docs recommend reading runtime data, and awaiting params, inside a boundary'],
-      sources: [CACHING_DOCS, CACHE_COMPONENTS]
+      sources: [SOURCES.caching, SOURCES.cacheComponents]
     },
     {
       id: 'j8-18', kind: 'explain', title: 'Invalidate, then rerender',
@@ -240,7 +238,7 @@ export const CACHING: Journey = {
         'revalidateTag(tag) with one argument is deprecated in 16 and behaves like { expire: 0 }',
         'refresh(): refetches uncached data and re-renders; no cache entry changes'
       ],
-      sources: [{ label: 'updateTag', url: 'https://nextjs.org/docs/app/api-reference/functions/updateTag' }, { label: 'revalidateTag', url: 'https://nextjs.org/docs/app/api-reference/functions/revalidateTag' }, { label: 'Server Actions', url: 'https://nextjs.org/docs/app/guides/server-actions' }]
+      sources: [SOURCES.updateTag, SOURCES.revalidateTag, SOURCES.serverActions]
     },
     {
       id: 'j8-19', kind: 'explain', title: 'Ways around the caches',
@@ -254,7 +252,7 @@ export const CACHING: Journey = {
         'prefetch={false}: no prefetch at all, not even on hover; the cache fills on navigation',
         'next dev: prefetching is off, so the client cache fills only on navigation'
       ],
-      sources: [CACHING_DOCS, { label: 'Draft mode', url: 'https://nextjs.org/docs/app/guides/draft-mode' }, { label: 'Link prefetching', url: 'https://nextjs.org/docs/app/api-reference/components/link#prefetch' }]
+      sources: [SOURCES.caching, SOURCES.draftMode, SOURCES.linkPrefetch]
     },
     {
       id: 'j8-20', kind: 'check', title: 'Check yourself',

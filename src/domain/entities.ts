@@ -1,7 +1,6 @@
 // src/domain/entities.ts
 import type { Entity } from './types'
-
-const DOCS = 'https://nextjs.org/docs/app'
+import { SOURCES } from './sources'
 
 export const ENTITIES: Entity[] = [
   // ---------- Source ----------
@@ -67,7 +66,7 @@ export const ENTITIES: Entity[] = [
     what: 'Static files such as public/logo.svg and public/hero.jpg. They are not compiled; router-server lists them at startup and serves a match straight from disk at the filesystem step.',
     consumes: ['files copied at deploy'], produces: ['bytes served under the same path (/logo.svg)'],
     exists: 'per deploy', connects: ['early-exits'], reaches: 'data',
-    sources: [{ label: 'public folder', url: `${DOCS}/api-reference/file-conventions/public-folder` }]
+    sources: [SOURCES.publicFolder]
   },
 
   // ---------- Build ----------
@@ -85,7 +84,7 @@ export const ENTITIES: Entity[] = [
       { version: '13', text: 'App Router: Server Components, streaming' },
       { version: '16', text: 'Turbopack default, Cache Components (PPR)' }
     ],
-    sources: [{ label: 'next CLI', url: `${DOCS}/api-reference/cli/next` }, { label: 'Release notes (Next.js blog)', url: 'https://nextjs.org/blog' }]
+    sources: [SOURCES.nextCli, SOURCES.releaseNotes]
   },
   {
     id: 'route-discovery', short: 'Route discovery', name: 'Route discovery · app/ + pages/ walk', region: 'build', glyph: 'segment', x: 900, y: 110,
@@ -94,7 +93,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['app/ and pages/ folders'], produces: ['route map → routes-manifest', 'loader trees', 'bundler entrypoints'],
     exists: 'build (prod); continuous through the watcher in dev', connects: ['routes-manifest', 'loader-tree', 'bundler'], reaches: 'no',
     internals: ['/dashboard/settings → ["", { children: ["dashboard", { children: ["settings", { children: ["__PAGE__", {}] }] }] }]', 'pages routes: /products/[id], /posts/[id], /api/hello'],
-    sources: [{ label: 'Project structure', url: `${DOCS}/getting-started/project-structure` }]
+    sources: [SOURCES.projectStructure]
   },
   {
     id: 'swc', short: 'SWC', name: 'SWC compiler', region: 'build', glyph: 'machine', x: 600, y: 330, badge: 'Rust',
@@ -103,7 +102,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['one .ts/.tsx/.js module'], produces: ['one transformed module'],
     exists: 'build and dev, per file', connects: [], reaches: 'no',
     internals: ['@next/swc-<platform> via N-API, WASM fallback', 'transforms: serverComponents, serverActions, optimizePackageImports, react-refresh (dev, client layer)'],
-    sources: [{ label: 'Next.js compiler', url: `${DOCS}/architecture/nextjs-compiler` }]
+    sources: [SOURCES.nextjsCompiler]
   },
   {
     id: 'bundler', short: 'Bundler', name: 'Bundler · Turbopack (Webpack via --webpack)', region: 'build', glyph: 'machine', x: 900, y: 330, badge: 'Rust',
@@ -122,7 +121,7 @@ export const ENTITIES: Entity[] = [
       { version: '15', text: 'Turbopack, one Rust tool with SWC inside, is stable for next dev' },
       { version: '16', text: 'Turbopack is the default for next dev and next build; Webpack via --webpack' }
     ],
-    sources: [{ label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
+    sources: [SOURCES.turbopack]
   },
   {
     id: 'layers', short: 'Layers', name: 'Bundler layers · rsc / ssr / app-pages-browser', region: 'build', glyph: 'runtime', x: 1150, y: 330,
@@ -153,7 +152,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['server entries'], produces: ['.nft.json lists', '.next/standalone'],
     exists: 'build', connects: ['standalone'], reaches: 'no',
     internals: ['@vercel/nft', '.next/server/app/dashboard/settings/page.js.nft.json'],
-    sources: [{ label: 'output', url: `${DOCS}/api-reference/config/next-config-js/output` }]
+    sources: [SOURCES.output]
   },
   {
     id: 'flight-client-entry-plugin', short: 'client entries', name: 'Client entry creation · flight-client-entry-plugin', region: 'build', glyph: 'machine', x: 740, y: 540,
@@ -167,7 +166,7 @@ export const ENTITIES: Entity[] = [
       current: 'Still the --webpack path. Turbopack, the default since 16.0, does the same inside its unified graph and emits the same manifests.',
       why: 'The step is the same in both bundlers; only the plugin name belongs to Webpack.'
     },
-    sources: [{ label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
+    sources: [SOURCES.turbopack]
   },
   {
     id: 'split-chunks', short: 'splitChunks', name: 'Chunk policy · splitChunks', region: 'build', glyph: 'machine', x: 1000, y: 540,
@@ -181,7 +180,7 @@ export const ENTITIES: Entity[] = [
       current: 'That is the --webpack configuration. Turbopack applies its own chunking with the same goals: shared framework code, per-route chunks.',
       why: 'Chunk names and boundaries differ between bundlers; the idea of route-level splitting does not.'
     },
-    sources: [{ label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
+    sources: [SOURCES.turbopack]
   },
   {
     id: 'flight-manifest-plugin', short: 'flight-manifest', name: 'Client reference writer · flight-manifest-plugin', region: 'build', glyph: 'machine', x: 1260, y: 540,
@@ -198,7 +197,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['traced file lists'], produces: ['.next/standalone/'],
     exists: 'per deploy', connects: [], reaches: 'no',
     internals: ['.next/standalone/server.js', 'public/ and .next/static are not copied; the deploy step adds them', 'custom server files are not traced'],
-    sources: [{ label: 'output', url: `${DOCS}/api-reference/config/next-config-js/output` }]
+    sources: [SOURCES.output]
   },
 
   // ---------- Artifact shelf ----------
@@ -285,7 +284,7 @@ export const ENTITIES: Entity[] = [
       current: 'Turbopack is the default bundler and its persistent filesystem cache is on by default for next dev and next build (16.3).',
       why: 'A second build reuses unchanged work, so keeping .next/cache between CI runs matters.'
     },
-    sources: [{ label: 'turbopackFileSystemCache', url: `${DOCS}/api-reference/config/next-config-js/turbopackFileSystemCache` }, { label: 'Next.js 16.3', url: 'https://nextjs.org/blog/next-16-3' }]
+    sources: [SOURCES.turbopackFileSystemCache, SOURCES.next163]
   },
 
   // ---------- HTTP entry ----------
@@ -301,7 +300,7 @@ export const ENTITIES: Entity[] = [
     what: 'The socket accepts connections before router-server has finished loading. Requests that arrive in that window wait and are handled once initialization completes.',
     consumes: ['requests during startup'], produces: ['the same requests, released to router-server'], exists: 'startup only', connects: ['node-http', 'routing-ladder'], reaches: 'no',
     internals: ['packages/next/src/server/lib/start-server.ts: listen first, then await the request handler'],
-    sources: [{ label: 'next CLI', url: `${DOCS}/api-reference/cli/next` }]
+    sources: [SOURCES.nextCli]
   },
   {
     id: 'custom-server', short: 'server.js', name: 'server.js · custom server ring', region: 'http-entry', glyph: 'process', x: 220, y: 1180,
@@ -309,7 +308,7 @@ export const ENTITIES: Entity[] = [
     what: 'Optional wrapper that owns the socket and calls handle(req, res, parsedUrl?). It wraps router-server; it never replaces it.',
     consumes: ['req, res'], produces: ['handle() calls'], exists: 'process lifetime; not compiled or watched by Next', connects: ['routing-ladder', 'custom-handle', 'custom-healthz'], reaches: 'no',
     internals: ['const app = next({ dev }); await app.prepare(); const handle = app.getRequestHandler()', 'createServer((req, res) => handle(req, res, parse(req.url, true))).listen(3000)', 'not traced by output: \'standalone\'; output: \'export\' has no server'],
-    sources: [{ label: 'Custom server', url: `${DOCS}/guides/custom-server` }]
+    sources: [SOURCES.customServer]
   },
   {
     id: 'custom-healthz', short: '/healthz', name: 'GET /healthz · answered by server.js', region: 'http-entry', glyph: 'response', x: 75, y: 1180,
@@ -317,7 +316,7 @@ export const ENTITIES: Entity[] = [
     what: 'A response server.js writes itself without calling handle. Next.js never sees the request: no ladder, no Proxy, no manifests.',
     consumes: ['GET /healthz'], produces: ['200 ok'], exists: 'per request', connects: ['custom-server'], reaches: 'data',
     internals: ['if (pathname === "/healthz") { res.statusCode = 200; return res.end("ok") }'],
-    sources: [{ label: 'Custom server', url: `${DOCS}/guides/custom-server` }]
+    sources: [SOURCES.customServer]
   },
 
   // ---------- router-server ----------
@@ -328,7 +327,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['req, res from server.js', 'optional parsedUrl (pathname, query)'], produces: ['the request on the routing ladder'],
     exists: 'created after app.prepare(); called per request', connects: ['custom-server', 'routing-ladder'], reaches: 'no',
     internals: ['a passed parsedUrl rebuilds req.url before routing', 'deprecated app.render() normalizes its arguments and calls the same requestHandler', 'packages/next/src/server/next.ts: NextCustomServer'],
-    sources: [{ label: 'Custom server', url: `${DOCS}/guides/custom-server` }, { label: 'packages/next/src/server/next.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/next.ts' }]
+    sources: [SOURCES.customServer, SOURCES.nextServer]
   },
   {
     id: 'routing-ladder', short: 'Routing ladder', name: 'Routing ladder · 8 steps', region: 'router-server', glyph: 'machine', x: 620, y: 920,
@@ -336,14 +335,14 @@ export const ENTITIES: Entity[] = [
     what: 'headers → redirects → Proxy → beforeFiles rewrites → filesystem check → afterFiles rewrites → dynamic routes → fallback rewrites. Most requests leave before React.',
     consumes: ['raw request', 'routing manifests loaded at startup'], produces: ['an early response or a resolved route for render-server'],
     exists: 'per request', connects: ['routes-manifest', 'proxy', 'early-exits', 'loader-tree'], reaches: 'no',
-    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [SOURCES.proxyExecutionOrder]
   },
   {
     id: 'rung-headers', short: '1 headers', name: 'Ladder step 1 · config headers', region: 'router-server', glyph: 'machine', x: 410, y: 1040,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'Headers from next.config.js whose source matches the path are added to the response. Nothing exits here; the request always climbs on.',
     consumes: ['request path'], produces: ['response headers (X-Frame-Options on /:path*)'], exists: 'per request', connects: ['routes-manifest', 'rung-redirects'], reaches: 'no',
-    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [SOURCES.proxyExecutionOrder]
   },
   {
     id: 'rung-redirects', short: '2 redirects', name: 'Ladder step 2 · config redirects', region: 'router-server', glyph: 'machine', x: 550, y: 1040,
@@ -351,7 +350,7 @@ export const ENTITIES: Entity[] = [
     what: 'Redirects from next.config.js. A match ends the request here with a 307/308 and a Location header; Proxy never runs for it.',
     consumes: ['request path'], produces: ['redirect response, or continue'], exists: 'per request', connects: ['routes-manifest', 'proxy'], reaches: 'no',
     internals: ['redirects: /old-settings → /dashboard/settings (permanent: true → 308)'],
-    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [SOURCES.proxyExecutionOrder]
   },
   {
     id: 'proxy', short: '3 Proxy', name: 'Proxy (formerly Middleware)', region: 'router-server', glyph: 'machine', x: 690, y: 1040, badge: 'Node',
@@ -363,14 +362,14 @@ export const ENTITIES: Entity[] = [
       current: 'Renamed proxy.ts in 16.0; runs on Node.js by default and the runtime cannot be configured. middleware.ts remains, deprecated, for Edge.',
       why: 'The ladder position is unchanged; the runtime badge is what moved.'
     },
-    sources: [{ label: 'proxy.js', url: `${DOCS}/api-reference/file-conventions/proxy` }]
+    sources: [SOURCES.proxy]
   },
   {
     id: 'rung-before-files', short: '4 beforeFiles', name: 'Ladder step 4 · beforeFiles rewrites', region: 'router-server', glyph: 'machine', x: 830, y: 1040,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'Rewrites listed under beforeFiles run before any file or page is checked, so they can shadow both.',
     consumes: ['request path'], produces: ['rewritten path, or unchanged'], exists: 'per request', connects: ['routes-manifest', 'rung-filesystem'], reaches: 'no',
-    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [SOURCES.proxyExecutionOrder]
   },
   {
     id: 'rung-filesystem', short: '5 filesystem', name: 'Ladder step 5 · filesystem check', region: 'router-server', glyph: 'machine', x: 410, y: 1150,
@@ -378,28 +377,28 @@ export const ENTITIES: Entity[] = [
     what: 'Checks the path against what is known to exist: build chunks under /_next/static, files in public/, the image endpoint and every page and handler route. A match exits here or is handed to render-server.',
     consumes: ['request path', 'page and file lists loaded at startup'], produces: ['static file, image request, or a resolved route'], exists: 'per request', connects: ['early-exits', 'image-optimizer', 'loader-tree', 'route-handler', 'public-dir'], reaches: 'no',
     internals: ['static routes match before dynamic ones: /dashboard/settings before /products/[id]', 'packages/next/src/server/lib/router-utils/filesystem.ts'],
-    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [SOURCES.proxyExecutionOrder]
   },
   {
     id: 'rung-after-files', short: '6 afterFiles', name: 'Ladder step 6 · afterFiles rewrites', region: 'router-server', glyph: 'machine', x: 550, y: 1150,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'Rewrites that apply only when no file or static page matched. They map the path to another one and the filesystem check is repeated.',
     consumes: ['unmatched path'], produces: ['rewritten path'], exists: 'per request', connects: ['routes-manifest', 'rung-dynamic'], reaches: 'no',
-    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [SOURCES.proxyExecutionOrder]
   },
   {
     id: 'rung-dynamic', short: '7 dynamic', name: 'Ladder step 7 · dynamic routes', region: 'router-server', glyph: 'machine', x: 690, y: 1150,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'Dynamic routes such as /products/[id] are tried in priority order, using regexes from the routes manifest.',
     consumes: ['unmatched path'], produces: ['route + params'], exists: 'per request', connects: ['routes-manifest', 'rung-fallback'], reaches: 'no',
-    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [SOURCES.proxyExecutionOrder]
   },
   {
     id: 'rung-fallback', short: '8 fallback', name: 'Ladder step 8 · fallback rewrites', region: 'router-server', glyph: 'machine', x: 830, y: 1150,
     phase: ['request'], env: ['node'], role: 'router',
     what: 'The last chance: fallback rewrites run after every page and dynamic route failed, typically to proxy to another app. After this comes the 404.',
     consumes: ['unmatched path'], produces: ['rewritten path, or 404'], exists: 'per request', connects: ['routes-manifest'], reaches: 'no',
-    sources: [{ label: 'Proxy: execution order', url: `${DOCS}/api-reference/file-conventions/proxy#execution-order` }]
+    sources: [SOURCES.proxyExecutionOrder]
   },
   {
     id: 'early-exits', short: 'Early exits', name: 'Early exits · static, public/, image, handlers', region: 'router-server', glyph: 'machine', x: 410, y: 1265,
@@ -418,7 +417,7 @@ export const ENTITIES: Entity[] = [
       current: 'Format is part of the key; 16.0 changed defaults (minimumCacheTTL 4 h, qualities [75], local IPs blocked, maximumRedirects 3).',
       why: 'The same URL can produce several cached files, one per format the browsers ask for.'
     },
-    sources: [{ label: 'Image component', url: `${DOCS}/api-reference/components/image` }, { label: 'Upgrading to 16', url: `${DOCS}/guides/upgrading/version-16` }]
+    sources: [SOURCES.image, SOURCES.upgradingTo16]
   },
 
   // ---------- render-server ----------
@@ -482,7 +481,7 @@ export const ENTITIES: Entity[] = [
     phase: ['request'], env: ['node', 'edge'], role: 'renderer',
     what: 'For router-server an endpoint is the same kind of exit as a page: render-server loads the module. A Route Handler gets a method table (GET, POST…) from route.ts; pages/api/hello.ts gets (req, res) with body parsing and res.json(). Neither runs React.',
     consumes: ['resolved route', 'Request or (req, res)'], produces: ['Response, e.g. { ok: true }'], exists: 'per request', connects: ['server-chunks', 'pages-manifest'], reaches: 'data',
-    sources: [{ label: 'Route Handlers', url: `${DOCS}/api-reference/file-conventions/route` }, { label: 'API Routes', url: 'https://nextjs.org/docs/pages/building-your-application/routing/api-routes' }]
+    sources: [SOURCES.routeHandlers, SOURCES.apiRoutes]
   },
 
   // ---------- Data sources and server caches ----------
@@ -504,7 +503,7 @@ export const ENTITIES: Entity[] = [
       current: 'Current docs call it the Next.js server cache; "Full Route Cache" is a retired name.',
       why: 'Three names, one mechanism: rendered HTML + RSC per route key, shared by every user.'
     },
-    sources: [{ label: 'Caching', url: `${DOCS}/getting-started/caching` }, { label: 'Self-hosting', url: `${DOCS}/guides/self-hosting` }]
+    sources: [SOURCES.caching, SOURCES.selfHosting]
   },
   {
     id: 'data-cache', short: '"use cache"', name: '"use cache" entries', region: 'data-caches', glyph: 'cache', x: 850, y: 1395, badge: 'server memory',
@@ -517,7 +516,7 @@ export const ENTITIES: Entity[] = [
       current: 'Confirmed: cacheComponents: true makes data fetching dynamic by default. updateTag expires now; revalidateTag(tag, profile) is stale-while-revalidate.',
       why: 'The site shows caching as opt-in with explicit invalidators, not as a default to escape.'
     },
-    sources: [{ label: 'Caching', url: `${DOCS}/getting-started/caching` }]
+    sources: [SOURCES.caching]
   },
   {
     id: 'image-cache', short: 'Image cache', name: 'Image optimizer cache · .next/cache/images', region: 'data-caches', glyph: 'cache', x: 1200, y: 1395, badge: 'fs',
@@ -525,7 +524,7 @@ export const ENTITIES: Entity[] = [
     what: 'Key: url + width + quality + format. Value: the sharp-transformed image, so each variant is computed once.',
     consumes: ['/_next/image requests'], produces: ['cached variants'], exists: 'per TTL', connects: ['image-optimizer', 'next-cache-dir'], reaches: 'data',
     internals: ['/hero.jpg|640|75|webp', 'minimumCacheTTL 4 h by default (16.0)'],
-    sources: [{ label: 'Image component', url: `${DOCS}/api-reference/components/image` }]
+    sources: [SOURCES.image]
   },
   {
     id: 'request-memo', short: 'Memoization', name: 'Request memoization', region: 'data-caches', glyph: 'cache', x: 1550, y: 1395, badge: 'one request',
@@ -533,7 +532,7 @@ export const ENTITIES: Entity[] = [
     what: 'Within one render pass, identical fetch GETs (and React cache() calls) run once. Dies with the request.',
     consumes: ['duplicate calls'], produces: ['one execution'], exists: 'one request', connects: ['rsc-runtime-entity'], reaches: 'no',
     internals: ['key: function + arguments; different arguments run again', 'React cache() for non-fetch calls'],
-    sources: [{ label: 'Caching', url: `${DOCS}/getting-started/caching` }]
+    sources: [SOURCES.caching]
   },
 
   // ---------- Browser ----------
@@ -621,7 +620,7 @@ export const ENTITIES: Entity[] = [
       current: 'cacheComponents: true implements PPR as the default behavior; experimental.ppr and experimental_ppr were removed in 16.0. The docs no longer name the postponed state, but resuming works the same way.',
       why: 'The mechanism is unchanged; the switch is cacheComponents, not a PPR flag.'
     },
-    sources: [{ label: 'cacheComponents', url: `${DOCS}/api-reference/config/next-config-js/cacheComponents` }, { label: 'Upgrading to 16', url: `${DOCS}/guides/upgrading/version-16` }]
+    sources: [SOURCES.cacheComponents, SOURCES.upgradingTo16]
   },
   {
     id: 'pages-renderer', short: 'Pages renderer', name: 'Pages renderer · data function + _app + _document', region: 'render-server', glyph: 'machine', x: 1880, y: 1040,
@@ -630,7 +629,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['page module from pages-manifest', 'data function result'], produces: ['HTML + props JSON (__NEXT_DATA__)'],
     exists: 'per render: at build, on a cache miss, on ISR regeneration and on every getServerSideProps request', connects: ['server-cache', 'pages-manifest', 'db', 'gssp', 'gip', 'pages-document'], reaches: 'data',
     internals: ['getStaticProps → { props, revalidate: 60 }', 'getStaticPaths → { paths, fallback: "blocking" }', 'stored as .next/server/pages/posts/7.html + 7.json', 'packages/next/src/server/render.tsx: renderToHTMLImpl'],
-    sources: [{ label: 'getStaticProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-static-props' }, { label: 'ISR (Pages)', url: 'https://nextjs.org/docs/pages/guides/incremental-static-regeneration' }, { label: 'getServerSideProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-server-side-props' }]
+    sources: [SOURCES.getStaticProps, SOURCES.isrPages, SOURCES.getServerSideProps]
   },
   {
     id: 'isr-regeneration', short: 'Regeneration', name: 'Background regeneration · stale-while-revalidate', region: 'render-server', glyph: 'process', x: 1660, y: 1220,
@@ -639,7 +638,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['a stale server cache entry'], produces: ['a fresh entry for the next visitor'],
     exists: 'after a stale hit, until the new entry is stored', connects: ['server-cache', 'pages-renderer'], reaches: 'no',
     internals: ['prerender-manifest: initialRevalidateSeconds 60 for /posts/7', 'a failed regeneration keeps serving the old entry', 'App Router: revalidateTag(tag, "max") marks entries stale the same way'],
-    sources: [{ label: 'ISR', url: `${DOCS}/guides/incremental-static-regeneration` }, { label: 'revalidateTag', url: `${DOCS}/api-reference/functions/revalidateTag` }]
+    sources: [SOURCES.isr, SOURCES.revalidateTag]
   },
   {
     id: 'suspense-hole', short: 'Suspense hole', name: 'Suspense boundary · streamed hole', region: 'browser', glyph: 'segment', x: 500, y: 1880,
@@ -657,7 +656,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['req, res, params { id: "42" }, query', 'database'], produces: ['{ props } for the page'],
     exists: 'per request: the document request and every /_next/data request for this page', connects: ['pages-renderer', 'pages-data-endpoint', 'db'], reaches: 'data',
     internals: ['export async function getServerSideProps({ params, req, res, query }) → { props: { product } }', 'never cached by the framework; Cache-Control on res is up to the page', 'removed from the client build by the SWC next_ssg transform, together with imports only it uses'],
-    sources: [{ label: 'getServerSideProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-server-side-props' }]
+    sources: [SOURCES.getServerSideProps]
   },
   {
     id: 'gip', short: 'getInitialProps', name: 'getInitialProps · legacy data function', region: 'render-server', glyph: 'machine', x: 1770, y: 1150, badge: 'Node + browser',
@@ -666,7 +665,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['context: pathname, query, asPath; req and res on the server only'], produces: ['props for the page'],
     exists: 'per navigation, in whichever environment the navigation happens', connects: ['pages-renderer', 'pages-router', 'browser-chunks'], reaches: 'code',
     internals: ['ProductPage.getInitialProps = async (ctx) => ({ product })', 'anything it imports (API keys, SDKs) lands in the browser chunk', '_app.getInitialProps turns off Automatic Static Optimization for pages without getStaticProps', 'with _app.getInitialProps, navigating to a getServerSideProps page runs _app.getInitialProps in the browser and getServerSideProps on the server'],
-    sources: [{ label: 'getInitialProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-initial-props' }, { label: 'Automatic Static Optimization', url: 'https://nextjs.org/docs/pages/building-your-application/rendering/automatic-static-optimization' }]
+    sources: [SOURCES.getInitialProps, SOURCES.automaticStaticOptimization]
   },
   {
     id: 'pages-data-endpoint', short: '/_next/data', name: '/_next/data/{buildId}/… endpoint', region: 'render-server', glyph: 'machine', x: 1965, y: 1140,
@@ -675,7 +674,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['GET /_next/data/k7Qm2xLp9/products/42.json'], produces: ['{ pageProps } as JSON'],
     exists: 'per navigation; the buildId in the path changes with every deploy', connects: ['gssp', 'server-cache', 'pages-router', 'routes-manifest'], reaches: 'data',
     internals: ['routes-manifest dataRoutes: /_next/data/k7Qm2xLp9/products/[id].json', 'getStaticProps pages: posts/7.json from the prerendered outputs, regenerated by ISR like the HTML', 'a buildId mismatch after a deploy → 404 → the client router falls back to a full page load'],
-    sources: [{ label: 'getServerSideProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-server-side-props' }, { label: 'getStaticProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-static-props' }]
+    sources: [SOURCES.getServerSideProps, SOURCES.getStaticProps]
   },
   {
     id: 'pages-document', short: '_document', name: '_document · <Html><Head/><Main/><NextScript/>', region: 'render-server', glyph: 'html', x: 1770, y: 1290, badge: 'Node',
@@ -684,7 +683,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['rendered app HTML', 'build-manifest chunk list', 'serialized props'], produces: ['the full document'],
     exists: 'per document request (and at build for static pages)', connects: ['build-manifest', 'html', 'next-data'], reaches: 'data',
     internals: ['pages/_document.tsx: <Html><Head/><body><Main/><NextScript/></body></Html>', 'event handlers and state in _document never run in the browser'],
-    sources: [{ label: 'Custom Document', url: 'https://nextjs.org/docs/pages/building-your-application/routing/custom-document' }]
+    sources: [SOURCES.customDocument]
   },
   {
     id: 'next-data', short: '__NEXT_DATA__', name: '__NEXT_DATA__ · inline props JSON', region: 'browser', glyph: 'json', x: 200, y: 1990,
@@ -693,7 +692,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['pageProps from the data function'], produces: ['hydration input in the browser'],
     exists: 'per document', connects: ['pages-document', 'react-client'], reaches: 'data',
     internals: ['{ "props": { "pageProps": { "product": { … } } }, "page": "/products/[id]", "query": { "id": "42" }, "buildId": "k7Qm2xLp9" }', 'warning when page data exceeds 128 kB (largePageDataBytes)'],
-    sources: [{ label: 'Large page data', url: 'https://nextjs.org/docs/messages/large-page-data' }]
+    sources: [SOURCES.largePageData]
   },
   {
     id: 'pages-app', short: '_app', name: '_app · <App> with ThemeProvider', region: 'browser', glyph: 'component-client', x: 800, y: 1770,
@@ -702,7 +701,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['Component', 'pageProps'], produces: ['the wrapped page tree'],
     exists: 'per document on the server; for the whole tab in the browser', connects: ['pages-product-page', 'pages-post-page', 'browser-chunks'], reaches: 'code',
     internals: ['static/chunks/pages/_app chunk', 'state in _app (theme) survives every client navigation'],
-    sources: [{ label: 'Custom App', url: 'https://nextjs.org/docs/pages/building-your-application/routing/custom-app' }]
+    sources: [SOURCES.customApp]
   },
   {
     id: 'pages-product-page', short: 'ProductPage', name: 'ProductPage · pages/products/[id].tsx', region: 'browser', glyph: 'component-client', x: 800, y: 1880,
@@ -727,7 +726,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['<Link>', 'router.push()', '_buildManifest.js'], produces: ['data requests', 'page chunk loads', 'Component swaps', 'history entries'],
     exists: 'tab', connects: ['pages-data-endpoint', 'pages-app', 'browser-history', 'pages-prefetch'], reaches: 'data',
     internals: ['packages/next/src/shared/lib/router/router.ts: change() → getRouteInfo() → set()', 'router.isReady false on the first render of a statically optimized page with a dynamic route'],
-    sources: [{ label: 'useRouter (Pages)', url: 'https://nextjs.org/docs/pages/api-reference/functions/use-router' }]
+    sources: [SOURCES.useRouterPages]
   },
   {
     id: 'pages-prefetch', short: 'Prefetch Set', name: 'Pages prefetch · Set of prefetched URLs', region: 'client-router', glyph: 'cache', x: 1450, y: 1990, badge: 'browser tab',
@@ -741,7 +740,7 @@ export const ENTITIES: Entity[] = [
       current: 'Unchanged for the Pages Router (16.3): docs say prefetch={false} still prefetches on hover. The per-hover repeat is observed in source, not documented.',
       why: 'The only full opt-out is a plain <a> or moving the route to the App Router, where prefetch={false} means never.'
     },
-    sources: [{ label: 'Link (Pages)', url: 'https://nextjs.org/docs/pages/api-reference/components/link' }]
+    sources: [SOURCES.linkPages]
   },
   {
     id: 'browser-history', short: 'History', name: 'History API · pushState / popstate', region: 'client-router', glyph: 'machine', x: 1750, y: 1990,
@@ -750,7 +749,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['pushState(state, "", url)'], produces: ['URL bar updates', 'popstate events'],
     exists: 'tab', connects: ['pages-router', 'app-router'], reaches: 'no',
     internals: ['Pages Router stores { url, as, options, __N: true, key } in history.state', 'shallow: router.push(url, as, { shallow: true }) changes only the URL and router.query'],
-    sources: [{ label: 'Shallow routing', url: 'https://nextjs.org/docs/pages/building-your-application/routing/linking-and-navigating#shallow-routing' }]
+    sources: [SOURCES.shallowRouting]
   },
 
   // ---------- Built-in optimizations (J11) ----------
@@ -766,7 +765,7 @@ export const ENTITIES: Entity[] = [
       current: 'Unchanged in source: dev logs "Failed to download … Using fallback font instead" and emits a fallback @font-face; otherwise the error is thrown.',
       why: 'A build machine without access to Google Fonts cannot produce a release.'
     },
-    sources: [{ label: 'Font module', url: `${DOCS}/api-reference/components/font` }, { label: 'font/src/google/loader.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/font/src/google/loader.ts' }]
+    sources: [SOURCES.font, SOURCES.googleFontLoader]
   },
   {
     id: 'google-fonts', short: 'Google Fonts', name: 'Google Fonts · fonts.googleapis.com', region: 'build', glyph: 'data-source', x: 1180, y: 60, badge: 'remote',
@@ -775,7 +774,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['stylesheet and font file requests from the loader'], produces: ['font CSS', 'font files'],
     exists: 'outside the app; reached at build time', connects: ['font-loader'], reaches: 'no',
     internals: ['GET https://fonts.googleapis.com/css2?family=…&display=swap', 'font files from fonts.gstatic.com, then self-hosted'],
-    sources: [{ label: 'Font module', url: `${DOCS}/api-reference/components/font` }]
+    sources: [SOURCES.font]
   },
   {
     id: 'sharp', short: 'sharp', name: 'sharp · native image codec', region: 'router-server', glyph: 'machine', x: 750, y: 1265, badge: 'native',
@@ -784,7 +783,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['source image bytes', 'width, quality, format'], produces: ['encoded WebP or AVIF variant'],
     exists: 'loaded once per server process', connects: ['image-optimizer'], reaches: 'no',
     internals: ['libvips through N-API bindings', 'installed automatically with next 15+; required for next start self-hosting'],
-    sources: [{ label: 'Image optimization', url: `${DOCS}/getting-started/images` }]
+    sources: [SOURCES.images]
   },
   {
     id: 'next-image', short: 'next/image', name: 'next/image · reserved box + srcset', region: 'browser', glyph: 'dom', x: 350, y: 1715,
@@ -798,7 +797,7 @@ export const ENTITIES: Entity[] = [
       current: '16.0 removed 16 from the default imageSizes and set qualities to [75].',
       why: 'Fewer variants means fewer cached files per image.'
     },
-    sources: [{ label: 'Image component', url: `${DOCS}/api-reference/components/image` }, { label: 'Upgrading to 16', url: `${DOCS}/guides/upgrading/version-16` }]
+    sources: [SOURCES.image, SOURCES.upgradingTo16]
   },
   {
     id: 'next-dynamic', short: 'next/dynamic', name: 'next/dynamic · lazy chunk at an import() boundary', region: 'browser', glyph: 'browser-chunk', x: 500, y: 1770,
@@ -812,7 +811,7 @@ export const ENTITIES: Entity[] = [
       current: 'The 200 ms delay is still in the Loadable source used by the Pages Router. In the App Router next/dynamic is React.lazy() plus Suspense; ssr: false is an error in Server Components.',
       why: 'The chunk split is the same in both routers; the loading behavior follows the router.'
     },
-    sources: [{ label: 'Lazy loading', url: `${DOCS}/guides/lazy-loading` }, { label: 'loadable.shared-runtime.tsx', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/loadable.shared-runtime.tsx' }]
+    sources: [SOURCES.lazyLoading, SOURCES.loadable]
   },
   {
     id: 'font-css', short: '@font-face', name: 'next/font CSS · @font-face + fallback metrics', region: 'browser', glyph: 'json', x: 350, y: 1935,
@@ -821,7 +820,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['loader output'], produces: ['text in the fallback, then in the web font, with no layout shift'],
     exists: 'per deploy; applied in the tab', connects: ['font-loader', 'dom'], reaches: 'data',
     internals: ['adjustFontFallback: on by default → "<Font> Fallback" with size-adjust, ascent-override, descent-override, line-gap-override', 'fallback base: Arial or Times New Roman', 'font file served from the same origin; <link rel="preload" as="font"> on routes that use it'],
-    sources: [{ label: 'Font module', url: `${DOCS}/api-reference/components/font` }]
+    sources: [SOURCES.font]
   },
   {
     id: 'next-script', short: 'next/script', name: 'next/script · strategies on the load timeline', region: 'browser', glyph: 'runtime', x: 650, y: 1825,
@@ -830,7 +829,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['<Script src strategy>'], produces: ['third-party script executed at the chosen moment'],
     exists: 'tab', connects: ['react-client', 'script-worker'], reaches: 'no',
     internals: ['beforeInteractive: injected into the initial HTML; place it in the root layout', 'afterInteractive: default, after some hydration', 'lazyOnload: during browser idle time', 'onLoad / onReady / onError need a Client Component'],
-    sources: [{ label: 'Script component', url: `${DOCS}/api-reference/components/script` }]
+    sources: [SOURCES.script]
   },
   {
     id: 'script-worker', short: 'worker (Partytown)', name: 'next/script worker · Partytown web worker', region: 'browser', glyph: 'process', x: 500, y: 1990,
@@ -844,7 +843,7 @@ export const ENTITIES: Entity[] = [
       current: 'Experimental, requires experimental.nextScriptWorkers, Pages Router only and not supported by Turbopack (the default bundler since 16.0).',
       why: 'On an App Router page built with Turbopack the strategy is not available.'
     },
-    sources: [{ label: 'Script component', url: `${DOCS}/api-reference/components/script` }, { label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
+    sources: [SOURCES.script, SOURCES.turbopack]
   },
 
   // ---------- Dev ----------
@@ -854,7 +853,7 @@ export const ENTITIES: Entity[] = [
     what: 'The process next dev starts first. It does no serving itself: it spawns the child and restarts it with the same options when the child exits because next.config changed.',
     consumes: ['child exit codes'], produces: ['a fresh child process'], exists: 'dev session', connects: ['dev-child'], reaches: 'no',
     internals: ['cli/next-dev.ts: forks server/lib/start-server.ts as the child', 'child exits with RESTART_EXIT_CODE (77, server/lib/utils.ts) → parent forks again'],
-    sources: [{ label: 'next CLI', url: `${DOCS}/api-reference/cli/next` }]
+    sources: [SOURCES.nextCli]
   },
   {
     id: 'dev-child', short: 'Child', name: 'Child process · server + bundler', region: 'dev', glyph: 'process', x: 2300, y: 370,
@@ -867,7 +866,7 @@ export const ENTITIES: Entity[] = [
       current: '16.0: next dev writes to .next/dev and holds a lockfile against a second instance.',
       why: 'A dev session and a production build no longer overwrite each other.'
     },
-    sources: [{ label: 'Upgrading to 16', url: `${DOCS}/guides/upgrading/version-16` }]
+    sources: [SOURCES.upgradingTo16]
   },
   {
     id: 'dev-static-workers', short: 'Static-params worker', name: 'Static-params worker · per call', region: 'dev', glyph: 'process', x: 2120, y: 370,
@@ -875,7 +874,7 @@ export const ENTITIES: Entity[] = [
     what: 'A fresh worker started for each generateStaticParams / getStaticPaths call and killed afterwards, so the call runs with clean module state, as it would in a build.',
     consumes: ['one generateStaticParams / getStaticPaths call'], produces: ['a path list'], exists: 'one call', connects: ['dev-child'], reaches: 'no',
     internals: ['server/dev/static-paths-worker.ts: next-dev-server.ts starts a jest-worker (one worker) per static-paths call and ends it afterwards'],
-    sources: [{ label: 'generateStaticParams', url: `${DOCS}/api-reference/functions/generate-static-params` }]
+    sources: [SOURCES.generateStaticParams]
   },
   {
     id: 'dev-watcher', short: 'Watcher', name: 'File watcher · live route map', region: 'dev', glyph: 'watcher', x: 2210, y: 560,
@@ -883,7 +882,7 @@ export const ENTITIES: Entity[] = [
     what: 'Replaces the production manifests: rebuilds page lists, handlers, layouts, slots and matchers on every change, detects app/ vs pages/ conflicts and writes .next/types.',
     consumes: ['app/', 'pages/', 'proxy.ts', '.env*', 'tsconfig.json'], produces: ['in-memory route tables', '.next/types', 'route-change messages'], exists: 'dev session', connects: ['routing-ladder', 'dev-turbopack'], reaches: 'no',
     internals: ['server/lib/router-utils/setup-dev-bundler.ts: watcher callback rebuilds the route tables', 'conflicting app and page error when one path exists in both routers'],
-    sources: [{ label: 'Project structure', url: `${DOCS}/getting-started/project-structure` }]
+    sources: [SOURCES.projectStructure]
   },
   {
     id: 'dev-entries', short: 'On-demand entries', name: 'On-demand entries · --webpack', region: 'dev', glyph: 'machine', x: 2090, y: 860,
@@ -891,7 +890,7 @@ export const ENTITIES: Entity[] = [
     what: 'The Webpack path: one record per requested page with status added → building → built, a last-active time and a dispose flag. Every rebuild includes every live entry.',
     consumes: ['requested pages', 'browser pings'], produces: ['compiled entries'], exists: 'dev session', connects: ['dev-eviction', 'dev-hmr'], reaches: 'no',
     internals: ['server/dev/on-demand-entry-handler.ts: ensurePage(), entries map, ADDED / BUILDING / BUILT'],
-    sources: [{ label: 'on-demand-entry-handler.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/dev/on-demand-entry-handler.ts' }]
+    sources: [SOURCES.onDemandEntryHandler]
   },
   {
     id: 'dev-eviction', short: 'Eviction timer', name: 'Entry eviction · --webpack', region: 'dev', glyph: 'machine', x: 2330, y: 860,
@@ -904,7 +903,7 @@ export const ENTITIES: Entity[] = [
       current: 'Same defaults; 60 s is the configurable maxInactiveAge and the sweep interval is derived from it. Applies to the --webpack path only.',
       why: 'With Turbopack, the default since 16.0, there are no entries to evict.'
     },
-    sources: [{ label: 'onDemandEntries', url: `${DOCS}/api-reference/config/next-config-js/onDemandEntries` }, { label: 'on-demand-entry-handler.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/dev/on-demand-entry-handler.ts' }]
+    sources: [SOURCES.onDemandEntries, SOURCES.onDemandEntryHandler]
   },
   {
     id: 'dev-turbopack', short: 'Turbopack (dev)', name: 'Turbopack in dev · demand-driven graph', region: 'dev', glyph: 'machine', x: 2210, y: 990, badge: 'Rust',
@@ -917,7 +916,7 @@ export const ENTITIES: Entity[] = [
       current: 'Default for next dev and next build since 16.0; persistent filesystem cache on by default (16.3). Opt out with --webpack.',
       why: 'On-demand entries and eviction describe the opt-in Webpack path.'
     },
-    sources: [{ label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }, { label: 'turbopackFileSystemCache', url: `${DOCS}/api-reference/config/next-config-js/turbopackFileSystemCache` }]
+    sources: [SOURCES.turbopack, SOURCES.turbopackFileSystemCache]
   },
   {
     id: 'dev-module-cache', short: 'require cache', name: 'Server module cache · require', region: 'dev', glyph: 'cache', x: 2090, y: 1220,
@@ -925,7 +924,7 @@ export const ENTITIES: Entity[] = [
     what: 'Node keeps every required server chunk in memory. On a server edit the entries for the replaced chunks are deleted, so the next render loads the new code.',
     consumes: ['server change notifications'], produces: ['fresh module loads'], exists: 'child process', connects: ['server-chunks', 'rsc-runtime-entity'], reaches: 'no',
     internals: ['server/dev/require-cache.ts: deleteCache() (calls the internal deleteFromRequireCache)', 'server/dev/hot-reloader-turbopack.ts clears server chunks before sending serverComponentChanges'],
-    sources: [{ label: 'server/dev', url: 'https://github.com/vercel/next.js/tree/canary/packages/next/src/server/dev' }]
+    sources: [SOURCES.serverDev]
   },
   {
     id: 'dev-hmr', short: 'HMR socket', name: 'HMR WebSocket · /_next/hmr', region: 'dev', glyph: 'machine', x: 2210, y: 1320,
@@ -938,7 +937,7 @@ export const ENTITIES: Entity[] = [
       current: 'allowedDevOrigins: cross-origin dev requests are blocked by default; hostname matching with * and ** wildcards.',
       why: 'Opening the dev server from another host needs that host listed.'
     },
-    sources: [{ label: 'allowedDevOrigins', url: `${DOCS}/api-reference/config/next-config-js/allowedDevOrigins` }]
+    sources: [SOURCES.allowedDevOrigins]
   },
   {
     id: 'dev-hmr-client', short: 'HMR client', name: 'HMR client · in the tab', region: 'dev', glyph: 'runtime', x: 2210, y: 1600,
@@ -946,7 +945,7 @@ export const ENTITIES: Entity[] = [
     what: 'Dev-only code in the page that holds the socket, applies module updates, pings with the open route and decides what each message means: Fast Refresh, a router refresh or a full reload.',
     consumes: ['HMR messages'], produces: ['module updates', 'router refreshes', 'pings'], exists: 'tab, dev only', connects: ['dev-hmr', 'dev-fast-refresh', 'app-router'], reaches: 'no',
     internals: ['client/dev/hot-reloader/app/hot-reloader-app.tsx and pages/hot-reloader-pages.ts: the two HMR clients', 'ping: pathname (pages) / router tree (app)'],
-    sources: [{ label: 'Fast Refresh', url: `${DOCS}/architecture/fast-refresh` }]
+    sources: [SOURCES.fastRefresh]
   },
   {
     id: 'dev-fast-refresh', short: 'Fast Refresh', name: 'Fast Refresh · react-refresh', region: 'dev', glyph: 'machine', x: 2210, y: 1800,
@@ -954,7 +953,7 @@ export const ENTITIES: Entity[] = [
     what: 'Swaps Client Component implementations in place using IDs and hook signatures registered by SWC. Exists only for the client layer; server edits trigger a router refresh instead.',
     consumes: ['client change updates', 'registered component IDs + hook signatures'], produces: ['state-preserving updates', 'remounts'], exists: 'tab, dev only', connects: ['client-components'], reaches: 'no',
     internals: ['SWC react-refresh transform: $RefreshReg$(Component, id), $RefreshSig$() per hook list', 'non-component export → update bubbles to importers → full reload if nothing accepts it'],
-    sources: [{ label: 'Fast Refresh', url: `${DOCS}/architecture/fast-refresh` }]
+    sources: [SOURCES.fastRefresh]
   }
 ]
 

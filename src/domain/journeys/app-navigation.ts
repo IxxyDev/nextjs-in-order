@@ -1,4 +1,5 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
 export const APP_NAVIGATION: Journey = {
   id: 'j6',
@@ -44,7 +45,7 @@ export const APP_NAVIGATION: Journey = {
       camera: { kind: 'entities', ids: ['segment-cache', 'src-billing-page', 'prefetch-scheduler'] },
       states: { 'segment-cache': 'active', 'src-billing-page': 'na', 'prefetch-scheduler': 'kept' }, edges: [],
       internals: ['the server pre-cuts content per segment and marks each with hints: fetch it separately or not, is there a loading boundary below it', 'article: cacheComponents: true enables per-segment prefetch for dynamic routes', '16.3: experimental.partialPrefetching → App Shell prefetch by default', 'prefetch={true}: shell + URL-dependent cached content'],
-      sources: [{ label: 'Link prefetching', url: 'https://nextjs.org/docs/app/api-reference/components/link#prefetch' }]
+      sources: [SOURCES.linkPrefetch]
     },
     {
       id: 'j6-6', kind: 'move', title: 'Click',
@@ -137,8 +138,8 @@ export const APP_NAVIGATION: Journey = {
       states: { 'app-router': 'active', 'prefetch-scheduler': 'active', 'route-cache': 'active', 'segment-cache': 'active', 'router-state-tree': 'active' }, edges: [],
       internals: ['headers: rsc, next-router-state-tree, next-url, next-router-prefetch, next-router-segment-prefetch', '/_tree response: FlightRouterState rows + head', 'next/src/client/components/segment-cache/{cache,scheduler,navigation}.ts', 'next/src/client/components/app-router.tsx'],
       sources: [
-        { label: 'Linking and navigating', url: 'https://nextjs.org/docs/app/getting-started/linking-and-navigating' },
-        { label: 'Client-side caching', url: 'https://nextjs.org/docs/app/guides/caching#client-side-router-cache' }
+        SOURCES.linkingAndNavigating,
+        SOURCES.clientSideCaching
       ]
     },
     {

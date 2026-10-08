@@ -1,4 +1,5 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
 export const SERVER_ACTIONS: Journey = {
   id: 'j7',
@@ -37,7 +38,7 @@ export const SERVER_ACTIONS: Journey = {
       token: { at: 'next-f', glyph: 'json', label: 'encrypted closure · plain bound args' },
       states: { 'src-settings-page': 'active', 'server-reference-manifest': 'kept', 'next-f': 'active', 'browser-chunks': 'kept' }, edges: ['e-tee-nextf'],
       internals: ['encryption-utils.ts: encryptActionBoundArgs(actionId, args) with a per-build key (or NEXT_SERVER_ACTIONS_ENCRYPTION_KEY)', '.bind() arguments: serialized by the Flight client, not encrypted'],
-      sources: [{ label: 'Server Actions security', url: 'https://nextjs.org/blog/security-nextjs-server-components-actions' }]
+      sources: [SOURCES.serverActionsSecurity]
     },
     {
       id: 'j7-5', kind: 'explain', title: 'One form, two paths',

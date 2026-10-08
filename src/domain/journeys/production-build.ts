@@ -1,4 +1,5 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
 export const PRODUCTION_BUILD: Journey = {
   id: 'j1',
@@ -14,7 +15,7 @@ export const PRODUCTION_BUILD: Journey = {
       states: { 'next-build': 'current', 'route-discovery': 'active', swc: 'active', bundler: 'active', tracing: 'active', 'route-analysis': 'active', prerender: 'active', standalone: 'active' },
       edges: ['e-build-discovery'],
       internals: ['buildId k7Qm2xLp9 → .next/BUILD_ID', 'order: buildId → config → redirects/rewrites/headers → route discovery → compile + bundle → trace → analyze → prerender → standalone → summary', 'packages/next/src/build/index.ts'],
-      sources: [{ label: 'next CLI', url: 'https://nextjs.org/docs/app/api-reference/cli/next' }]
+      sources: [SOURCES.nextCli]
     },
     {
       id: 'j1-2', kind: 'move', title: 'Folders become a route map',
@@ -32,7 +33,7 @@ export const PRODUCTION_BUILD: Journey = {
       token: { at: 'swc', glyph: 'transformed-module', label: 'ProfileForm.js ✂ types · JSX' },
       states: { 'src-profile-form': 'active', swc: 'current' }, edges: ['e-form-compile'],
       internals: ['@next/swc-<platform> loaded through N-API; @next/swc-wasm-nodejs as fallback', 'jobs spread over worker_threads (registerWorkerScheduler)', 'next-swc-loader passes per-layer options (Webpack path)', 'Next-specific passes: removeConsole, reactRemoveProperties (data-testid), styled-components / emotion', 'Babel config present: with Webpack SWC is switched off; with Turbopack (16+) Babel runs on user code while SWC still does Next\'s own transforms'],
-      sources: [{ label: 'Next.js compiler', url: 'https://nextjs.org/docs/app/architecture/nextjs-compiler' }, { label: 'Turbopack', url: 'https://nextjs.org/docs/app/api-reference/turbopack' }]
+      sources: [SOURCES.nextjsCompiler, SOURCES.turbopack]
     },
     {
       id: 'j1-4', kind: 'transform', title: 'Directives become marks and IDs',
@@ -50,7 +51,7 @@ export const PRODUCTION_BUILD: Journey = {
       token: { at: 'swc', glyph: 'transformed-module', label: 'import { Button } from \'ui-kit\' → ui-kit/button' },
       states: { 'src-profile-form': 'active', swc: 'current', bundler: 'kept' }, edges: ['e-form-compile', 'e-swc-bundler'],
       internals: ['next.config.js: experimental.optimizePackageImports: ["ui-kit"]', 'modularizeImports is the older, pattern-based form of the same rewrite'],
-      sources: [{ label: 'optimizePackageImports', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/optimizePackageImports' }]
+      sources: [SOURCES.optimizePackageImports]
     },
     {
       id: 'j1-6', kind: 'predict', title: 'Who puts ProfileForm in the browser?',
@@ -88,7 +89,7 @@ export const PRODUCTION_BUILD: Journey = {
       token: { at: 'bundler', glyph: 'machine', label: 'Turbopack (default) · Webpack via --webpack' },
       states: { bundler: 'current', layers: 'active', swc: 'kept' }, edges: ['e-swc-bundler', 'e-bundler-layers'],
       internals: ['Turbopack embeds SWC for parsing and transforms', 'turbo-tasks: functions, tasks, values, Vc cells; dirty propagation bottom-up', 'crates: turbopack-core, -ecmascript, -css, -resolve, -node', 'Next drives Turbopack through an N-API Project object', 'a custom webpack() config makes next build fail unless --webpack or --turbopack is passed', '16.3: persistent filesystem cache on by default for build', 'Rspack: experimental'],
-      sources: [{ label: 'Turbopack', url: 'https://nextjs.org/docs/app/api-reference/turbopack' }, { label: 'Next.js 16.3', url: 'https://nextjs.org/blog/next-16-3' }]
+      sources: [SOURCES.turbopack, SOURCES.next163]
     },
     {
       id: 'j1-10', kind: 'transform', title: 'A browser entry at the boundary',
@@ -127,7 +128,7 @@ export const PRODUCTION_BUILD: Journey = {
       states: { 'route-analysis': 'current', 'src-settings-page': 'active', 'src-billing-page': 'active', bundler: 'kept', 'prerender-manifest': 'new' },
       edges: ['e-analysis-prerender-manifest'],
       internals: ['/dashboard/settings: getProfile() is "use cache" + cacheTag("profile") → ○ static', '/dashboard/billing: cookies() inside <Suspense> → ◐ static shell + dynamic hole (cacheComponents: true implements PPR)', '/products/[id]: getServerSideProps → ƒ dynamic', '/posts/[id]: getStaticProps revalidate 60 + getStaticPaths fallback "blocking" → ● SSG with ISR'],
-      sources: [{ label: 'cacheComponents', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents' }]
+      sources: [SOURCES.cacheComponents]
     },
     {
       id: 'j1-14', kind: 'transform', title: 'Static routes are rendered now',
@@ -137,7 +138,7 @@ export const PRODUCTION_BUILD: Journey = {
       states: { 'route-analysis': 'kept', prerender: 'current', 'prerendered-outputs': 'new', 'server-cache': 'new', 'rsc-runtime-entity': 'active', 'ssr-runtime-entity': 'active' },
       edges: ['e-route-analysis-prerender', 'e-prerender-outputs', 'e-outputs-server-cache'],
       internals: ['.next/server/app/dashboard/settings.html · settings.rsc · settings.meta', 'settings.segments/_tree.segment.rsc + one *.segment.rsc per segment: the Segment Cache prefetch files (16.x; the single .prefetch.rsc is gone)', '.next/server/pages/posts/7.html · posts/7.json', '/dashboard/billing: static shell + postponed state (implementation term; the resume mechanism is what cacheComponents uses for PPR)'],
-      sources: [{ label: 'cacheComponents', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents' }]
+      sources: [SOURCES.cacheComponents]
     },
     {
       id: 'j1-15', kind: 'explain', title: 'Tracing the files a route needs',
@@ -146,7 +147,7 @@ export const PRODUCTION_BUILD: Journey = {
       token: { at: 'tracing', glyph: 'server-chunk', label: 'settings/page.js.nft.json' },
       states: { 'server-chunks': 'active', tracing: 'current', standalone: 'dimmed' }, edges: ['e-server-chunks-tracing'],
       internals: ['@vercel/nft', '.next/server/app/dashboard/settings/page.js.nft.json: { version: 1, files: [...] }', 'outputFileTracingIncludes / outputFileTracingExcludes to adjust'],
-      sources: [{ label: 'output', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/output' }]
+      sources: [SOURCES.output]
     },
     {
       id: 'j1-16', kind: 'transform', title: 'A folder that runs on its own',
@@ -155,7 +156,7 @@ export const PRODUCTION_BUILD: Journey = {
       token: { at: 'standalone', glyph: 'server-chunk', label: '.next/standalone/server.js' },
       states: { tracing: 'kept', standalone: 'current', 'server-chunks': 'kept' }, edges: ['e-tracing-standalone'],
       internals: ['.next/standalone/server.js · .next/standalone/node_modules (traced subset)', 'cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/', 'a custom server is not traced and cannot be combined with standalone'],
-      sources: [{ label: 'output', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/output' }]
+      sources: [SOURCES.output]
     },
     {
       id: 'j1-17', kind: 'explain', title: 'The summary',

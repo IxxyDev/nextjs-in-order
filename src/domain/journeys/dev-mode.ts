@@ -1,9 +1,6 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
-const ON_DEMAND = { label: 'on-demand-entry-handler.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/dev/on-demand-entry-handler.ts' }
-const FAST_REFRESH = { label: 'Fast Refresh', url: 'https://nextjs.org/docs/app/architecture/fast-refresh' }
-const TURBOPACK = { label: 'Turbopack', url: 'https://nextjs.org/docs/app/api-reference/turbopack' }
-const SERVER_LIB = { label: 'server/lib', url: 'https://github.com/vercel/next.js/tree/canary/packages/next/src/server/lib' }
 
 export const DEV_MODE: Journey = {
   id: 'j9',
@@ -19,7 +16,7 @@ export const DEV_MODE: Journey = {
       states: { 'dev-parent': 'current', 'dev-child': 'active', 'dev-turbopack': 'active' },
       edges: ['e-dev-parent-child', 'e-dev-child-turbopack'],
       internals: ['cli/next-dev.ts forks server/lib/start-server.ts', 'router-server.ts creates the dev bundler (dev-bundler-service.ts) inside the child', 'output in .next/dev since 16.0'],
-      sources: [SERVER_LIB]
+      sources: [SOURCES.serverLib]
     },
     {
       id: 'j9-2', kind: 'move', title: 'Restart on config change',
@@ -47,7 +44,7 @@ export const DEV_MODE: Journey = {
       states: { 'dev-child': 'active', 'dev-turbopack': 'current', 'dev-entries': 'new', 'routing-ladder': 'active' },
       edges: ['e-dev-child-turbopack', 'e-dev-ladder-entries'],
       internals: ['--webpack: ensurePage() adds an entry; ADDED → BUILDING → BUILT', 'every Webpack rebuild includes every live entry: only changed modules are invalidated, but chunk graph, codegen and hashing run for the whole compilation', 'Turbopack: the request asks for the route\'s tasks; only those are computed'],
-      sources: [ON_DEMAND]
+      sources: [SOURCES.onDemandEntryHandler]
     },
     {
       id: 'j9-5', kind: 'explain', title: 'Idle entries are dropped',
@@ -57,7 +54,7 @@ export const DEV_MODE: Journey = {
       states: { 'dev-entries': 'stale', 'dev-eviction': 'current', 'dev-hmr': 'active' },
       edges: ['e-dev-eviction-entries', 'e-dev-hmr-entries'],
       internals: ['setInterval(…, pingIntervalTime + 1000), pingIntervalTime = clamp(maxInactiveAge, 1000, 5000)', 'maxInactiveAge: 60 s default, onDemandEntries config', 'handlePing(pathname) for pages; handleAppDirPing(tree) for app'],
-      sources: [ON_DEMAND, { label: 'onDemandEntries', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/onDemandEntries' }]
+      sources: [SOURCES.onDemandEntryHandler, SOURCES.onDemandEntries]
     },
     {
       id: 'j9-6', kind: 'explain', title: 'Turbopack: nothing to evict',
@@ -66,7 +63,7 @@ export const DEV_MODE: Journey = {
       states: { 'dev-turbopack': 'current', 'dev-watcher': 'active', 'dev-entries': 'na', 'dev-eviction': 'na', 'next-cache-dir': 'fresh' },
       edges: ['e-dev-watcher-turbopack'],
       internals: ['turbo-tasks: a function call with arguments is a task; results live in Vc cells', 'invalidation propagates bottom-up; only the affected subgraph recomputes', 'filesystem cache on by default for next dev and next build (16.3)', 'opt out of Turbopack with next dev --webpack'],
-      sources: [TURBOPACK, { label: 'turbopackFileSystemCache', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopackFileSystemCache' }]
+      sources: [SOURCES.turbopack, SOURCES.turbopackFileSystemCache]
     },
     {
       id: 'j9-7', kind: 'explain', title: 'A worker per static-params call',
@@ -76,7 +73,7 @@ export const DEV_MODE: Journey = {
       states: { 'dev-child': 'active', 'dev-static-workers': 'new' },
       edges: ['e-dev-child-workers'],
       internals: ['server/dev/static-paths-worker.ts', 'worker started per request for static paths, then ended'],
-      sources: [{ label: 'generateStaticParams', url: 'https://nextjs.org/docs/app/api-reference/functions/generate-static-params' }]
+      sources: [SOURCES.generateStaticParams]
     },
     {
       id: 'j9-8', kind: 'move', title: 'The socket',
@@ -86,7 +83,7 @@ export const DEV_MODE: Journey = {
       states: { 'dev-hmr': 'current', 'dev-hmr-client': 'new', 'routing-ladder': 'active', 'dev-turbopack': 'kept' },
       edges: ['e-dev-ladder-hmr', 'e-dev-hmr-client'],
       internals: ['allowedDevOrigins: cross-origin dev requests blocked by default; * and ** wildcards on hostnames', 'message kinds: building · built · sync · addedPage · removedPage · serverOnlyChanges · serverComponentChanges · reloadPage', 'pings travel the other way'],
-      sources: [{ label: 'allowedDevOrigins', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins' }]
+      sources: [SOURCES.allowedDevOrigins]
     },
     {
       id: 'j9-9', kind: 'transform', title: 'Edit 1: a Client Component',
@@ -124,7 +121,7 @@ export const DEV_MODE: Journey = {
       states: { 'dev-hmr-client': 'active', 'dev-fast-refresh': 'current', 'client-components': 'kept', dom: 'kept' },
       edges: ['e-dev-client-refresh', 'e-dev-refresh-components'],
       internals: ['$RefreshReg$(DashboardNav, "<module id> DashboardNav") registers the component', '$RefreshSig$() captures the hook list: useState, usePathname', 'react-refresh: performReactRefresh() schedules the update'],
-      sources: [FAST_REFRESH]
+      sources: [SOURCES.fastRefresh]
     },
     {
       id: 'j9-12', kind: 'explain', title: 'When state is lost',
@@ -134,7 +131,7 @@ export const DEV_MODE: Journey = {
       states: { 'dev-fast-refresh': 'current', 'client-components': 'replaced', dom: 'active', 'dev-hmr-client': 'active' },
       edges: ['e-dev-client-refresh', 'e-dev-refresh-components'],
       internals: ['// @refresh reset forces a remount on every edit', 'class components always remount', 'a runtime error during render is recovered on the next successful edit'],
-      sources: [FAST_REFRESH]
+      sources: [SOURCES.fastRefresh]
     },
     {
       id: 'j9-13', kind: 'transform', title: 'Edit 2: a Server Component',
@@ -153,7 +150,7 @@ export const DEV_MODE: Journey = {
       states: { 'dev-hmr-client': 'active', 'app-router': 'current', 'dev-module-cache': 'fresh', 'rsc-runtime-entity': 'active', flight: 'new', 'client-components': 'kept', 'dev-fast-refresh': 'na' },
       edges: ['e-dev-client-router', 'e-router-ladder', 'e-dev-module-cache-rsc', 'e-rsc-flight', 'e-flight-router-patch'],
       internals: ['client/dev/hot-reloader/app/hot-reloader-app.tsx: startTransition(() => publicAppRouterInstance.hmrRefresh())', 'hmrRefresh() dispatches the hmr-refresh action; hmrRefreshReducer refetches like router.refresh() (refreshDynamicData)', 'request header next-hmr-refresh: 1 marks the refetch (fetch-server-response.ts)', 'window.location.reload() instead when a runtime error happened or the page is the error document'],
-      sources: [{ label: 'useRouter', url: 'https://nextjs.org/docs/app/api-reference/functions/use-router' }]
+      sources: [SOURCES.useRouterApp]
     },
     {
       id: 'j9-15', kind: 'explain', title: 'HMR is the channel, Fast Refresh is one ending',
@@ -170,7 +167,7 @@ export const DEV_MODE: Journey = {
       states: { 'custom-server': 'current', 'routing-ladder': 'active', 'dev-hmr': 'active' },
       edges: ['e-dev-custom-upgrade'],
       internals: ['server.on("upgrade", (req, socket, head) => app.getUpgradeHandler()(req, socket, head))', 'nodemon or similar to restart on server.js changes'],
-      sources: [{ label: 'Custom server', url: 'https://nextjs.org/docs/app/guides/custom-server' }]
+      sources: [SOURCES.customServer]
     },
     {
       id: 'j9-17', kind: 'explain', title: 'Dev is not production',
@@ -186,7 +183,7 @@ export const DEV_MODE: Journey = {
       camera: { kind: 'entities', ids: ['dev-child', 'dev-turbopack', 'dev-entries'] },
       states: { 'dev-turbopack': 'current', 'dev-entries': 'active', 'dev-child': 'active' },
       edges: ['e-dev-child-turbopack'],
-      sources: [{ label: 'Local development', url: 'https://nextjs.org/docs/app/guides/local-development' }]
+      sources: [SOURCES.localDevelopment]
     },
     {
       id: 'j9-19', kind: 'explain', title: 'Internals',
@@ -208,7 +205,7 @@ export const DEV_MODE: Journey = {
         'client/dev/hot-reloader/app/hot-reloader-app.tsx and pages/hot-reloader-pages.ts: HMR client, pings, hmrRefresh',
         'react-refresh/runtime + SWC react_refresh transform: $RefreshReg$, $RefreshSig$'
       ],
-      sources: [ON_DEMAND, SERVER_LIB, { label: 'server/dev', url: 'https://github.com/vercel/next.js/tree/canary/packages/next/src/server/dev' }]
+      sources: [SOURCES.onDemandEntryHandler, SOURCES.serverLib, SOURCES.serverDev]
     },
     {
       id: 'j9-20', kind: 'check', title: 'Check yourself',

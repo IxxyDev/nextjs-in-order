@@ -1,6 +1,5 @@
 import type { Journey } from '../types'
-
-const DOCS = 'https://nextjs.org/docs/app'
+import { SOURCES } from '../sources'
 
 export const OPTIMIZATIONS: Journey = {
   id: 'j11',
@@ -17,7 +16,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'route-analysis': 'active', prerender: 'kept', 'prerendered-outputs': 'kept', 'server-cache': 'fresh', html: 'active', 'rsc-runtime-entity': 'na', 'ssr-runtime-entity': 'na' },
       edges: ['e-route-analysis-prerender', 'e-prerender-outputs', 'e-outputs-server-cache', 'e-server-cache-html'],
       internals: ['○ /dashboard/settings in the build summary', 'cacheComponents: true → nothing is cached by default; the page is static because getProfile() is "use cache"', 'without Cache Components a route stays static until it reads cookies(), headers(), searchParams or an uncached fetch'],
-      sources: [{ label: 'cacheComponents', url: `${DOCS}/api-reference/config/next-config-js/cacheComponents` }, { label: 'Caching', url: `${DOCS}/getting-started/caching` }]
+      sources: [SOURCES.cacheComponents, SOURCES.caching]
     },
     {
       id: 'j11-2', kind: 'explain', title: 'ISR: reuse, then refresh',
@@ -27,7 +26,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'server-cache': 'stale', 'isr-regeneration': 'current', 'pages-renderer': 'active', html: 'active', dom: 'new' },
       edges: ['e-pages-regen', 'e-regen-server-cache'],
       internals: ['getStaticProps → { revalidate: 60 }', 'App Router counterpart: cacheLife("hours") on getProfile(); revalidateTag("profile", "max") for stale-while-revalidate'],
-      sources: [{ label: 'ISR (Pages)', url: 'https://nextjs.org/docs/pages/guides/incremental-static-regeneration' }]
+      sources: [SOURCES.isrPages]
     },
     {
       id: 'j11-3', kind: 'explain', title: 'PPR: only the stable part is prebuilt',
@@ -37,7 +36,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'src-billing-page': 'active', prerender: 'active', 'ppr-shell': 'current', 'server-cache': 'fresh', 'rsc-runtime-entity': 'active', 'suspense-hole': 'active' },
       edges: ['e-prerender-ppr', 'e-ppr-server-cache', 'e-ppr-resume'],
       internals: ['◐ /dashboard/billing', 'cacheComponents: true implements PPR; experimental.ppr was removed in 16.0'],
-      sources: [{ label: 'cacheComponents', url: `${DOCS}/api-reference/config/next-config-js/cacheComponents` }]
+      sources: [SOURCES.cacheComponents]
     },
     {
       id: 'j11-4', kind: 'explain', title: 'Chunks along stable lines',
@@ -47,7 +46,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { bundler: 'active', 'flight-client-entry-plugin': 'kept', 'split-chunks': 'current', 'browser-chunks': 'new' },
       edges: ['e-bundler-client-entry', 'e-client-entry-split', 'e-split-browser-chunks'],
       internals: ['framework: react, react-dom, scheduler, next → framework-a1b2c3.js', 'lib: a node_modules module larger than ~160 KB gets its own chunk', 'runtime: webpack-9c0d.js', 'route: app/dashboard/billing/page-7a8b.js', 'these are the Webpack splitChunks cacheGroups; Turbopack (default since 16.0) chunks by its own rules with the same aims'],
-      sources: [{ label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
+      sources: [SOURCES.turbopack]
     },
     {
       id: 'j11-5', kind: 'transform', title: 'Barrel imports rewritten',
@@ -57,7 +56,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'src-profile-form': 'active', swc: 'current', bundler: 'kept' },
       edges: ['e-form-compile', 'e-swc-bundler'],
       internals: ['next.config.js: experimental.optimizePackageImports: ["ui-kit"]', 'a built-in list of popular packages is optimized without configuration', 'modularizeImports is the older, pattern-based form of the same rewrite'],
-      sources: [{ label: 'optimizePackageImports', url: `${DOCS}/api-reference/config/next-config-js/optimizePackageImports` }]
+      sources: [SOURCES.optimizePackageImports]
     },
     {
       id: 'j11-6', kind: 'transform', title: 'A lazy boundary, a separate chunk',
@@ -67,7 +66,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'src-profile-form': 'active', bundler: 'kept', 'split-chunks': 'active', 'next-dynamic': 'new', 'suspense-hole': 'active', 'client-components': 'kept' },
       edges: ['e-split-dynamic', 'e-dynamic-suspense'],
       internals: ['const ProfileForm = dynamic(() => import(\'@/components/ProfileForm\'), { loading: () => <p>…</p> })', 'App Router: a composite of React.lazy() and Suspense; loading becomes the fallback', 'Pages Router: Loadable waits delay: 200 ms before showing loading (loadable.shared-runtime.tsx)', 'ssr: false inside a Server Component is an error'],
-      sources: [{ label: 'Lazy loading', url: `${DOCS}/guides/lazy-loading` }, { label: 'loadable.shared-runtime.tsx', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/loadable.shared-runtime.tsx' }]
+      sources: [SOURCES.lazyLoading, SOURCES.loadable]
     },
     {
       id: 'j11-7', kind: 'move', title: 'One image, many sizes',
@@ -77,7 +76,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'next-image': 'current', dom: 'active', 'rung-filesystem': 'kept', 'image-optimizer': 'active', sharp: 'active', 'image-cache': 'new', 'rsc-runtime-entity': 'dimmed' },
       edges: ['e-next-image-dom', 'e-next-image-optimizer', 'e-filesystem-image', 'e-image-sharp', 'e-image-cache'],
       internals: ['cache key /hero.jpg|640|75|webp in .next/cache/images', 'Accept: image/avif,image/webp,… → webp (avif only when images.formats lists it)', 'srcset from deviceSizes [640, 750, 828, 1080, 1200, 1920, 2048, 3840]', '16.0 defaults: minimumCacheTTL 4 h, qualities [75], imageSizes without 16, maximumRedirects 3, local IPs blocked, localPatterns.search required for query strings', 'SVG is not optimized by the default loader'],
-      sources: [{ label: 'Image component', url: `${DOCS}/api-reference/components/image` }, { label: 'Upgrading to 16', url: `${DOCS}/guides/upgrading/version-16` }]
+      sources: [SOURCES.image, SOURCES.upgradingTo16]
     },
     {
       id: 'j11-8', kind: 'transform', title: 'Local fonts become CSS at build',
@@ -87,7 +86,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'src-root-layout': 'active', 'font-loader': 'current', bundler: 'kept', 'font-css': 'new' },
       edges: ['e-root-layout-font', 'e-font-loader-css'],
       internals: ['const font = localFont({ src: \'./fonts/<name>.woff2\' }) → { className, style, variable }', 'file → .next/static/media/<hash>.woff2', 'next-font-loader in the CSS loader chain (Webpack); Turbopack handles next/font itself', 'preload link only on routes that use the font'],
-      sources: [{ label: 'Font module', url: `${DOCS}/api-reference/components/font` }]
+      sources: [SOURCES.font]
     },
     {
       id: 'j11-9', kind: 'move', title: 'Google fonts are fetched by the build',
@@ -97,7 +96,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'google-fonts': 'current', 'font-loader': 'active', 'src-root-layout': 'active', 'font-css': 'new', dom: 'dimmed' },
       edges: ['e-google-font-loader', 'e-root-layout-font', 'e-font-loader-css'],
       internals: ['download moment: next build; in dev, the first compile that reaches the font', 'dev failure: "Failed to download … Using fallback font instead", fallback @font-face emitted', 'build failure: the error is thrown and the build stops; CI needs access to Google Fonts', 'no request to Google at runtime'],
-      sources: [{ label: 'Font module', url: `${DOCS}/api-reference/components/font` }, { label: 'font/src/google/loader.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/font/src/google/loader.ts' }]
+      sources: [SOURCES.font, SOURCES.googleFontLoader]
     },
     {
       id: 'j11-10', kind: 'explain', title: 'Fallback metrics stop the jump',
@@ -107,7 +106,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'font-loader': 'kept', 'font-css': 'current', dom: 'active' },
       edges: ['e-font-loader-css', 'e-font-css-dom'],
       internals: ['adjustFontFallback on by default → "<Font> Fallback" with size-adjust, ascent-override, descent-override, line-gap-override', 'fallback base: Arial (sans-serif) or Times New Roman (serif)', 'display: swap by default'],
-      sources: [{ label: 'Font module', url: `${DOCS}/api-reference/components/font` }]
+      sources: [SOURCES.font]
     },
     {
       id: 'j11-11', kind: 'explain', title: 'Third-party scripts on a timeline',
@@ -117,7 +116,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { dom: 'active', 'react-client': 'active', 'next-script': 'current', 'script-worker': 'na' },
       edges: ['e-react-script', 'e-script-worker'],
       internals: ['<Script src="…" strategy="beforeInteractive" /> belongs in the root layout; it is injected into the initial HTML', 'afterInteractive: default', 'lazyOnload: browser idle time', 'worker: experimental.nextScriptWorkers + Partytown; Pages Router only; n/a under Turbopack', 'onLoad / onReady / onError need a Client Component'],
-      sources: [{ label: 'Script component', url: `${DOCS}/api-reference/components/script` }, { label: 'Turbopack', url: `${DOCS}/api-reference/turbopack` }]
+      sources: [SOURCES.script, SOURCES.turbopack]
     },
     {
       id: 'j11-12', kind: 'explain', title: 'Tracing shrinks the deploy, not the render',
@@ -127,7 +126,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'server-chunks': 'active', tracing: 'current', standalone: 'new', 'rsc-runtime-entity': 'kept' },
       edges: ['e-server-chunks-tracing', 'e-tracing-standalone'],
       internals: ['@vercel/nft → .nft.json per entry', 'output: "standalone" copies the traced subset of node_modules', 'cold start: fewer files to load; render cost unchanged'],
-      sources: [{ label: 'output', url: `${DOCS}/api-reference/config/next-config-js/output` }]
+      sources: [SOURCES.output]
     },
     {
       id: 'j11-13', kind: 'predict', title: 'Which lever touches the render?',

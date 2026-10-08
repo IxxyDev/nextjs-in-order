@@ -1,6 +1,6 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
-const ORDER = { label: 'Proxy: execution order', url: 'https://nextjs.org/docs/app/api-reference/file-conventions/proxy#execution-order' }
 
 export const REQUEST_ROUTING: Journey = {
   id: 'j2',
@@ -17,7 +17,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'node-http': 'current', 'request-queue': 'new', 'routing-ladder': 'dimmed' },
       edges: ['e-http-queue'],
       internals: ['http.createServer((req, res) => requestHandler(req, res))', 'packages/next/src/server/lib/start-server.ts: listen first, then await the request handler', 'two layers: lib/router-server.ts decides, lib/render-server.ts renders'],
-      sources: [{ label: 'next CLI', url: 'https://nextjs.org/docs/app/api-reference/cli/next' }]
+      sources: [SOURCES.nextCli]
     },
     {
       id: 'j2-2', kind: 'move', title: 'Startup loads the tables',
@@ -27,7 +27,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'routing-ladder': 'current', 'routes-manifest': 'active', 'middleware-manifest': 'active', 'public-dir': 'active', 'request-queue': 'kept', 'node-http': 'kept' },
       edges: ['e-manifest-ladder', 'e-public-ladder', 'e-queue-ladder'],
       internals: ['.next/BUILD_ID: k7Qm2xLp9', 'routes-manifest.json: headers, redirects, rewrites { beforeFiles, afterFiles, fallback }, staticRoutes, dynamicRoutes with regexes', 'server/pages-manifest.json + server/app-paths-manifest.json: pages and handlers', 'server/functions-config-manifest.json: the Proxy matcher /dashboard/:path* as a regex (16.3; Edge middleware used middleware-manifest.json)', 'next dev: the watcher builds the same tables live'],
-      sources: [ORDER]
+      sources: [SOURCES.proxyExecutionOrder]
     },
     {
       id: 'j2-3', kind: 'move', title: 'Step 1: configured headers',
@@ -37,7 +37,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-headers': 'current', 'routing-ladder': 'kept', 'rung-redirects': 'dimmed', proxy: 'dimmed', 'rung-before-files': 'dimmed' },
       edges: ['e-ladder-headers'],
       internals: ['next.config.js: headers() → [{ source: "/:path*", headers: [{ key: "X-Frame-Options", value: "DENY" }] }]'],
-      sources: [ORDER, { label: 'headers', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/headers' }]
+      sources: [SOURCES.proxyExecutionOrder, SOURCES.headers]
     },
     {
       id: 'j2-4', kind: 'move', title: 'Step 2: configured redirects',
@@ -47,7 +47,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-headers': 'kept', 'rung-redirects': 'current', 'routing-ladder': 'kept', proxy: 'dimmed', 'rung-before-files': 'dimmed' },
       edges: ['e-ladder-headers', 'e-headers-redirects'],
       internals: ['next.config.js: redirects() → [{ source: "/old-settings", destination: "/dashboard/settings", permanent: true }]', 'permanent: true → 308; permanent: false → 307'],
-      sources: [ORDER, { label: 'redirects', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/redirects' }]
+      sources: [SOURCES.proxyExecutionOrder, SOURCES.redirects]
     },
     {
       id: 'j2-5', kind: 'move', title: 'Step 3: Proxy',
@@ -57,7 +57,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-headers': 'kept', 'rung-redirects': 'kept', proxy: 'current', 'middleware-manifest': 'active', 'routing-ladder': 'kept', 'rung-before-files': 'dimmed' },
       edges: ['e-redirects-proxy', 'e-middleware-manifest-proxy'],
       internals: ['proxy.ts: export const config = { matcher: ["/dashboard/:path*"] }', 'no session cookie → NextResponse.redirect(new URL("/login", request.url))', 'decision encoded in response headers (x-middleware-next, x-middleware-rewrite, Location) and read back by router-server', 'inside Proxy, rsc, next-router-state-tree and next-router-prefetch are stripped from request.headers', 'article snapshot: Middleware, always Edge · current: proxy.ts, Node.js, runtime option not allowed; middleware.ts deprecated for Edge'],
-      sources: [{ label: 'proxy.js', url: 'https://nextjs.org/docs/app/api-reference/file-conventions/proxy' }, { label: 'Upgrading to 16', url: 'https://nextjs.org/docs/app/guides/upgrading/version-16' }]
+      sources: [SOURCES.proxy, SOURCES.upgradingTo16]
     },
     {
       id: 'j2-6', kind: 'move', title: 'Step 4: beforeFiles rewrites',
@@ -67,7 +67,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-headers': 'kept', 'rung-redirects': 'kept', proxy: 'kept', 'rung-before-files': 'current', 'rung-filesystem': 'dimmed', 'routing-ladder': 'kept' },
       edges: ['e-proxy-before-files'],
       internals: ['next.config.js: rewrites() may return { beforeFiles, afterFiles, fallback }; a plain array means afterFiles'],
-      sources: [ORDER, { label: 'rewrites', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites' }]
+      sources: [SOURCES.proxyExecutionOrder, SOURCES.rewrites]
     },
     {
       id: 'j2-7', kind: 'move', title: 'Step 5: the filesystem check',
@@ -77,7 +77,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-headers': 'kept', 'rung-redirects': 'kept', proxy: 'kept', 'rung-before-files': 'kept', 'rung-filesystem': 'current', 'routing-ladder': 'kept' },
       edges: ['e-before-files-filesystem'],
       internals: ['order inside the check: /_next/static, public/, /_next/image, then static page and handler routes', 'static routes match before dynamic ones: /dashboard/settings wins without trying /products/[id]', 'packages/next/src/server/lib/router-utils/filesystem.ts'],
-      sources: [ORDER]
+      sources: [SOURCES.proxyExecutionOrder]
     },
     {
       id: 'j2-8', kind: 'explain', title: 'Steps 6–8 are skipped',
@@ -87,7 +87,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-headers': 'kept', 'rung-redirects': 'kept', proxy: 'kept', 'rung-before-files': 'kept', 'rung-filesystem': 'current', 'rung-after-files': 'na', 'rung-dynamic': 'na', 'rung-fallback': 'na', 'routing-ladder': 'kept' },
       edges: [],
       internals: ['6 afterFiles rewrites → filesystem check again', '7 dynamic routes in priority order (regexes from routes-manifest)', '8 fallback rewrites, then 404'],
-      sources: [ORDER]
+      sources: [SOURCES.proxyExecutionOrder]
     },
     {
       id: 'j2-9', kind: 'move', title: 'Handoff to render-server',
@@ -97,7 +97,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-filesystem': 'kept', 'rung-after-files': 'dimmed', 'loader-tree': 'current', 'rsc-runtime-entity': 'dimmed', 'routing-ladder': 'kept' },
       edges: ['e-filesystem-loader', 'e-loader-after-files'],
       internals: ['router-server and render-server talk over server/lib/server-ipc', 'render-server hosts BaseServer → NextNodeServer; the article\'s NextWebServer was removed in 15.x', 'App and Pages routes share this handoff; the router choice happens inside render-server'],
-      sources: [{ label: 'server/lib', url: 'https://github.com/vercel/next.js/tree/canary/packages/next/src/server/lib' }]
+      sources: [SOURCES.serverLib]
     },
     {
       id: 'j2-10', kind: 'predict', title: 'A request for a chunk',
@@ -121,7 +121,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'node-http': 'kept', 'routing-ladder': 'kept', 'rung-headers': 'kept', 'rung-redirects': 'kept', proxy: 'dimmed', 'rung-before-files': 'kept', 'rung-filesystem': 'kept', 'early-exits': 'current', 'browser-chunks': 'active', 'public-dir': 'active', 'loader-tree': 'dimmed' },
       edges: ['e-filesystem-exits', 'e-chunks-exits', 'e-public-exits'],
       internals: ['/_next/static/* → .next/static/*, Cache-Control: public, max-age=31536000, immutable', 'GET /logo.svg → public/logo.svg', 'a public file with the same path as a page is a conflict reported at build'],
-      sources: [{ label: 'public folder', url: 'https://nextjs.org/docs/app/api-reference/file-conventions/public-folder' }]
+      sources: [SOURCES.publicFolder]
     },
     {
       id: 'j2-12', kind: 'move', title: 'Images and endpoints',
@@ -131,7 +131,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-filesystem': 'kept', 'early-exits': 'kept', 'image-optimizer': 'current', 'image-cache': 'new', 'route-handler': 'active', 'rsc-runtime-entity': 'dimmed', 'ssr-runtime-entity': 'dimmed', 'loader-tree': 'dimmed' },
       edges: ['e-filesystem-image', 'e-image-cache', 'e-filesystem-route-handler'],
       internals: ['image cache key: /hero.jpg|640|75|webp in .next/cache/images; format chosen from the Accept header', '16.0 image defaults: minimumCacheTTL 4 h, qualities [75], local IPs blocked', 'pages/api/hello.ts: (req, res) => res.json({ ok: true }) with body parsing and cookie helpers', 'app/**/route.ts: export async function GET(request) → Response'],
-      sources: [{ label: 'Image component', url: 'https://nextjs.org/docs/app/api-reference/components/image' }, { label: 'Route Handlers', url: 'https://nextjs.org/docs/app/api-reference/file-conventions/route' }]
+      sources: [SOURCES.image, SOURCES.routeHandlers]
     },
     {
       id: 'j2-13', kind: 'explain', title: 'Minimal mode',
@@ -144,7 +144,7 @@ export const REQUEST_ROUTING: Journey = {
       },
       edges: ['e-ladder-loader'],
       internals: ['minimalMode is an option of the custom server factory (packages/next/src/server/next.ts) and of BaseServer', 'NEXT_PRIVATE_MINIMAL_MODE=1', 'the platform reads the same routes manifest to configure its own routing'],
-      sources: [{ label: 'packages/next/src/server/next.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/next.ts' }]
+      sources: [SOURCES.nextServer]
     },
     {
       id: 'j2-14', kind: 'check', title: 'Check yourself',

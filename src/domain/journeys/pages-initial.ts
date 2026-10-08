@@ -1,8 +1,6 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
-const GSSP = { label: 'getServerSideProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-server-side-props' }
-const GIP = { label: 'getInitialProps', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-initial-props' }
-const ASO = { label: 'Automatic Static Optimization', url: 'https://nextjs.org/docs/pages/building-your-application/rendering/automatic-static-optimization' }
 
 export const PAGES_INITIAL: Journey = {
   id: 'j3',
@@ -24,7 +22,7 @@ export const PAGES_INITIAL: Journey = {
         'no data function, no getInitialProps → ○ Automatic Static Optimization (.html at build)',
         'toggle: _app.getInitialProps present → pages without getStaticProps lose ASO and render per request'
       ],
-      sources: [ASO]
+      sources: [SOURCES.automaticStaticOptimization]
     },
     {
       id: 'j3-2', kind: 'move', title: 'Matching /products/42',
@@ -43,7 +41,7 @@ export const PAGES_INITIAL: Journey = {
       states: { 'pages-renderer': 'active', gssp: 'current', db: 'active', 'browser-chunks': 'kept' },
       edges: ['e-pages-gssp', 'e-db-gssp', 'e-gssp-chunks-strip'],
       internals: ['getServerSideProps({ params: { id: "42" }, req, res, query }) → { props: { product } }', 'next_strip_page_exports (Turbopack) or SWC next_ssg (Webpack) drops the export and every import only it uses from the client build', 'never cached by the framework; set Cache-Control on res yourself'],
-      sources: [GSSP]
+      sources: [SOURCES.getServerSideProps]
     },
     {
       id: 'j3-4', kind: 'explain', title: 'The ghost lane: /posts/7',
@@ -58,7 +56,7 @@ export const PAGES_INITIAL: Journey = {
         'fallback: true → a fallback page at once (router.isFallback), JSON fetched in the browser, then stored',
         'fallback: "blocking" → the first visitor waits for the render, then it is stored (this app)'
       ],
-      sources: [{ label: 'getStaticPaths', url: 'https://nextjs.org/docs/pages/api-reference/functions/get-static-paths' }, { label: 'ISR (Pages)', url: 'https://nextjs.org/docs/pages/guides/incremental-static-regeneration' }]
+      sources: [SOURCES.getStaticPaths, SOURCES.isrPages]
     },
     {
       id: 'j3-5', kind: 'explain', title: 'getInitialProps: the chunk without a hole',
@@ -68,7 +66,7 @@ export const PAGES_INITIAL: Journey = {
       states: { 'pages-renderer': 'active', gip: 'current', gssp: 'kept', 'browser-chunks': 'active' },
       edges: ['e-pages-gip', 'e-gip-chunks'],
       internals: ['ProductPage.getInitialProps = async ({ query, req }) => ({ product })', 'req and res exist only on the server run; code must work in both environments', 'security: secrets read inside getInitialProps end up in the browser bundle'],
-      sources: [GIP]
+      sources: [SOURCES.getInitialProps]
     },
     {
       id: 'j3-6', kind: 'transform', title: '_app wraps the page',
@@ -78,7 +76,7 @@ export const PAGES_INITIAL: Journey = {
       states: { 'pages-renderer': 'active', gssp: 'kept', 'ssr-runtime-entity': 'current' },
       edges: ['e-pages-gssp', 'e-pages-ssr'],
       internals: ['pages/_app.tsx: export default function App({ Component, pageProps }) { return <ThemeProvider><Component {...pageProps} /></ThemeProvider> }'],
-      sources: [{ label: 'Custom App', url: 'https://nextjs.org/docs/pages/building-your-application/routing/custom-app' }]
+      sources: [SOURCES.customApp]
     },
     {
       id: 'j3-7', kind: 'transform', title: 'The whole tree becomes HTML',
@@ -88,7 +86,7 @@ export const PAGES_INITIAL: Journey = {
       states: { 'ssr-runtime-entity': 'current', html: 'new', 'pages-renderer': 'active', 'rsc-runtime-entity': 'na' },
       edges: ['e-pages-ssr', 'e-ssr-html'],
       internals: ['article: _app tree rendered with renderToReadableStream from react-dom/server', '16.3 release notes: rendering moved to native Node streams (version-sensitive)', 'page-level data: one data function per page, no per-component fetching'],
-      sources: [{ label: 'Next.js 16.3', url: 'https://nextjs.org/blog/next-16-3' }]
+      sources: [SOURCES.next163]
     },
     {
       id: 'j3-8', kind: 'transform', title: '_document builds the shell',
@@ -98,7 +96,7 @@ export const PAGES_INITIAL: Journey = {
       states: { 'pages-document': 'current', html: 'active', 'build-manifest': 'active' },
       edges: ['e-build-manifest-document', 'e-document-html'],
       internals: ['build-manifest pages["/products/[id]"]: framework, main, pages/_app, pages/products/[id] chunks', 'lowPriorityFiles: _buildManifest.js, _ssgManifest.js (used later by the client router)'],
-      sources: [{ label: 'Custom Document', url: 'https://nextjs.org/docs/pages/building-your-application/routing/custom-document' }]
+      sources: [SOURCES.customDocument]
     },
     {
       id: 'j3-9', kind: 'transform', title: 'The props, a second time',
@@ -108,7 +106,7 @@ export const PAGES_INITIAL: Journey = {
       states: { 'pages-document': 'active', html: 'active', 'next-data': 'current' },
       edges: ['e-html-next-data'],
       internals: ['<script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"product":{…}}},"page":"/products/[id]","query":{"id":"42"},"buildId":"k7Qm2xLp9"}</script>', 'duplication cost: the product appears once as markup and once as JSON', 'warning above 128 kB (largePageDataBytes)'],
-      sources: [{ label: 'Large page data', url: 'https://nextjs.org/docs/messages/large-page-data' }]
+      sources: [SOURCES.largePageData]
     },
     {
       id: 'j3-10', kind: 'predict', title: 'What the browser downloads',
@@ -162,7 +160,7 @@ export const PAGES_INITIAL: Journey = {
       states: { 'pages-router': 'current', 'pages-product-page': 'active', 'react-client': 'kept' },
       edges: ['e-pages-router-product'],
       internals: ['useRouter().isReady flips after hydration for statically optimized pages', 'read router.query inside useEffect or guard on isReady'],
-      sources: [{ label: 'useRouter (Pages)', url: 'https://nextjs.org/docs/pages/api-reference/functions/use-router' }, ASO]
+      sources: [SOURCES.useRouterPages, SOURCES.automaticStaticOptimization]
     },
     {
       id: 'j3-15', kind: 'explain', title: 'Against the App Router',

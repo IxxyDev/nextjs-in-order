@@ -1,7 +1,6 @@
 import type { Journey } from '../types'
+import { SOURCES } from '../sources'
 
-const CUSTOM = { label: 'Custom server', url: 'https://nextjs.org/docs/app/guides/custom-server' }
-const NEXT_TS = { label: 'packages/next/src/server/next.ts', url: 'https://github.com/vercel/next.js/blob/canary/packages/next/src/server/next.ts' }
 const LADDER = ['custom-server', 'custom-handle', 'routing-ladder', 'rung-headers', 'rung-redirects', 'proxy', 'rung-before-files', 'rung-filesystem']
 
 export const CUSTOM_SERVER: Journey = {
@@ -18,7 +17,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { 'custom-server': 'current', 'custom-handle': 'new', 'routing-ladder': 'kept', proxy: 'kept', 'rung-filesystem': 'kept', 'early-exits': 'kept' },
       edges: ['e-custom-handle', 'e-handle-ladder'],
       internals: ['server.js wraps router-server; render-server, the RSC runtime and the SSR runtime are untouched', 'packages/next/src/server/next.ts: NextCustomServer'],
-      sources: [CUSTOM]
+      sources: [SOURCES.customServer]
     },
     {
       id: 'j10-2', kind: 'explain', title: 'Three calls',
@@ -34,7 +33,7 @@ export const CUSTOM_SERVER: Journey = {
         'next(options): dev, dir, hostname, port, httpServer, turbopack / webpack, minimalMode, customServer, conf',
         'server.js does not run through the Next.js compiler: no TypeScript or JSX transform, Node syntax only'
       ],
-      sources: [CUSTOM, NEXT_TS]
+      sources: [SOURCES.customServer, SOURCES.nextServer]
     },
     {
       id: 'j10-3', kind: 'explain', title: 'We own the socket',
@@ -44,7 +43,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { 'custom-server': 'current', 'node-http': 'na', 'request-queue': 'na', 'custom-handle': 'dimmed' },
       edges: [],
       internals: ['createServer((req, res) => { … }).listen(3000)', 'docs: use one only when the integrated router cannot meet the app\'s requirements; it removes optimizations such as Automatic Static Optimization', 'a custom server cannot be deployed on Vercel'],
-      sources: [CUSTOM]
+      sources: [SOURCES.customServer]
     },
     {
       id: 'j10-4', kind: 'move', title: 'handle enters the same ladder',
@@ -54,7 +53,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { 'custom-server': 'active', 'custom-handle': 'active', 'routing-ladder': 'active', 'rung-headers': 'kept', 'rung-redirects': 'kept', proxy: 'current', 'rung-before-files': 'kept', 'rung-filesystem': 'kept', 'loader-tree': 'active' },
       edges: ['e-custom-handle', 'e-handle-ladder', 'e-headers-redirects', 'e-redirects-proxy', 'e-proxy-before-files', 'e-before-files-filesystem', 'e-filesystem-loader'],
       internals: ['handle(req, res, parse(req.url, true))', 'set response headers before calling handle: Next.js starts streaming the response inside it', 'Proxy runs on Node.js by default since 16.0 (formerly Middleware, Edge)'],
-      sources: [CUSTOM, { label: 'Proxy: execution order', url: 'https://nextjs.org/docs/app/api-reference/file-conventions/proxy#execution-order' }]
+      sources: [SOURCES.customServer, SOURCES.proxyExecutionOrder]
     },
     {
       id: 'j10-5', kind: 'transform', title: 'Rewriting with parsedUrl',
@@ -69,7 +68,7 @@ export const CUSTOM_SERVER: Journey = {
         'handle rebuilds req.url from parsedUrl before routing',
         'inside the ladder the same rewrite would be a beforeFiles rule in next.config.js'
       ],
-      sources: [CUSTOM]
+      sources: [SOURCES.customServer]
     },
     {
       id: 'j10-6', kind: 'predict', title: 'A health check',
@@ -98,7 +97,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { 'custom-server': 'active', 'custom-healthz': 'current', 'custom-handle': 'na', 'routing-ladder': 'na', 'rung-headers': 'na', 'rung-redirects': 'na', proxy: 'na', 'rung-before-files': 'na', 'rung-filesystem': 'na' },
       edges: ['e-custom-healthz'],
       internals: ['if (pathname === "/healthz") { res.statusCode = 200; return res.end("ok") }', 'X-Frame-Options from next.config.js headers() is missing on this response'],
-      sources: [CUSTOM]
+      sources: [SOURCES.customServer]
     },
     {
       id: 'j10-8', kind: 'explain', title: 'One handle, both routers',
@@ -107,7 +106,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { 'custom-server': 'active', 'custom-handle': 'active', 'routing-ladder': 'current', 'loader-tree': 'active', 'pages-renderer': 'active' },
       edges: ['e-handle-ladder', 'e-ladder-loader', 'e-ladder-pages'],
       internals: ['render-server hosts NextNodeServer; app routes go to the app renderer, pages routes to the pages renderer'],
-      sources: [CUSTOM]
+      sources: [SOURCES.customServer]
     },
     {
       id: 'j10-9', kind: 'explain', title: 'The deprecated shortcut',
@@ -122,7 +121,7 @@ export const CUSTOM_SERVER: Journey = {
         'all four warn: "Use app.getRequestHandler() with an adjusted parsed URL instead"',
         'article: these methods once bypassed router-server'
       ],
-      sources: [NEXT_TS]
+      sources: [SOURCES.nextServer]
     },
     {
       id: 'j10-10', kind: 'explain', title: 'Behind another framework',
@@ -132,7 +131,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { 'custom-server': 'current', 'custom-handle': 'active', 'routing-ladder': 'active' },
       edges: ['e-custom-handle', 'e-handle-ladder'],
       internals: ['@Get("dashboard") @UseGuards(AuthGuard) view(@Req() req, @Res() res) { return app.render(req, res, "/view") }', 'prefer handle(req, res, { ...parsedUrl, pathname: "/view" }) over the deprecated render()'],
-      sources: [CUSTOM]
+      sources: [SOURCES.customServer]
     },
     {
       id: 'j10-11', kind: 'explain', title: 'Not traced, not exported',
@@ -142,7 +141,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { tracing: 'active', standalone: 'current', 'custom-server': 'invalid' },
       edges: ['e-tracing-custom-server'],
       internals: ['docs: standalone "does not trace custom server files"; the two cannot be used together', '.next/standalone/server.js is the generated minimal server, not yours', 'Error: Cannot find module … when a dependency only server.js imports is missing'],
-      sources: [CUSTOM, { label: 'output', url: 'https://nextjs.org/docs/app/api-reference/config/next-config-js/output' }]
+      sources: [SOURCES.customServer, SOURCES.output]
     },
     {
       id: 'j10-12', kind: 'explain', title: 'Hiding file routes',
@@ -152,7 +151,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { 'custom-server': 'active', 'custom-handle': 'active', 'rung-filesystem': 'na', 'app-router': 'current' },
       edges: ['e-custom-handle'],
       internals: ['next.config.js: useFileSystemPublicRoutes: false', 'docs: "disables filename routes from SSR; client-side routing may still access those paths"', '16.3.8 resolve-routes.ts: an appFile/pageFile output is used only if useFileSystemPublicRoutes || didRewrite', 'handle(req, res, parsedUrl) and app.render() only rewrite req.url and call the same requestHandler, so a hand-mapped pathname finds no page'],
-      sources: [{ label: 'Custom server (Pages)', url: 'https://nextjs.org/docs/pages/building-your-application/configuring/custom-server' }]
+      sources: [SOURCES.customServerPages]
     },
     {
       id: 'j10-13', kind: 'explain', title: 'In development',
@@ -162,7 +161,7 @@ export const CUSTOM_SERVER: Journey = {
       states: { 'custom-server': 'current', 'custom-handle': 'active', 'routing-ladder': 'active', 'dev-hmr': 'active' },
       edges: ['e-dev-custom-upgrade'],
       internals: ['server.on("upgrade", (req, socket, head) => app.getUpgradeHandler()(req, socket, head))', 'nodemon or similar to restart on server.js changes'],
-      sources: [CUSTOM]
+      sources: [SOURCES.customServer]
     },
     {
       id: 'j10-14', kind: 'check', title: 'Check yourself',
