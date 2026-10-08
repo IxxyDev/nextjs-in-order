@@ -85,18 +85,12 @@ describe('validateCodeLens', () => {
   it('accepts the J0 lens', () => {
     expect(validateCodeLens(WHOLE_LIFECYCLE_LENS, WHOLE_LIFECYCLE, SPECIMEN, FATES)).toEqual([])
   })
-  it('accepts every journey\'s lens: an empty one is not written yet, a written one covers every step', async () => {
+  it('accepts every journey\'s lens', async () => {
     for (const j of await loadAllJourneys()) {
       const b = await loadLens(j.slug)
       expect(b, j.slug).toBeDefined()
       expect(validateCodeLens(b!.lens, j, b!.specimen, b!.fates), j.slug).toEqual([])
     }
-  })
-  it('checks only the specimen while a lens is empty, every step once it is not', () => {
-    expect(validateCodeLens({ journey: 'j0', steps: [] }, WHOLE_LIFECYCLE, SPECIMEN, FATES)).toEqual([])
-    const one = validateCodeLens({ journey: 'j0', steps: [STEPS[0]] }, WHOLE_LIFECYCLE, SPECIMEN, FATES)
-    expect(one).toHaveLength(WHOLE_LIFECYCLE.steps.length - 1)
-    expect(one[0]).toBe('lens j0-2: missing')
   })
   it('keeps a predict step off and a check step off unless its form changes', () => {
     const journey = { ...WHOLE_LIFECYCLE, steps: [{ ...WHOLE_LIFECYCLE.steps[1], kind: 'predict' as const }, WHOLE_LIFECYCLE.steps[9]] }

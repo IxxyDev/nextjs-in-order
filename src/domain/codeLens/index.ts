@@ -7,7 +7,7 @@ import { createLazyCatalog } from '../lazyCatalog'
 export interface LensBundle { lens: CodeLens; specimen: SpecimenFile[]; fates: Fate[] }
 
 /**
- * one lazy chunk per journey, keyed by slug: ./<slug>.ts exports STEPS (empty until that lens is written).
+ * one lazy chunk per journey, keyed by slug: ./<slug>.ts exports STEPS.
  * Literal import() paths so the bundler splits each one out of the index chunk.
  */
 const STEPS: Record<string, () => Promise<{ STEPS: LensStep[] }>> = {
@@ -25,14 +25,14 @@ const STEPS: Record<string, () => Promise<{ STEPS: LensStep[] }>> = {
   optimizations: () => import('./optimizations')
 }
 
-const entries = JOURNEY_CATALOG.filter((j) => STEPS[j.slug]).map((j) => ({
+const entries = JOURNEY_CATALOG.map((j) => ({
   slug: j.slug,
   load: () => Promise.all([STEPS[j.slug](), import('./specimen')])
     .then(([m, s]): LensBundle => ({ lens: { journey: j.id, steps: m.STEPS }, specimen: s.SPECIMEN, fates: s.FATES }))
 }))
 const catalog = createLazyCatalog<LensBundle>(entries)
 
-/** journeys registered for a lens; one whose STEPS is still empty renders none */
+/** every journey has a lens: false only for an unknown slug */
 export const hasLens = (slug: string) => entries.some((e) => e.slug === slug)
 export const peekLens = catalog.peek
 export const loadLens = catalog.load
