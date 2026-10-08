@@ -68,9 +68,14 @@ describe('validateSpecimen', () => {
       'specimen RL1: no fate on a non-frame line',
       'specimen RL9: no fate on a non-frame line',
       'specimen RL9: undefined fate ghost',
-      'specimen RL9: unknown journey j12',
+      'specimen RL9: j12 is not a journey after J0',
       'specimen app/layout.tsx: unknown entity missing'
     ])
+  })
+  it('reports j0 in a line\'s journeys, which lists only the journeys after J0', () => {
+    const specimen = [{ ...SPECIMEN[0], lines: [...SPECIMEN[0].lines, { id: 'RL9', text: '<html lang="en">', fate: 'server-only' as HueFate, journeys: ['j0'] }] }]
+
+    expect(validateSpecimen([...specimen, ...SPECIMEN.slice(1)], FATES)).toEqual(['specimen RL9: j0 is not a journey after J0'])
   })
 })
 

@@ -3,10 +3,13 @@ import type { CodeLens, ComparePair, Entity, Fate, Journey, LaneScene, LensRow, 
 import { ENTITIES, entityById } from './entities'
 import { EDGES } from './edges'
 import { REGIONS, regionById } from './regions'
+import { JOURNEY_CATALOG } from './journeys'
 
 const entityIds = new Set(ENTITIES.map((e) => e.id))
 const edgeIds = new Set(EDGES.map((e) => e.id))
 const regionIds: ReadonlySet<string> = new Set(REGIONS.map((r) => r.id))
+/** a specimen line's journeys list only the journeys after J0 (code-lens.md §4), and the catalog opens with J0 */
+const journeyIdsAfterJ0 = new Set(JOURNEY_CATALOG.slice(1).map((j) => j.id))
 
 function refError(ref: StepRef, journey: (slug: string) => Journey | undefined): string | undefined {
   const j = journey(ref.journey)
@@ -140,7 +143,7 @@ export function validateSpecimen(specimen: SpecimenFile[], fates: Fate[]): strin
       if (!l.frame && !l.fate) errors.push(`${where}: no fate on a non-frame line`)
       fate(where, l.fate)
       fate(where, l.mark)
-      for (const j of l.journeys ?? []) if (!/^j([1-9]|1[01])$/.test(j)) errors.push(`${where}: unknown journey ${j}`)
+      for (const j of l.journeys ?? []) if (!journeyIdsAfterJ0.has(j)) errors.push(`${where}: ${j} is not a journey after J0`)
     }
     if (file.entity && !entityIds.has(file.entity)) errors.push(`specimen ${file.path}: unknown entity ${file.entity}`)
   }
