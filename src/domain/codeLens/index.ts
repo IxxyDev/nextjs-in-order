@@ -36,4 +36,3 @@ const catalog = createLazyCatalog<LensBundle>(entries)
 export const hasLens = (slug: string) => entries.some((e) => e.slug === slug)
 export const peekLens = catalog.peek
 export const loadLens = catalog.load
-export const loadAllLenses = catalog.loadAll
