@@ -1,12 +1,11 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 const LADDER = ['custom-server', 'custom-handle', 'routing-ladder', 'rung-headers', 'rung-redirects', 'proxy', 'rung-before-files', 'rung-filesystem']
 
 export const CUSTOM_SERVER: Journey = {
-  id: 'j10',
-  slug: 'custom-server',
-  title: 'Custom server',
+  ...JOURNEY_META.customServer,
   following: 'GET /legacy/settings through server.js and handle, then GET /healthz answered by server.js alone',
   whatShouldClick: 'A custom server wraps Next.js; it does not replace router-server and render-server.',
   steps: [

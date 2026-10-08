@@ -1,11 +1,10 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 
 export const DEV_MODE: Journey = {
-  id: 'j9',
-  slug: 'dev-mode',
-  title: 'Development mode',
+  ...JOURNEY_META.devMode,
   following: 'the changed module DashboardNav.tsx through the HMR channel, then AccountSummary.tsx as a new RSC payload',
   whatShouldClick: 'Dev builds on demand and pushes results over a socket; Fast Refresh exists only for client code; server edits mean a new RSC payload.',
   steps: [

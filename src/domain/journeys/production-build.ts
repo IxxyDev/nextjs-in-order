@@ -1,10 +1,9 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 export const PRODUCTION_BUILD: Journey = {
-  id: 'j1',
-  slug: 'production-build',
-  title: 'Production build',
+  ...JOURNEY_META.productionBuild,
   following: 'ProfileForm.tsx from source to a browser chunk and a manifest row, then the route /dashboard/settings from discovery to a prerendered shell',
   whatShouldClick: 'The compiler sees one file; the bundler sees the whole graph; manifests are how runtime finds what build produced.',
   steps: [

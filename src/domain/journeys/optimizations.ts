@@ -1,10 +1,9 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 export const OPTIMIZATIONS: Journey = {
-  id: 'j11',
-  slug: 'optimizations',
-  title: 'Built-in optimizations',
+  ...JOURNEY_META.optimizations,
   following: 'the request GET /dashboard/settings as each built-in lever is applied: rendering, chunks, imports, lazy boundaries, images, fonts, scripts and tracing',
   whatShouldClick: 'Each optimization moves work earlier (to the build) or narrower (fewer bytes, fewer renders), and each one follows from a mechanism already on the map.',
   steps: [

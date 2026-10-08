@@ -22,12 +22,6 @@ describe('journeys', () => {
     expect(JOURNEY_CATALOG.map((e) => e.id)).toEqual(EXPECTED.map((e) => e.id))
     expect((await loadAllJourneys()).map((j) => j.id)).toEqual(EXPECTED.map((e) => e.id))
   })
-  it('catalog metadata matches each loaded journey', async () => {
-    for (const e of JOURNEY_CATALOG) {
-      const j = await e.load()
-      expect({ id: j.id, slug: j.slug, title: j.title }).toEqual({ id: e.id, slug: e.slug, title: e.title })
-    }
-  })
   it('unknown slugs load nothing', async () => {
     expect(await loadJourney('nope')).toBeUndefined()
   })

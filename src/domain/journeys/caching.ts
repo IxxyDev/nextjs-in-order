@@ -1,11 +1,10 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 
 export const CACHING: Journey = {
-  id: 'j8',
-  slug: 'caching',
-  title: 'Caching, ISR, Cache Components and PPR',
+  ...JOURNEY_META.caching,
   following: 'the cache map, then GET /posts/7 through the ISR branches, then GET /dashboard/billing as a static shell with a dynamic hole',
   whatShouldClick: 'Every cache has a location, a key and an invalidator; ISR decides when a whole route regenerates, PPR decides which part of a route is dynamic.',
   steps: [

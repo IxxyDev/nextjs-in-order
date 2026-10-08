@@ -1,11 +1,10 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 
 export const REQUEST_ROUTING: Journey = {
-  id: 'j2',
-  slug: 'request-routing',
-  title: 'Incoming request and server routing',
+  ...JOURNEY_META.requestRouting,
   following: 'GET /dashboard/settings up the routing ladder, then a static chunk, a public file, an image and an API request',
   whatShouldClick: 'Most requests never reach React; router-server decides, render-server renders.',
   steps: [

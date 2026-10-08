@@ -1,10 +1,9 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 export const APP_INITIAL: Journey = {
-  id: 'j5',
-  slug: 'app-initial',
-  title: 'App Router: the initial request',
+  ...JOURNEY_META.appInitial,
   following: 'the route tree for /dashboard/settings, then a Flight row, then the DashboardNav reference',
   whatShouldClick: 'The RSC runtime produces Flight, not HTML. The SSR runtime consumes Flight. The browser receives Server Component output as data and Client Components as code.',
   steps: [

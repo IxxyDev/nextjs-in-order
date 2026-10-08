@@ -1,10 +1,9 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 export const SERVER_ACTIONS: Journey = {
-  id: 'j7',
-  slug: 'server-actions',
-  title: 'Server Actions',
+  ...JOURNEY_META.serverActions,
   following: 'updateProfile from source to an action ID, to a POST envelope, to an invalidation signal, to a patch',
   whatShouldClick: 'An action is a POST to an ID. Invalidation is a separate step. The UI update rides back in the same response only if something was invalidated.',
   steps: [

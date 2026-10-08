@@ -1,10 +1,9 @@
 // src/domain/journeys/whole-lifecycle.ts
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 
 export const WHOLE_LIFECYCLE: Journey = {
-  id: 'j0',
-  slug: 'whole-lifecycle',
-  title: 'The whole lifecycle',
+  ...JOURNEY_META.wholeLifecycle,
   following: 'DashboardNav.tsx as a module, then GET /dashboard/settings as a request',
   whatShouldClick: 'A document is built once. After that the client patches a tree.',
   steps: [

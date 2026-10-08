@@ -1,10 +1,9 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 export const APP_NAVIGATION: Journey = {
-  id: 'j6',
-  slug: 'app-navigation',
-  title: 'App Router: prefetch and navigation',
+  ...JOURNEY_META.appNavigation,
   following: '<Link href="/dashboard/billing"> as a prefetch task, then the billing segment, then a Flight patch',
   whatShouldClick: 'The client and server compare route trees and only the divergent subtree is rendered and sent. Everything above it keeps its state.',
   steps: [

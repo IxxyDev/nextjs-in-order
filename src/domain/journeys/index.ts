@@ -1,22 +1,23 @@
 import type { Journey } from '../types'
 import { WHOLE_LIFECYCLE } from './whole-lifecycle'
 import { createLazyCatalog } from '../lazyCatalog'
+import { JOURNEY_META } from './meta'
 
 export interface JourneyEntry { id: string; slug: string; title: string; load: () => Promise<Journey> }
 
 export const JOURNEY_CATALOG: JourneyEntry[] = [
-  { id: 'j0', slug: 'whole-lifecycle', title: 'The whole lifecycle', load: async () => WHOLE_LIFECYCLE },
-  { id: 'j1', slug: 'production-build', title: 'Production build', load: () => import('./production-build').then((m) => m.PRODUCTION_BUILD) },
-  { id: 'j2', slug: 'request-routing', title: 'Incoming request and server routing', load: () => import('./request-routing').then((m) => m.REQUEST_ROUTING) },
-  { id: 'j3', slug: 'pages-initial', title: 'Pages Router: the initial request', load: () => import('./pages-initial').then((m) => m.PAGES_INITIAL) },
-  { id: 'j4', slug: 'pages-navigation', title: 'Pages Router: navigation', load: () => import('./pages-navigation').then((m) => m.PAGES_NAVIGATION) },
-  { id: 'j5', slug: 'app-initial', title: 'App Router: the initial request', load: () => import('./app-initial').then((m) => m.APP_INITIAL) },
-  { id: 'j6', slug: 'app-navigation', title: 'App Router: prefetch and navigation', load: () => import('./app-navigation').then((m) => m.APP_NAVIGATION) },
-  { id: 'j7', slug: 'server-actions', title: 'Server Actions', load: () => import('./server-actions').then((m) => m.SERVER_ACTIONS) },
-  { id: 'j8', slug: 'caching', title: 'Caching, ISR, Cache Components and PPR', load: () => import('./caching').then((m) => m.CACHING) },
-  { id: 'j9', slug: 'dev-mode', title: 'Development mode', load: () => import('./dev-mode').then((m) => m.DEV_MODE) },
-  { id: 'j10', slug: 'custom-server', title: 'Custom server', load: () => import('./custom-server').then((m) => m.CUSTOM_SERVER) },
-  { id: 'j11', slug: 'optimizations', title: 'Built-in optimizations', load: () => import('./optimizations').then((m) => m.OPTIMIZATIONS) }
+  { ...JOURNEY_META.wholeLifecycle, load: async () => WHOLE_LIFECYCLE },
+  { ...JOURNEY_META.productionBuild, load: () => import('./production-build').then((m) => m.PRODUCTION_BUILD) },
+  { ...JOURNEY_META.requestRouting, load: () => import('./request-routing').then((m) => m.REQUEST_ROUTING) },
+  { ...JOURNEY_META.pagesInitial, load: () => import('./pages-initial').then((m) => m.PAGES_INITIAL) },
+  { ...JOURNEY_META.pagesNavigation, load: () => import('./pages-navigation').then((m) => m.PAGES_NAVIGATION) },
+  { ...JOURNEY_META.appInitial, load: () => import('./app-initial').then((m) => m.APP_INITIAL) },
+  { ...JOURNEY_META.appNavigation, load: () => import('./app-navigation').then((m) => m.APP_NAVIGATION) },
+  { ...JOURNEY_META.serverActions, load: () => import('./server-actions').then((m) => m.SERVER_ACTIONS) },
+  { ...JOURNEY_META.caching, load: () => import('./caching').then((m) => m.CACHING) },
+  { ...JOURNEY_META.devMode, load: () => import('./dev-mode').then((m) => m.DEV_MODE) },
+  { ...JOURNEY_META.customServer, load: () => import('./custom-server').then((m) => m.CUSTOM_SERVER) },
+  { ...JOURNEY_META.optimizations, load: () => import('./optimizations').then((m) => m.OPTIMIZATIONS) }
 ]
 
 const catalog = createLazyCatalog(JOURNEY_CATALOG, [[WHOLE_LIFECYCLE.slug, WHOLE_LIFECYCLE]])

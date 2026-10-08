@@ -1,11 +1,10 @@
 import type { Journey } from '../types'
+import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
 
 export const PAGES_INITIAL: Journey = {
-  id: 'j3',
-  slug: 'pages-initial',
-  title: 'Pages Router: the initial request',
+  ...JOURNEY_META.pagesInitial,
   following: 'GET /products/42 (getServerSideProps), with /posts/7 (getStaticProps + ISR) as a parallel ghost',
   whatShouldClick: 'The whole page tree renders, the props are shipped twice, and the whole tree hydrates.',
   steps: [
