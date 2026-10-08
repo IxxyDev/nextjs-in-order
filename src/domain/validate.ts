@@ -126,11 +126,8 @@ function onStage(step: Step, id: string): boolean {
   return c.kind === 'region' ? region === c.id : regionById(region).band === c.id
 }
 
-/**
- * docs/code-lens.md §9: a lens covers every step of its journey and every id it names resolves.
- * A lens with no steps is not written yet: only the specimen is checked.
- */
-export function validateCodeLens(lens: CodeLens, journey: Journey, specimen: SpecimenFile[], fates: Fate[]): string[] {
+/** docs/code-lens.md §4: the specimen every lens shares; line ids are unique and every line has a known fate */
+export function validateSpecimen(specimen: SpecimenFile[], fates: Fate[]): string[] {
   const errors: string[] = []
   const fateIds = new Set<string>(fates.map((f) => f.id))
   const lineIds = new Set<string>()
@@ -147,6 +144,18 @@ export function validateCodeLens(lens: CodeLens, journey: Journey, specimen: Spe
     }
     if (file.entity && !entityIds.has(file.entity)) errors.push(`specimen ${file.path}: unknown entity ${file.entity}`)
   }
+  return errors
+}
+
+/**
+ * docs/code-lens.md §9: a lens covers every step of its journey and every id it names resolves.
+ * A lens with no steps is not written yet: only the journey is checked.
+ */
+export function validateCodeLens(lens: CodeLens, journey: Journey, specimen: SpecimenFile[], fates: Fate[]): string[] {
+  const errors: string[] = []
+  const fateIds = new Set<string>(fates.map((f) => f.id))
+  const lineIds = new Set(specimen.flatMap((f) => f.lines.map((l) => l.id)))
+  const fate = (where: string, id: string | undefined) => { if (id !== undefined && !fateIds.has(id)) errors.push(`${where}: undefined fate ${id}`) }
   if (lens.journey !== journey.id) errors.push(`lens ${lens.journey}: journey is ${journey.id}`)
   if (!lens.steps.length) return errors
   const steps = new Map(journey.steps.map((s) => [s.id, s]))

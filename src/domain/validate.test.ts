@@ -1,6 +1,6 @@
 // src/domain/validate.test.ts
 import { describe, it, expect } from 'vitest'
-import { validateCodeLens, validateEntities, validateJourney } from './validate'
+import { validateCodeLens, validateEntities, validateJourney, validateSpecimen } from './validate'
 import { ENTITIES, entityById } from './entities'
 import { loadAllJourneys } from './journeys'
 import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'
@@ -56,6 +56,24 @@ describe('validateEntities', () => {
   })
 })
 
+describe('validateSpecimen', () => {
+  it('accepts the specimen', () => {
+    expect(validateSpecimen(SPECIMEN, FATES)).toEqual([])
+  })
+  it('reports duplicate ids, missing and undefined fates, unknown journeys and unknown entities', () => {
+    const specimen = [{ ...SPECIMEN[0], entity: 'missing', lines: [...SPECIMEN[0].lines, { id: 'RL1', text: 'dup' }, { id: 'RL9', text: 'x', mark: 'ghost' as MarkFate, journeys: ['j12'] }] }]
+
+    expect(validateSpecimen([...specimen, ...SPECIMEN.slice(1)], FATES)).toEqual([
+      'specimen RL1: duplicate line id',
+      'specimen RL1: no fate on a non-frame line',
+      'specimen RL9: no fate on a non-frame line',
+      'specimen RL9: undefined fate ghost',
+      'specimen RL9: unknown journey j12',
+      'specimen app/layout.tsx: unknown entity missing'
+    ])
+  })
+})
+
 describe('validateCodeLens', () => {
   const at = (id: string) => WHOLE_LIFECYCLE_LENS.steps.find((s) => s.step === id)!
 
@@ -100,15 +118,8 @@ describe('validateCodeLens', () => {
       { step: 'j0-99', mode: 'off', panes: [], links: [], motion: [] }
     ]
     const lens: CodeLens = { journey: 'j0', steps }
-    const specimen = [{ ...SPECIMEN[0], entity: 'missing', lines: [...SPECIMEN[0].lines, { id: 'RL1', text: 'dup' }, { id: 'RL9', text: 'x', mark: ghost as MarkFate, journeys: ['j12'] }] }]
-    const errors = validateCodeLens(lens, WHOLE_LIFECYCLE, [...specimen, ...SPECIMEN.slice(1)], FATES)
+    const errors = validateCodeLens(lens, WHOLE_LIFECYCLE, SPECIMEN, FATES)
     expect(errors).toEqual([
-      'specimen RL1: duplicate line id',
-      'specimen RL1: no fate on a non-frame line',
-      'specimen RL9: no fate on a non-frame line',
-      'specimen RL9: undefined fate ghost',
-      'specimen RL9: unknown journey j12',
-      'specimen app/layout.tsx: unknown entity missing',
       'lens j0-1: off but has panes or links',
       'lens j0-2: peek without a summary',
       'lens j0-3: peek without a form',
