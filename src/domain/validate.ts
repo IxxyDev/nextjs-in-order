@@ -10,6 +10,8 @@ const edgeIds = new Set(EDGES.map((e) => e.id))
 const regionIds: ReadonlySet<string> = new Set(REGIONS.map((r) => r.id))
 /** a specimen line's journeys list only the journeys after J0 (code-lens.md §4), and the catalog opens with J0 */
 const journeyIdsAfterJ0 = new Set(JOURNEY_CATALOG.slice(1).map((j) => j.id))
+/** docs/code-lens.md §9: an open pane shows at most this many non-folded lines; the rest fold */
+const MAX_OPEN_LINES = 8
 
 function refError(ref: StepRef, journey: (slug: string) => Journey | undefined): string | undefined {
   const j = journey(ref.journey)
@@ -193,7 +195,7 @@ export function validateCodeLens(lens: CodeLens, journey: Journey, specimen: Spe
         fate(at, row.fate)
         fate(at, row.mark)
       }
-      if (ls.mode === 'open' && lines > 8) errors.push(`${at}: ${lines} lines shown, at most 8`)
+      if (ls.mode === 'open' && MAX_OPEN_LINES < lines) errors.push(`${at}: ${lines} lines shown, at most ${MAX_OPEN_LINES}`)
       shown += lines
     })
     if (ls.split && (ls.panes.length !== 2 || ls.panes[0].side !== 'server' || ls.panes[1].side !== 'browser')) errors.push(`${where}: split needs a server pane then a browser pane`)
