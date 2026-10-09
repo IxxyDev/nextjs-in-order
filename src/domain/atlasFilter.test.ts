@@ -3,6 +3,7 @@ import { ENVS, isFiltering, matchesFilter, type AtlasFilter } from './atlasFilte
 import { ENTITIES } from './entities'
 
 const count = (f: AtlasFilter) => ENTITIES.filter((e) => matchesFilter(e, f)).length
+const ids = (f: AtlasFilter) => ENTITIES.filter((e) => matchesFilter(e, f)).map((e) => e.id)
 
 describe('atlas filter', () => {
   it('matches everything when empty', () => {
@@ -20,15 +21,12 @@ describe('atlas filter', () => {
     expect(ENTITIES.filter((e) => matchesFilter(e, { region: 'client-router' })).every((e) => e.region === 'client-router')).toBe(true)
   })
   it('takes nested regions in with their parent', () => {
-    const rsc = count({ region: 'rsc-runtime' })
-    expect(rsc).toBeGreaterThan(0)
-    expect(count({ region: 'render-server' })).toBeGreaterThanOrEqual(rsc + count({ region: 'ssr-runtime' }))
+    expect(ids({ region: 'render-server' })).toEqual([
+      'loader-tree', 'rsc-runtime-entity', 'flight', 'flight-tee', 'ssr-runtime-entity', 'html', 'action-handler', 'route-handler', 'layout-router',
+      'segment-slices', 'ppr-shell', 'pages-renderer', 'isr-regeneration', 'gssp', 'gip', 'pages-data-endpoint', 'pages-document'
+    ])
   })
   it('combines fields with AND', () => {
-    const f: AtlasFilter = { env: 'node', region: 'render-server', phase: 'request' }
-    const both = ENTITIES.filter((e) => matchesFilter(e, f))
-    expect(both.length).toBeLessThanOrEqual(Math.min(count({ env: 'node' }), count({ region: 'render-server' }), count({ phase: 'request' })))
-    expect(both.every((e) => e.env.includes('node') && e.phase.includes('request'))).toBe(true)
-    expect(count({ env: 'rust', region: 'browser' })).toBe(0)
+    expect(ids({ env: 'node', region: 'rsc-runtime', phase: 'build' })).toEqual(['rsc-runtime-entity'])
   })
 })
