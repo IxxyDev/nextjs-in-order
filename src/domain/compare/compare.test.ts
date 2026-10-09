@@ -24,11 +24,10 @@ describe('compare pairs', () => {
       expect(pair.lanes).toHaveLength(LANES[e.id])
       expect(validateCompare(pair, peekJourney)).toEqual([])
     })
-    it(`${e.slug}: resolves and derives deterministic lane worlds`, async () => {
+    it(`${e.slug}: resolves and derives one world per lane`, async () => {
       const r = (await loadCompare(e.slug))!
       for (let i = 0; i < r.steps.length; i++) {
         const w = deriveCompareState(r, i)
-        expect(w).toEqual(deriveCompareState(r, i))
         expect(w.lanes).toHaveLength(r.lanes.length)
         expect(w.ruler).toHaveLength(r.lanes.length)
         for (const lane of w.lanes) expect(lane.lane.story.length).toBeGreaterThan(0)

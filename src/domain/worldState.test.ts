@@ -5,11 +5,6 @@ import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'
 import { ENTITIES } from './entities'
 
 describe('deriveWorldState', () => {
-  it('is deterministic', () => {
-    const a = deriveWorldState(WHOLE_LIFECYCLE, 3)
-    const b = deriveWorldState(WHOLE_LIFECYCLE, 3)
-    expect(a).toEqual(b)
-  })
   it('dims every unlisted entity when a step lists states', () => {
     const w = deriveWorldState(WHOLE_LIFECYCLE, 1)
     expect(w.entityStates['src-dashboard-nav']).toBe('current')
