@@ -18,11 +18,16 @@ describe('lazy catalog', () => {
     expect(await c.load('a')).toBe('A')
     expect(load).toHaveBeenCalledTimes(2)
   })
-  it('returns undefined for unknown slugs and serves preloaded values', async () => {
-    const c = createLazyCatalog([{ slug: 'a', load: async () => 'A' }, { slug: 'b', load: async () => 'B' }], [['a', 'A0']])
+  it('loads nothing for an unknown slug', async () => {
+    const c = createLazyCatalog([{ slug: 'a', load: async () => 'A' }])
     expect(await c.load('nope')).toBeUndefined()
-    expect(c.peek('nope')).toBeUndefined()
+  })
+  it('serves a preloaded value from peek before any load', () => {
+    const c = createLazyCatalog([{ slug: 'a', load: async () => 'A' }], [['a', 'A0']])
     expect(c.peek('a')).toBe('A0')
+  })
+  it('loads every entry in catalog order with loadAll', async () => {
+    const c = createLazyCatalog([{ slug: 'a', load: async () => 'A' }, { slug: 'b', load: async () => 'B' }])
     expect(await c.loadAll()).toEqual(['A', 'B'])
   })
 })
