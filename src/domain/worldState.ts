@@ -4,12 +4,8 @@ import { ENTITIES } from './entities'
 import { describeState } from './textEquivalent'
 import { clampIndex } from './route'
 
-export function clampStep(journey: Journey, n: number): number {
-  return clampIndex(n, journey.steps.length)
-}
-
 export function deriveWorldState(journey: Journey, stepIndex: number): WorldState {
-  const index = clampStep(journey, stepIndex)
+  const index = clampIndex(stepIndex, journey.steps.length)
   const step = journey.steps[index]
   const listed = Object.keys(step.states)
   const entityStates: Record<string, EntityState> = {}

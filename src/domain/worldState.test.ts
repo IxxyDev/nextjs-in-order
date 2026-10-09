@@ -1,6 +1,6 @@
 // src/domain/worldState.test.ts
 import { describe, it, expect } from 'vitest'
-import { deriveWorldState, clampStep } from './worldState'
+import { deriveWorldState } from './worldState'
 import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'
 import { ENTITIES } from './entities'
 
@@ -26,7 +26,7 @@ describe('deriveWorldState', () => {
     expect(w.cameraTarget).toEqual({ kind: 'region', id: 'source' })
   })
   it('clamps step indexes', () => {
-    expect(clampStep(WHOLE_LIFECYCLE, -1)).toBe(0)
-    expect(clampStep(WHOLE_LIFECYCLE, 99)).toBe(WHOLE_LIFECYCLE.steps.length - 1)
+    expect(deriveWorldState(WHOLE_LIFECYCLE, -1).stepIndex).toBe(0)
+    expect(deriveWorldState(WHOLE_LIFECYCLE, 99).stepIndex).toBe(9)
   })
 })
