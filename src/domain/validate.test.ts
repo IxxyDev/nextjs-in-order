@@ -25,11 +25,13 @@ describe('validateJourney', () => {
       ]
     }
     const errors = validateJourney(broken)
-    expect(errors.some((e) => e.includes('nope'))).toBe(true)
-    expect(errors.some((e) => e.includes('e-missing'))).toBe(true)
-    expect(errors.some((e) => e.includes('ghost'))).toBe(true)
-    expect(errors.some((e) => e.includes('duplicate step id'))).toBe(true)
-    expect(errors.some((e) => e.includes('question'))).toBe(true)
+    expect(errors).toEqual([
+      'whole-lifecycle step 1 (x1): unknown entity nope',
+      'whole-lifecycle step 1 (x1): unknown edge e-missing',
+      'whole-lifecycle step 1 (x1): token at unknown entity ghost',
+      'whole-lifecycle step 2 (x1): duplicate step id',
+      'whole-lifecycle step 2 (x1): predict step without a question'
+    ])
   })
 })
 

@@ -63,7 +63,16 @@ describe('compare pairs', () => {
       ]
     }
     const errors = validateCompare(pair, peekJourney)
-    for (const bit of ['no step 99', 'unknown journey ghost', 'ruler', 'duplicate step id', 'nope', 'e-missing', 'nobody', '1 lanes']) expect(errors.some((e) => e.includes(bit)), bit).toBe(true)
+    expect(errors).toEqual([
+      'broken step 1 (cx-1): ruler needs one value in [0, 1] per lane',
+      'broken step 1 (cx-1) lane 1: app-initial has no step 99',
+      'broken step 1 (cx-1) lane 2: unknown journey ghost',
+      'broken step 2 (cx-1): duplicate step id',
+      'broken step 2 (cx-1): 1 lanes, pair has 2',
+      'broken step 2 (cx-1) lane 1: unknown entity nope',
+      'broken step 2 (cx-1) lane 1: unknown edge e-missing',
+      'broken step 2 (cx-1) lane 1: camera on unknown entity nobody'
+    ])
     expect(() => resolvePair(pair, peekJourney)).toThrow()
   })
 })

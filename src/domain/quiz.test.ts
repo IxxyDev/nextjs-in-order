@@ -49,6 +49,20 @@ describe('predict the machine', () => {
       { id: 'y', source: 'reviewer', type: 'choice', title: 't', prompt: ' ', why: 'w', options: ['a'], answer: 3, highlight: ['nobody'], replays: [{ journey: 'gone', step: 1 }] }
     ]
     const errors = validateQuiz(broken, peekJourney)
-    for (const bit of ['scenario without a known journey', 'unknown entity nope', 'empty answer', 'no replay', 'duplicate id', 'answer source is not a candidate', 'no distractors', 'no step 99', 'empty text', '2–4 options', 'answer out of range', 'unknown entity nobody', 'unknown journey gone']) expect(errors.some((e) => e.includes(bit)), bit).toBe(true)
+    expect(errors).toEqual([
+      'quiz x: scenario without a known journey',
+      'quiz x: unknown entity nope',
+      'quiz x: empty answer',
+      'quiz x: no replay',
+      'quiz x: duplicate id',
+      'quiz x: answer source is not a candidate',
+      'quiz x: no distractors',
+      'quiz x: app-initial has no step 99',
+      'quiz y: empty text',
+      'quiz y: needs 2–4 options',
+      'quiz y: answer out of range',
+      'quiz y: unknown entity nobody',
+      'quiz y: unknown journey gone'
+    ])
   })
 })
