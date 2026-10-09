@@ -16,15 +16,24 @@ describe('lens links', () => {
     expect(entitiesForRow(s, line(s, 0, 3))).toEqual(['swc'])
   })
   it('lights through the timing mark when the row has one', () => {
-    const s = step('j0-10')
-    expect(entitiesForRow(s, line(s, 0, 8))).toEqual(['src-root-layout', 'src-dashboard-layout', 'client-components'])
-    expect(entitiesForRow(s, line(s, 0, 5))).toEqual(['rsc-runtime-entity', 'suspense-hole'])
-    expect(entitiesForRow(s, line(s, 0, 7))).toEqual(['layout-router'])
+    const s: LensStep = {
+      step: 'j0-10', mode: 'open', form: 'flight-patch', panes: [], motion: [],
+      links: [
+        { fate: 'server-only', entities: ['rsc-runtime-entity'], from: ['BP7', 'BP8'] },
+        { fate: 'suspended', entities: ['suspense-hole'] },
+        { fate: 'shared-layout', entities: ['src-root-layout', 'src-dashboard-layout'] },
+        { fate: 'server-only', entities: ['layout-router'], from: ['DL6'] }
+      ]
+    }
+
+    expect(entitiesForRow(s, { text: 'no rows: RootLayout · DashboardLayout', from: ['RL1', 'DL2'], mark: 'shared-layout' })).toEqual(['src-root-layout', 'src-dashboard-layout'])
+    expect(entitiesForRow(s, { text: '…["$","$1",null,{"children":"$L2"}]…', from: ['BP7', 'BP8'], fate: 'server-only', mark: 'suspended' })).toEqual(['rsc-runtime-entity', 'suspense-hole'])
+    expect(entitiesForRow(s, { text: 'DashboardLayout {children} → LayoutRouter', from: ['DL6'], fate: 'server-only' })).toEqual(['layout-router'])
   })
   it('lights nothing from folds, fateless lines or a step with no links', () => {
     const s = step('j0-3')
     expect(entitiesForRow(s, s.panes[0].rows[2])).toEqual([])
-    expect(entitiesForRow(step('j0-10'), line(step('j0-10'), 0, 0))).toEqual([])
+    expect(entitiesForRow(step('j0-10'), { text: 'GET /dashboard/billing?_rsc=qR7vX2mK9pLw3sTb · RSC: 1' })).toEqual([])
     expect(entitiesForRow(step('j0-6'), { text: 'x', fate: 'split' })).toEqual([])
   })
   it('maps an entity back to the rows that link to it', () => {
