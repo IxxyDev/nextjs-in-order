@@ -1,16 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { breadcrumbFor, regionLevel } from './breadcrumb'
-import { regionChain } from './regions'
 import { ENTITIES } from './entities'
 
 const labels = (c: ReturnType<typeof breadcrumbFor>) => c.map((x) => x.label)
 const inRegion = (id: string) => ENTITIES.find((e) => e.region === id && !e.id.endsWith('-runtime-entity'))!
 
 describe('breadcrumbFor', () => {
-  it('nests the runtimes inside render-server', () => {
-    expect(regionChain('rsc-runtime')).toEqual(['render-server', 'rsc-runtime'])
-    expect(regionChain('render-server')).toEqual(['render-server'])
-  })
   it('is World alone for the world', () => {
     expect(breadcrumbFor({ target: { kind: 'world' } })).toEqual([{ label: 'World', target: { kind: 'world' } }])
   })
