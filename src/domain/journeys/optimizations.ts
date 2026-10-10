@@ -84,7 +84,7 @@ export const OPTIMIZATIONS: Journey = {
       token: { at: 'font-loader', glyph: 'transformed-module', label: 'localFont() → @font-face + className' },
       states: { 'src-root-layout': 'active', 'font-loader': 'current', bundler: 'kept', 'font-css': 'new' },
       edges: ['e-root-layout-font', 'e-font-loader-css'],
-      internals: ['const font = localFont({ src: \'./fonts/<name>.woff2\' }) → { className, style, variable }', 'file → .next/static/media/<hash>.woff2', 'next-font-loader in the CSS loader chain (Webpack); Turbopack handles next/font itself', 'preload link only on routes that use the font'],
+      internals: ['const font = localFont({ src: \'./fonts/<name>.woff2\' }) → { className, style, variable }', 'file → .next/static/media/<hash>.woff2', 'next-font-loader in the CSS loader chain (Webpack); Turbopack handles next/font itself', 'the Webpack CSS chain (article): postcss-loader runs the PostCSS plugins, lightningcss-loader transforms, mini-css-extract pulls the CSS into separate files', 'preload link only on routes that use the font'],
       sources: [SOURCES.font]
     },
     {
