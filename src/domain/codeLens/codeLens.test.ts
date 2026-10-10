@@ -36,18 +36,19 @@ describe('J0 lens', () => {
     expect(STEPS.filter((s) => s.mode === 'open').map((s) => s.step)).toEqual(['j0-3', 'j0-4', 'j0-7', 'j0-8', 'j0-9', 'j0-10'])
     expect(STEPS.filter((s) => s.split).map((s) => s.step)).toEqual(['j0-4'])
   })
-  it('loads lazily by journey slug', async () => {
-    expect(peekLens('whole-lifecycle')).toBeUndefined()
-    const b = await loadLens('whole-lifecycle')
-    expect(b?.lens).toEqual({ journey: 'j0', steps: STEPS })
-    expect(b?.lens.steps).toBe(STEPS)
-    expect(b?.specimen).toBe(SPECIMEN)
-    expect(peekLens('whole-lifecycle')).toBe(b)
-    expect(await loadLens('nope')).toBeUndefined()
-  })
 })
 
 describe('lens registry', () => {
+  it('loads a journey\'s steps with the shared specimen and fates', async () => {
+    expect(await loadLens('whole-lifecycle')).toEqual({ lens: { journey: 'j0', steps: STEPS }, specimen: SPECIMEN, fates: FATES })
+  })
+  it('peeks the bundle a load returned', async () => {
+    const b = await loadLens('whole-lifecycle')
+    expect(peekLens('whole-lifecycle')).toBe(b)
+  })
+  it('loads nothing for an unknown slug', async () => {
+    expect(await loadLens('nope')).toBeUndefined()
+  })
   it('registers every journey by slug, each loading its own steps under its journey id', async () => {
     for (const j of JOURNEY_CATALOG) {
       expect(hasLens(j.slug), j.slug).toBe(true)
