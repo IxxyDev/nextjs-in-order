@@ -52,7 +52,7 @@ export const APP_NAVIGATION: Journey = {
       camera: { kind: 'entities', ids: ['app-router', 'router-state-tree', 'routing-ladder'] },
       token: { at: 'app-router', glyph: 'request', label: 'GET /dashboard/billing?_rsc=qR7vX2mK9pLw3sTb · RSC: 1' },
       states: { 'app-router': 'current', 'router-state-tree': 'active', 'routing-ladder': 'active', 'route-cache': 'kept' }, edges: ['e-router-ladder', 'e-tree-loader', 'e-route-cache-router'],
-      internals: ['RSC: 1', 'Next-Router-State-Tree: URL-encoded JSON of the target FlightRouterState, "refetch" on the top-most segment the cache cannot fill (createDynamicRequestTree)', 'nothing prefetched: the current tree is sent instead (navigateToUnknownRoute); the article describes only that case', 'Next-Url: /dashboard/settings', '?_rsc=<hash of the headers> as the CDN cache key']
+      internals: ['RSC: 1', 'Next-Router-State-Tree: URL-encoded JSON of the target FlightRouterState, "refetch" on the top-most segment the cache cannot fill (createDynamicRequestTree)', 'nothing prefetched: the current tree is sent instead (navigateToUnknownRoute); the article describes only that case', 'Next-Url: /dashboard/settings, the page the user is on: interception routes need it to decide how to render the target', '?_rsc=<hash of the headers> as the CDN cache key']
     },
     {
       id: 'j6-7', kind: 'predict', title: 'Two trees on the server',
