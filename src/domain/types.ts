@@ -1,4 +1,3 @@
-// src/domain/types.ts
 export type Phase = 'build' | 'startup' | 'request' | 'browser' | 'dev'
 export type Env =
   | 'rust' | 'node' | 'node-worker' | 'edge' | 'browser' | 'browser-worker' | 'storage' | 'network'

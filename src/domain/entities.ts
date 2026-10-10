@@ -1,4 +1,3 @@
-// src/domain/entities.ts
 import type { Entity } from './types'
 import { SOURCES } from './sources'
 

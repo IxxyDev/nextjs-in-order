@@ -1,4 +1,3 @@
-// src/domain/textEquivalent.test.ts
 import { describe, it, expect } from 'vitest'
 import { describeState } from './textEquivalent'
 import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'

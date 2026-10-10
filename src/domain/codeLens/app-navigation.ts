@@ -1,4 +1,3 @@
-// src/domain/codeLens/app-navigation.ts
 import type { LensStep } from '../types'
 import { off, PF_FORM, REF_FORM, REF_NAV, source } from './specimen'
 

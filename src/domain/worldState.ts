@@ -1,4 +1,3 @@
-// src/domain/worldState.ts
 import type { EntityState, Journey, WorldState } from './types'
 import { ENTITIES } from './entities'
 import { describeState } from './textEquivalent'

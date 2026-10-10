@@ -1,4 +1,3 @@
-// src/domain/validate.test.ts
 import { describe, it, expect } from 'vitest'
 import { validateCodeLens, validateEntities, validateJourney, validateSpecimen } from './validate'
 import { ENTITIES, entityById } from './entities'

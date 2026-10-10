@@ -1,4 +1,3 @@
-// src/domain/codeLens/whole-lifecycle.ts
 import type { LensStep } from '../types'
 import { ACTION_ID, DN_NAV, off, PF_FORM, REF_FORM, REF_NAV, ROOT_ROW, source } from './specimen'
 

@@ -1,4 +1,3 @@
-// src/domain/journeys/stories.test.ts
 import { describe, it, expect } from 'vitest'
 import { loadAllJourneys } from './index'
 import { COMPARE_CATALOG } from '../compare'

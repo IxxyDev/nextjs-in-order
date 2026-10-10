@@ -1,4 +1,3 @@
-// src/domain/edges.ts
 import type { Edge } from './types'
 
 export const EDGES: Edge[] = [

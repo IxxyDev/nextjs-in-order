@@ -1,4 +1,3 @@
-// src/domain/textEquivalent.ts
 import type { EntityState, Journey, WorldState } from './types'
 import { entityById } from './entities'
 import { edgeById } from './edges'

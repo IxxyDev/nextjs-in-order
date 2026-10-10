@@ -1,4 +1,3 @@
-// src/domain/quiz.ts
 import type { QuizQuestion } from './types'
 
 /**

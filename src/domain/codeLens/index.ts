@@ -1,4 +1,3 @@
-// src/domain/codeLens/index.ts
 import type { CodeLens, Fate, LensStep, SpecimenFile } from '../types'
 import { JOURNEY_CATALOG } from '../journeys'
 import { createLazyCatalog } from '../lazyCatalog'

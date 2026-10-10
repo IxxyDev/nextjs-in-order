@@ -1,4 +1,3 @@
-// src/domain/codeLens/server-actions.ts
 import type { LensStep } from '../types'
 import { ACTION_ID, off, source } from './specimen'
 

@@ -1,4 +1,3 @@
-// src/domain/codeLens/caching.ts
 import type { LensStep } from '../types'
 import { off, source } from './specimen'
 

@@ -1,4 +1,3 @@
-// src/domain/worldState.test.ts
 import { describe, it, expect } from 'vitest'
 import { deriveWorldState } from './worldState'
 import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'

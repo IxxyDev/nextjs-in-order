@@ -1,4 +1,3 @@
-// src/domain/validate.ts
 import type { CodeLens, ComparePair, Entity, Fate, Journey, LaneScene, LensRow, QuizQuestion, SpecimenFile, Step, StepRef } from './types'
 import { ENTITIES, entityById } from './entities'
 import { EDGES } from './edges'

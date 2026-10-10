@@ -1,4 +1,3 @@
-// src/domain/codeLens/dev-mode.ts
 import type { LensStep } from '../types'
 import { off, REF_NAV, source } from './specimen'
 

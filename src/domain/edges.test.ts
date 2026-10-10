@@ -1,4 +1,3 @@
-// src/domain/edges.test.ts
 import { describe, it, expect } from 'vitest'
 import { EDGES } from './edges'
 import { entityById } from './entities'

@@ -1,4 +1,3 @@
-// src/domain/journeys/whole-lifecycle.ts
 import type { Journey } from '../types'
 import { JOURNEY_META } from './meta'
 

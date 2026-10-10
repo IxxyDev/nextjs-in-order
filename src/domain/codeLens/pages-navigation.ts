@@ -1,4 +1,3 @@
-// src/domain/codeLens/pages-navigation.ts
 import type { LensStep } from '../types'
 import { off, PRODUCT_CHUNK, source } from './specimen'
 

@@ -1,4 +1,3 @@
-// src/domain/codeLens/optimizations.ts
 import type { LensStep } from '../types'
 import { off, source } from './specimen'
 

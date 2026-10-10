@@ -1,4 +1,3 @@
-// src/domain/entities.test.ts
 import { describe, it, expect } from 'vitest'
 import { ENTITIES, entityById } from './entities'
 import { regionById } from './regions'

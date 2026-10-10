@@ -1,4 +1,3 @@
-// src/domain/codeLens/view.ts
 import type { ArtifactForm, CodeLens, Fate, FoldRow, LensPane, LensRow, LensStep, LineChange, SpecimenFile } from '../types'
 
 /** pure helpers the lens UI draws from; types only here, so the lens data stays in its lazy chunk */

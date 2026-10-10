@@ -1,4 +1,3 @@
-// src/domain/route.test.ts
 import { describe, it, expect } from 'vitest'
 import { clampIndex, parseRoute, formatRoute, roundCam, withCam } from './route'
 
