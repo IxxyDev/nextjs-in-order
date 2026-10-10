@@ -3,7 +3,7 @@
 Status: **implemented for all 12 journeys** (J0 as §5; J1–J11 per §10, each detailed in
 `docs/code-lens/<slug>.md`; summary in §10.3). The specimen (`src/domain/codeLens/specimen/`, one module per file), fates and per-journey lens
 steps (`src/domain/codeLens/<slug>.ts`, one lazy chunk each) live in `src/domain/codeLens/` and are
-checked by `validateCodeLens` in `src/domain/validate.ts` for every journey. The UI is `src/ui/CodeLens.tsx` in the step panel, with pure helpers in
+checked by `validateSpecimen` (once) and `validateCodeLens` (for every journey) in `src/domain/validate.ts`. The UI is `src/ui/CodeLens.tsx` in the step panel, with pure helpers in
 `src/domain/codeLens/view.ts` and the code ↔ map signals in `src/ui/lensLink.ts`. Differences from
 this spec: j0-1 renders nothing (no disabled tab), and motion is a subtle CSS pass per verb (lines
 fade in, the morph identifier holds its highlight, split panes slide apart) rather than a line-by-line
@@ -908,10 +908,12 @@ This section was the brief for writing J1–J11 (§10.3 is the result); each jou
   `CodeLens.tsx`, `lensLink.ts`, `JourneyView.tsx`, `StepPanel.tsx`, `styles.css`, this file, the
   journeys and `e2e/code-lens.spec.ts`. A missing specimen line is written as a derived row without
   `from` (or a fold with `lines`) and listed under "Gaps" in the journey's `.md`.
-- Build source panes with `source(ids, change)` from `./specimen`; derived rows name the specimen
-  lines they come from in `from`, so hover ↔ map linking and reduced-motion before panes work.
-- One entry per journey step, in order. Once `STEPS` is non-empty, `validate.test.ts` checks it:
-  every step covered once, `peek` has a `summary`, `open` changes form and shows ≤ 8 lines per pane,
+- Build source panes with `source(ids, change)` and a step with no lens with `off(step)`, both from
+  `./specimen`; derived rows name the specimen lines they come from in `from`, so hover ↔ map
+  linking and reduced-motion before panes work.
+- One entry per journey step, in order. `validate.test.ts` checks it: every step covered once,
+  `peek` has a `summary`, `open` changes form and shows ≤ 8 lines per pane, a predict step is `off`
+  and a check step is `off` unless it opens on a new form,
   every `from` and entity resolves, every linked entity is in that step's `states` or camera.
 - Forms: `tsx · js · js-reference · manifest · flight · html · dom · flight-patch` (J0) plus `http`
   (request or response lines), `json` (a JSON body or file), `css`, `files` (a listing of emitted
