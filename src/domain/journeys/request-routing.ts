@@ -94,7 +94,7 @@ export const REQUEST_ROUTING: Journey = {
       token: { at: 'loader-tree', glyph: 'request', label: '/dashboard/settings · params {}' },
       states: { 'rung-filesystem': 'kept', 'rung-after-files': 'dimmed', 'loader-tree': 'current', 'rsc-runtime-entity': 'dimmed', 'routing-ladder': 'kept' },
       edges: ['e-filesystem-loader', 'e-loader-after-files'],
-      internals: ['router-server and render-server talk over server/lib/server-ipc', 'render-server hosts BaseServer → NextNodeServer; the article\'s NextWebServer was removed in 15.x', 'App and Pages routes share this handoff; the router choice happens inside render-server'],
+      internals: ['router-server and render-server talk over server/lib/server-ipc', 'render-server hosts BaseServer → NextNodeServer; the article\'s NextWebServer was removed in 15.x', 'NextNodeServer has every Node.js API: fs, crypto, native modules, persistent database connections', 'Edge runtime (article): Web Request/Response only; no file system, no native modules, a 1–4 MB code limit, no persistent connections; global on Vercel, so self-hosted it loses most of its latency gain', 'Server Components, Route Handlers and Server Actions run on Node.js by default; a route opts into Edge with export const runtime = \'edge\'', 'App and Pages routes share this handoff; the router choice happens inside render-server'],
       sources: [SOURCES.serverLib]
     },
     {
