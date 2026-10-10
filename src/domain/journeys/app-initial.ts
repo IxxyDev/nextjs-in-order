@@ -26,14 +26,15 @@ export const APP_INITIAL: Journey = {
       camera: { kind: 'entities', ids: ['loader-tree', 'server-chunks'] },
       token: { at: 'loader-tree', glyph: 'segment', label: 'loader tree · /dashboard/settings' },
       states: { 'loader-tree': 'current', 'server-chunks': 'kept', 'routing-ladder': 'kept' }, edges: ['e-ladder-loader', 'e-server-chunks-loader'],
-      internals: ['["", { children: ["dashboard", { children: ["settings", { children: ["__PAGE__", {}] }] }] }]', 'built by next-app-loader at build time; rebuilt by the watcher in dev']
+      internals: ['["", { children: ["dashboard", { children: ["settings", { children: ["__PAGE__", {}] }] }] }]', 'built by next-app-loader at build time; rebuilt by the watcher in dev', 'modules: lazy references to the file conventions { layout, page, loading, error, "not-found", template, … }', 'parallelRoutes keys: children for the nested segment, @modal or @sidebar for each named slot']
     },
     {
       id: 'j5-4', kind: 'transform', title: 'Recursive traversal',
       story: 'Rendering walks the tree from the root inward. At every node it renders the layout or page, then descends into children and into every parallel slot such as @modal. Structure and content are kept separate on purpose: the structure is cheap to compare, the content is what gets replaced.',
       camera: { kind: 'entities', ids: ['loader-tree', 'src-root-layout', 'src-dashboard-layout', 'src-settings-page'] },
       token: { at: 'loader-tree', glyph: 'segment', label: 'root → dashboard → settings' },
-      states: { 'loader-tree': 'current', 'src-root-layout': 'active', 'src-dashboard-layout': 'active', 'src-settings-page': 'active' }, edges: []
+      states: { 'loader-tree': 'current', 'src-root-layout': 'active', 'src-dashboard-layout': 'active', 'src-settings-page': 'active' }, edges: [],
+      internals: ['loading.tsx becomes the fallback of a <Suspense> the renderer wraps around the segment automatically', 'error.tsx becomes an error boundary', 'every key in parallelRoutes is walked: children, then each named slot such as @modal or @sidebar']
     },
     {
       id: 'j5-5', kind: 'explain', title: 'LayoutRouter at every boundary',
