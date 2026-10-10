@@ -12,7 +12,7 @@ export const APP_INITIAL: Journey = {
       story: 'render-server loads React twice: a react-server build that can run Server Components but cannot touch the DOM, and the ordinary react-dom/server build that renders HTML. They are stacked here because the second consumes what the first produces.',
       camera: { kind: 'region', id: 'render-server' },
       states: { 'rsc-runtime-entity': 'active', 'ssr-runtime-entity': 'active' }, edges: [],
-      internals: ['react.react-server.js selected by the "react-server" export condition', 'react-server-dom-webpack/server on the RSC side, react-dom/server on the SSR side']
+      internals: ['react.react-server.js selected by the "react-server" export condition', 'react-server-dom-webpack/server on the RSC side, react-dom/server on the SSR side', 'App Router: added in Next.js 13, stable in 13.4; a parallel architecture next to Pages Router with its own rendering model, not an upgrade of it', 'built on React Server Components, stable since React 19']
     },
     {
       id: 'j5-2', kind: 'explain', title: 'How the bundler chose the variant',
