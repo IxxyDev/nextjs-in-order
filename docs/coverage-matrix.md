@@ -21,9 +21,9 @@ list is in §Sources at the end.
 | 1 | SWC as compiler (single file, N-API, no graph knowledge) | J1 steps 3–5 | transform | L1–L3 | A1 §SWC; A7 §SWC; docs: next/compiler | implemented (J1) |
 | 1 | Turbopack as bundler: incremental graph, lazy bundling in dev, unified graph, crates location | J1 step 9; C6; J9 step 6 | explain / compare | L1–L3 | A1 §Turbopack; A7 §Turbopack; docs: turbopack | implemented (J1) · version note (default status) |
 | 1 | `BaseServer`, `NextNodeServer`, `NextWebServer` | J2 step 9 inspector; Atlas render-server | inspect | L2, L3 | A1 §Серверный слой; source: packages/next/src/server | implemented (J2) |
-| 1 | Node vs Edge capabilities and limits | Atlas runtime badges; J2 step 5 | inspect | L2 | A1 §Серверный слой; docs: runtimes | implemented (J2) |
+| 1 | Node vs Edge capabilities and limits | Atlas runtime badges; J2 step 5; J2 step 9 (limits, `runtime = 'edge'`) | inspect | L2–L3 | A1 §Серверный слой; docs: runtimes | implemented (J2) |
 | 1 | Middleware always on Edge | J2 step 5 (article snapshot chip vs current chip) | gate | L1 + version note | A1 §Серверный слой; docs: proxy runtime | implemented (J2) · version note |
-| 1 | Route manifests used by `BaseServer` | J1 step 12; J2 step 2 | connect | L1–L3 | A1 §Серверный слой; A2 §Манифесты | implemented (J1) |
+| 1 | Route manifests used by `BaseServer` | J1 step 12; J2 step 2; J2 step 9 (`BaseServer`) | connect | L1–L3 | A1 §Серверный слой; A2 §Манифесты | implemented (J1) |
 | 1 | Pages Router: page as rendering unit | J3 step 1 | explain | L1 | A1 §Страница как единица рендеринга | implemented (J3) |
 | 1 | `_app` and `_document` roles | J3 steps 6, 8 | assemble | L1–L2 | A1, A2 §Рендеринг HTML | implemented (J3) |
 | 1 | Pages data strategies (getStaticProps/ISR, getServerSideProps, getStaticPaths/fallback) | J3 steps 3–4 | transform / explain | L1–L2 | A1 §Стратегии получения данных | implemented (J3) |
@@ -31,14 +31,14 @@ list is in §Sources at the end.
 | 1 | Pages rendering + full-tree hydration limitation | J3 step 12; C5 | light-up | L1 | A1 §Рендеринг и гидратация | implemented (J3) |
 | 1 | Pages client navigation summary | J4 | – | L1 | A1 | implemented (J4) |
 | 1 | Limitations of Pages Router (page-level data, no nested layouts, whole bundle) | J3 step 15; C1 | compare | L1 | A1 §Ограничения Pages Router | implemented (J3) |
-| 1 | App Router as a parallel architecture (13 → stable 13.4; RSC stable in React 19) | J5 step 1 caption | explain | L1, L3 | A1 §App Router: новая архитектура | implemented (J5) |
+| 1 | App Router as a parallel architecture (13 → stable 13.4; RSC stable in React 19) | J5 step 1 (L3) | explain | L3 | A1 §App Router: новая архитектура | implemented (J5) |
 | 1 | Component as rendering unit; `"use client"` | J5 steps 7–8; J0 step 2 | reference | L1 | A1 §Компонент как единица рендеринга | implemented (J5) |
-| 1 | Route-segment file conventions (page, layout, loading, error, not-found) | J5 step 3 | assemble | L1–L2 | A1; docs: file conventions | implemented (J5) |
+| 1 | Route-segment file conventions (page, layout, loading, error, not-found) | J5 step 3; J5 step 4 (loading in `<Suspense>`) | assemble | L1–L3 | A1; docs: file conventions | implemented (J5) |
 | 1 | Two React runtimes + `renderToHTMLOrFlight` decision by `RSC` header | J5 steps 1, 21; C3 | explain | L1, L3 | A1 §Два React-рантайма; source: app-render | implemented (J5) |
 | 1 | RSC payload contents | J5 step 10 | transform | L1–L2 | A1; A3 §Рендеринг | implemented (J5) · version note ("binary" wording) |
 | 1 | Streaming and selective hydration via Suspense | J5 steps 14, 19 | fill / light-up | L1 | A1 §Streaming; docs: streaming | implemented (J5) |
 | 1 | App client router (`AppRouter`), `RSC: 1`, layout state preservation | J6 steps 6, 11 | move / swap | L1–L3 | A1 §Клиентский роутер; source: app-router.tsx | implemented (J6) |
-| 1 | Prefetch on hover into a client cache | J6 step 1 | move | L1 | A1; A4 | implemented (J6) · version note |
+| 1 | Prefetch on hover into a client cache | J6 step 1; J6 step 17 (version note) | move | L1 | A1; A4 | implemented (J6) · version note |
 | 1 | Caching model evolution: 14 implicit fetch cache → 16 Cache Components explicit `"use cache"`, `cacheLife()` | J8 step 3 | explain | L1–L3 | A1 §Кеширование; docs: cacheComponents, use cache | implemented (J8) · version note |
 | 1 | PPR overview | J8 steps 13–15 | resume | L1 | A1 §Partial Prerendering; docs: PPR | implemented (J8) · version note |
 | 1 | Server Actions overview | J7 | – | L1 | A1 §Server Actions | implemented (J7) |
@@ -82,7 +82,7 @@ list is in §Sources at the end.
 |---|---|---|---|---|---|---|
 | 3 | Two React builds in one process | J5 step 1 (cutaway); C3 | explain | L1–L2 | A3 §Два рантайма React | implemented (J5) |
 | 3 | RSC build: async components, serializes to a stream, no DOM, no `useState`/`useEffect` | J5 step 6; Atlas RSC runtime | transform | L1–L2 | A3; docs: server components | implemented (J5) · version note ("binary") |
-| 3 | `react-server` conditional export map in React's `package.json` | J5 step 2 (L3 excerpt) | explain | L3 | A3; source: react package.json | implemented (J5) |
+| 3 | `react-server` conditional export map in React's `package.json` | J5 step 1 (L3); J5 step 2 code lens | explain | L3 | A3; source: react package.json | implemented (J5) |
 | 3 | Bundler layers activate the condition per module | J1 step 8; J5 step 2 | explain | L1–L3 | A3; A7 §Слои | implemented (J1) |
 | 3 | Loader tree shape `[segment, parallelRoutes, modules]`; `children` and `@slot` keys | J5 step 3 | assemble | L1–L3 (excerpt) | A3 §Как описывается маршрут; source: next-app-loader | implemented (J5) |
 | 3 | Segment = folder; example `/dashboard/settings` | J5 step 3; example app | assemble | L1 | A3 §Рендеринг | implemented (J5) |
@@ -92,7 +92,7 @@ list is in §Sources at the end.
 | 3 | `"use client"` boundary: reference instead of execution; `page_client-reference-manifest.js` | J5 steps 7–8 | reference | L1–L3 (manifest excerpt) | A3 §Рендеринг | implemented (J5) |
 | 3 | RSC Payload contents; single-letter keys; inlined into HTML | J5 step 10 | transform | L1–L3 (rows) | A3 §Рендеринг | implemented (J5) |
 | 3 | Two parallel uses of the payload (HTML + inline) | J5 steps 11–13 | split | L1 | A3 §Рендеринг | implemented (J5) |
-| 3 | `FlightRouterState`: bidirectional, per-segment refresh mark (`refetch`, `inside-shared-layout`, `metadata-only`) | J5 step 9; J6 step 6 | explain | L1–L3 | A3 §Flight Protocol; source: router-reducer types | implemented (J5) |
+| 3 | `FlightRouterState`: bidirectional, per-segment refresh mark (`refetch`, `inside-shared-layout`, `metadata-only`) | J5 step 9; J6 step 6 (`refetch`); J6 step 8 (all three) | explain | L1–L3 | A3 §Flight Protocol; source: router-reducer types | implemented (J5) |
 | 3 | Segment slices `[segment, tree patch, content, head]`; streamability | J5 step 9–10 | explain | L2–L3 | A3 §Flight Protocol | implemented (J5) |
 | 3 | Flight → HTML: tee, SSR consumes copy 1, seeds router state, does not re-render | J5 steps 11–12; C3 | split / transform | L1–L2 | A3 §Как RSC превращается в HTML | implemented (J5) |
 | 3 | Why not straight to HTML (three uses of one stream) | J5 step 12 caption; J0 step 7 | explain | L1 | A3 | implemented (J5) |
@@ -110,12 +110,12 @@ list is in §Sources at the end.
 | 4 | Server walks both trees; renders from divergence or explicit marks | J6 step 8 | diff | L1–L2 | A4 | implemented (J6) |
 | 4 | Client merges patch; unchanged segments keep nodes (scroll, accordions, form text) | J6 step 11 | swap | L1 | A4 | implemented (J6) |
 | 4 | Shared layout neither rendered nor sent | J6 step 9 | transform | L1 | A4 | implemented (J6) |
-| 4 | Prefetch: viewport + hover, Flight into cache | J6 step 1 | move | L1 | A4 §Segment Cache и prefetch | implemented (J6) · version note |
+| 4 | Prefetch: viewport + hover, Flight into cache | J6 steps 1, 3–4; J6 steps 5, 17 (version note) | move | L1 | A4 §Segment Cache и prefetch | implemented (J6) · version note |
 | 4 | Route Cache (trees) vs Segment Cache (segments) | J6 step 2; J8 step 10; C9 | explain | L1–L2 | A4; docs: segment cache | implemented (J8) · version note |
 | 4 | Old model (tree to first `loading`) vs new (tree first, then missing segments) | J6 steps 3–4; version chips | move | L1 + version note | A4 | implemented (J6) · version note |
 | 4 | Network burst: `Next-Router-Segment-Prefetch: /_tree`, per-segment paths, `Next-Router-Prefetch: 1` | J6 steps 3–4 | move | L2–L3 | A4; source: prefetch headers | implemented (J6) |
 | 4 | Why it is cheap: dedupe, shared segments, small parallel HTTP/2, scheduler with priorities/cancel | J6 step 1 | explain | L1–L2 | A4 | implemented (J6) |
-| 4 | `prefetch` prop to weaken/disable | J6 step 1 | inspect | L2 | A4; docs: Link prefetch | implemented (J6) · version note |
+| 4 | `prefetch` prop to weaken/disable | J6 step 1; J6 step 5 (version note) | inspect | L2 | A4; docs: Link prefetch | implemented (J6) · version note |
 | 4 | Server prepares segment hints (`loading` below?) | J6 step 5 | explain | L3 | A4 | implemented (J6) |
 | 4 | Cache Components nuance: per-segment prefetch for all routes only with `cacheComponents: true` | J6 step 5 | explain | L1–L2 | A4; docs: cacheComponents | implemented (J6) · version note |
 | 4 | Server Action ID (hash) and `server-reference-manifest` | J7 step 2 | transform | L1–L3 | A4 §Server Actions | implemented (J7) |
@@ -178,7 +178,7 @@ list is in §Sources at the end.
 | 7 | Next-specific transforms: console removal, `data-testid`, CSS-in-JS | J1 step 3 L3 | inspect | L3 | A7; docs: compiler options | implemented (J1) |
 | 7 | `modularizeImports` / `optimizePackageImports` | J1 step 5; J11 step 5 | transform | L1–L2 | A7; docs: optimizePackageImports | implemented (J1, J11) |
 | 7 | `serverComponents` / `serverActions` transforms; action IDs | J1 step 4; J7 step 2 | transform | L1–L3 | A7 | implemented (J1) |
-| 7 | Babel fallback and its cost | J1 step 3 (toggle) | inspect | L2 | A7; docs: babel | implemented (J1 step 3 internals; no toggle yet) |
+| 7 | Babel fallback and its cost | J1 step 3 (L3) | inspect | L3 | A7; docs: babel | implemented (J1 step 3 internals) |
 | 7 | Worker-thread scheduling (`registerWorkerScheduler`) | J1 step 3 L3 | inspect | L3 | A7 | implemented (J1) |
 | 7 | Webpack: three target compilers stitched | J1 step 9; C6 | compare | L1–L2 | A7 §Webpack | implemented (J1) |
 | 7 | Layers list and their effect on resolution | J1 step 8 | explain | L1–L3 (list) | A7 §Слои; source: webpack-config layers | implemented (J1) |
@@ -186,7 +186,7 @@ list is in §Sources at the end.
 | 7 | `next-swc-loader` per layer | J1 step 3 L3 | inspect | L3 | A7 §Загрузчики и плагины | implemented (J1) |
 | 7 | `next-flight-loader` | J1 step 4 L3 | inspect | L3 | A7 | implemented (J1) |
 | 7 | `next-app-loader` | J5 step 3 L3 | inspect | L3 | A7 | implemented (J5) |
-| 7 | `next-font-loader`, CSS loader chain | J11 steps 8–9 | transform | L2–L3 | A7 | implemented (J11) |
+| 7 | `next-font-loader`, CSS loader chain | J11 steps 8–9 (`next-font-loader`); J11 step 8 (CSS chain, L3) | transform | L2–L3 | A7 | implemented (J11) |
 | 7 | Plugins generate manifests | J1 step 12 | connect | L2 | A7 | implemented (J1) |
 | 7 | `flight-client-entry-plugin` and `flight-manifest-plugin` | J1 steps 10–11 | pack / reference | L1–L3 | A7 | implemented (J1) |
 | 7 | Chunk policy: framework, lib > ~160 KB, runtime | J1 step 10; J11 step 4 | pack | L1–L2 | A7 §Разделение на чанки; source: webpack-config splitChunks | implemented (J1, J11) |
