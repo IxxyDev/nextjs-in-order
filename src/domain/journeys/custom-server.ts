@@ -41,7 +41,7 @@ export const CUSTOM_SERVER: Journey = {
       token: { at: 'custom-server', glyph: 'request', label: 'GET /legacy/settings' },
       states: { 'custom-server': 'current', 'node-http': 'na', 'request-queue': 'na', 'custom-handle': 'dimmed' },
       edges: [],
-      internals: ['createServer((req, res) => { … }).listen(3000)', 'docs: use one only when the integrated router cannot meet the app\'s requirements; it removes optimizations such as Automatic Static Optimization', 'a custom server cannot be deployed on Vercel'],
+      internals: ['createServer((req, res) => { … }).listen(3000)', 'docs: use one only when the integrated router cannot meet the app\'s requirements; it removes optimizations such as Automatic Static Optimization', 'a custom server cannot be deployed on Vercel', 'what still justifies one: an Express or Fastify app, a GraphQL endpoint or a webhook serving some routes in the same process, or a WebSocket server on the same port as Next.js', 'often a current Next.js feature covers the case without a server of one\'s own'],
       sources: [SOURCES.customServer]
     },
     {
