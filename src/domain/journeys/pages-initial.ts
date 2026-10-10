@@ -2,7 +2,6 @@ import type { Journey } from '../types'
 import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
-
 export const PAGES_INITIAL: Journey = {
   ...JOURNEY_META.pagesInitial,
   following: 'GET /products/42 (getServerSideProps), with /posts/7 (getStaticProps + ISR) as a parallel ghost',

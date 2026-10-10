@@ -2,7 +2,6 @@ import type { Journey } from '../types'
 import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
-
 export const PAGES_NAVIGATION: Journey = {
   ...JOURNEY_META.pagesNavigation,
   following: '<Link href="/posts/7"> on /products/42, then the click',

@@ -2,7 +2,6 @@ import type { Journey } from '../types'
 import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
-
 export const CACHING: Journey = {
   ...JOURNEY_META.caching,
   following: 'the cache map, then GET /posts/7 through the ISR branches, then GET /dashboard/billing as a static shell with a dynamic hole',

@@ -2,7 +2,6 @@ import type { Journey } from '../types'
 import { JOURNEY_META } from './meta'
 import { SOURCES } from '../sources'
 
-
 export const DEV_MODE: Journey = {
   ...JOURNEY_META.devMode,
   following: 'the changed module DashboardNav.tsx through the HMR channel, then AccountSummary.tsx as a new RSC payload',
