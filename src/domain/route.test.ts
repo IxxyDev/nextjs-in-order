@@ -23,6 +23,8 @@ describe('routes', () => {
     expect(parseRoute('#/compare/initial-load/7')).toEqual({ mode: 'compare', slug: 'initial-load', step: 6 })
     expect(parseRoute('#/compare')).toEqual({ mode: 'compare', slug: 'initial-load', step: 0 })
     expect(parseRoute('#/compare/caches/0')).toEqual({ mode: 'compare', slug: 'caches', step: 0 })
+  })
+  it('formats compare steps as 1-based in the URL', () => {
     expect(formatRoute({ mode: 'compare', slug: 'bundlers', step: 2 })).toBe('#/compare/bundlers/3')
   })
   it('parses predict questions as 1-based in the URL and clamps below 1', () => {
@@ -32,6 +34,8 @@ describe('routes', () => {
     expect(parseRoute('#/predict/-4')).toEqual({ mode: 'predict', n: 0 })
     expect(parseRoute('#/predict/abc')).toEqual({ mode: 'predict', n: 0 })
     expect(parseRoute('#/predict/99')).toEqual({ mode: 'predict', n: 98 })
+  })
+  it('formats predict questions as 1-based in the URL', () => {
     expect(formatRoute({ mode: 'predict', n: 2 })).toBe('#/predict/3')
   })
   it('round-trips', () => {
