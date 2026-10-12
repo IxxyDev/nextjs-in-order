@@ -17,8 +17,12 @@ describe('progress', () => {
     expect(p.get('x')).toBeUndefined()
     p.record('x', false)
     expect(p.get('x')).toMatchObject({ correct: false })
+  })
+  it('keeps the first answer when the same question is answered again', () => {
+    const p = createProgress(() => fake())
+    p.record('x', false)
     p.record('x', true)
-    expect(p.get('x')?.correct).toBe(true)
+    expect(p.get('x')?.correct).toBe(false)
   })
   it('summarises a journey over its questions and checks', () => {
     const p = createProgress(() => fake())
