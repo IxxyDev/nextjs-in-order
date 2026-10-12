@@ -36,7 +36,12 @@ export function createProgress(getStorage: () => StorageLike | undefined = defau
     return { answered: got.length, correct: got.filter((a) => a.correct).length, total: ids.length }
   }
   return {
-    record(id: string, correct: boolean) { data.value = { ...data.value, [id]: { correct, at: Date.now() } }; save() },
+    /** the first answer counts: a later one still gets feedback in the UI but does not rewrite progress */
+    record(id: string, correct: boolean) {
+      if (data.value[id]) return
+      data.value = { ...data.value, [id]: { correct, at: Date.now() } }
+      save()
+    },
     get: (id: string): Answer | undefined => data.value[id],
     summaryForJourney: (j: Journey) => summarize(j.steps.flatMap((s) => [...(s.question ? [journeyId(j.slug, s.id)] : []), ...(s.checks ?? []).map((_, i) => checkId(s.id, i))])),
     summaryForQuiz: (ids: string[]) => summarize(ids.map(quizId)),
