@@ -30,8 +30,8 @@ export function useStepControls({ count, step, onStep, onEscape }: { count: numb
       if (e.key === 'ArrowRight') { setPlaying(false); onStep(step + 1) }
       else if (e.key === 'ArrowLeft') { setPlaying(false); onStep(step - 1) }
       else if (e.key === ' ' && !t.closest?.(CONTROL)) { e.preventDefault(); setPlaying((p) => !p) }
-      else if (e.key === 'Home') onStep(0)
-      else if (e.key === 'End') onStep(last)
+      else if (e.key === 'Home') { setPlaying(false); onStep(0) }
+      else if (e.key === 'End') { setPlaying(false); onStep(last) }
       else if (e.key === 'Escape') onEscape()
     }
     window.addEventListener('keydown', onKey)
