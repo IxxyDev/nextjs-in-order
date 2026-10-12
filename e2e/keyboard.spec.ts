@@ -43,6 +43,19 @@ test('keyboard only: step with arrows, Home and End, then switch journey through
   errors.assertClean()
 })
 
+for (const key of ['ArrowRight', 'ArrowLeft', 'Home', 'End']) {
+  test(`keyboard only: ${key} stops autoplay`, async ({ page }) => {
+    await page.goto('/#/journey/app-initial/5')
+    await expect(eyebrow(page)).toContainText('step 5 of 22')
+    await page.getByRole('button', { name: 'Play' }).click()
+    await expect(page.getByRole('button', { name: 'Pause' })).toHaveAttribute('aria-pressed', 'true')
+
+    await page.keyboard.press(key)
+
+    await expect(page.getByRole('button', { name: 'Play' })).toHaveAttribute('aria-pressed', 'false')
+  })
+}
+
 test('keyboard only: Escape closes the Journeys menu without changing the route', async ({ page }) => {
   await page.goto('/#/journey/app-initial/1')
   const trigger = page.getByRole('button', { name: /^Journey:/ })
