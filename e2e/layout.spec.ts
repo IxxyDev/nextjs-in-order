@@ -180,6 +180,21 @@ test.describe('phone', () => {
     await expect(open).toBeFocused()
     errors.assertClean()
   })
+
+  test('Whole system keeps Tab and Shift+Tab inside the overlay', async ({ page }) => {
+    await page.goto('/#/journey/app-initial/7')
+    await page.getByRole('button', { name: 'Whole system' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Whole system' })
+    await expect(dialog.getByRole('button', { name: 'Close whole system' })).toBeFocused()
+    const isInside = () => dialog.evaluate((d) => d.contains(document.activeElement))
+
+    await page.keyboard.press('Shift+Tab')
+    expect(await isInside(), 'Shift+Tab from the first control').toBe(true)
+    for (let i = 0; i < 40; i++) {
+      await page.keyboard.press('Tab')
+      expect(await isInside(), `Tab ${i + 1}`).toBe(true)
+    }
+  })
 })
 
 test('atlas: the history strip opens next build, whose inspector lists the releases in order', async ({ page }) => {
