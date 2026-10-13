@@ -38,7 +38,7 @@ test('breadcrumb in the atlas walks down to the selected entity', async ({ page 
   await expect(page).toHaveURL(/cam=/)
 })
 
-test('internals: the step disclosure and the inspector toggle stay open across a reload', async ({ page }) => {
+test('internals: the step and inspector disclosures stay open across a reload', async ({ page }) => {
   const errors = watchErrors(page)
   await page.goto('/#/journey/app-initial/1')
   const details = page.locator('.panel details')
@@ -50,10 +50,12 @@ test('internals: the step disclosure and the inspector toggle stay open across a
   await expect(page.locator('.panel details')).toHaveAttribute('open')
 
   await page.goto('/#/atlas?entity=next-build')
-  const inspector = page.getByRole('complementary', { name: /^Inspector:/ })
-  await inspector.getByRole('button', { name: 'Show internals' }).click()
+  const internals = page.getByRole('complementary', { name: /^Inspector:/ }).locator('details')
+  await expect(internals).not.toHaveAttribute('open')
+  await internals.locator('summary', { hasText: 'Internals' }).click()
+  await expect(internals).toHaveAttribute('open')
   await page.reload()
-  await expect(page.getByRole('complementary', { name: /^Inspector:/ }).getByRole('button', { name: 'Hide internals' })).toHaveAttribute('aria-expanded', 'true')
+  await expect(page.getByRole('complementary', { name: /^Inspector:/ }).locator('details')).toHaveAttribute('open')
   errors.assertClean()
 })
 
