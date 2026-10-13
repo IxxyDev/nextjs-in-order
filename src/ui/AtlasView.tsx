@@ -13,6 +13,7 @@ import { Breadcrumb } from './Breadcrumb'
 import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useCameraGestures } from './useCameraGestures'
+import { TEXT } from './useStepControls'
 
 /** a URL camera, or one the user moved, holds until the route changes; until then framing leaves it alone */
 export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Camera; onSelect: (id?: string) => void }) {
@@ -27,6 +28,20 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
   useEffect(() => { manual.current = false }, [entity])
   const target: CameraTarget = entity ? { kind: 'entities', ids: [entity] } : { kind: 'world' }
   useEffect(() => { if (!cam && !manual.current) goTo(target, reducedMotion.value) }, [entity, camKey, vp.w, vp.h])
+  /** Escape closes the inspector; with none open it returns the camera to the whole system */
+  const latest = useRef({ entity, onSelect })
+  latest.current = { entity, onSelect }
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || (e.target as HTMLElement).closest?.(TEXT)) return
+      if (latest.current.entity) { latest.current.onSelect(undefined); return }
+      manual.current = false
+      writeCamToUrl(undefined, 0)
+      goTo({ kind: 'world' }, reducedMotion.value)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
   const filtering = isFiltering(filter)
   const states: Record<string, EntityState> = {}
   let matching = 0
