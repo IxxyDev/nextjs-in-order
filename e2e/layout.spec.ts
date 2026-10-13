@@ -78,6 +78,24 @@ test('atlas: Environment and Region filters change the count; Clear resets them'
   errors.assertClean()
 })
 
+test('atlas: Escape closes the inspector first, then returns a moved camera to the whole system', async ({ page }) => {
+  const errors = watchErrors(page)
+  await page.goto('/#/atlas?entity=client-reference-manifest')
+  const inspector = page.getByRole('complementary', { name: /^Inspector:/ })
+  await expect(inspector).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(inspector).toHaveCount(0)
+  await expect(page).toHaveURL(/#\/atlas$/)
+
+  await page.goto('/#/atlas?cam=1200,600,2.5')
+  await settle(page)
+  const zoomed = await transform(page)
+  await page.keyboard.press('Escape')
+  await expect.poll(() => transform(page)).not.toBe(zoomed)
+  await expect(page).toHaveURL(/#\/atlas$/)
+  errors.assertClean()
+})
+
 test('tablet: the step panel is a bottom sheet with the minimap in its header, and Follow is locked', async ({ page }, info) => {
   test.skip(info.project.name !== 'tablet-768', 'the sheet is the 768–1023px layout')
   const errors = watchErrors(page)
