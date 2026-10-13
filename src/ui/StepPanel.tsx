@@ -25,6 +25,8 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
   const pick = (i: number) => { setLocal({ id: step.id, picked: i, answers }); progress.record(journeyId(journey.slug, step.id), i === step.question!.answer) }
   const answer = (i: number, v: boolean) => { setLocal({ id: step.id, picked, answers: { ...answers, [i]: v } }); progress.record(checkId(step.id, i), v === step.checks![i].isTrue) }
   const earlier = (id: string, shown: boolean) => { const a = shown ? undefined : progress.get(id); return a && <span class={a.correct ? 'ok' : 'bad'}> answered {a.correct ? '✓' : '✗'} earlier</span> }
+  /** the takeaway spells out the predict answer, so on a predict step it waits for a pick */
+  const canShowClick = !step.question || picked !== null
   const groups = GROUPS.map((g) => ({ ...g, ids: Object.entries(world.entityStates).filter(([, s]) => s === g.state).map(([id]) => id) })).filter((g) => g.ids.length)
   return (
     <section class={`panel ${expanded ? 'is-expanded' : ''}`} aria-labelledby="step-title" ref={panelRef}>
@@ -59,7 +61,7 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
           ))}
         </div>
       )}
-      <div class="click" aria-label="What should click">{journey.whatShouldClick}</div>
+      {canShowClick && <div class="click" aria-label="What should click">{journey.whatShouldClick}</div>}
       {(step.internals?.length || step.sources?.length) && (
         <details open={internals} onToggle={onToggle}>
           <summary onClick={onSummary}>Internals</summary>
