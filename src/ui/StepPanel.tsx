@@ -4,7 +4,8 @@ import type { ComponentChildren, RefObject } from 'preact'
 import type { Journey, WorldState, EntityState } from '../domain/types'
 import { entityById } from '../domain/entities'
 import { checkId, journeyId, progress } from '../domain/progress'
-import { STEP_INTERNALS_KEY, sessionFlags } from '../domain/sessionFlags'
+import { STEP_INTERNALS_KEY } from '../domain/sessionFlags'
+import { Internals } from './Internals'
 
 const GROUPS: { state: EntityState; label: string }[] = [
   { state: 'new', label: 'New' }, { state: 'replaced', label: 'Replaced' }, { state: 'kept', label: 'Kept' },
@@ -14,12 +15,6 @@ const GROUPS: { state: EntityState; label: string }[] = [
 /** header and expanded: the tablet bottom sheet's handle row and state (on phones, the room toggle of an open code lens); lens: the code lens, on journeys that have one */
 export function StepPanel({ journey, world, showText, header, expanded, lens, panelRef }: { journey: Journey; world: WorldState; showText: boolean; header?: ComponentChildren; expanded?: boolean; lens?: ComponentChildren; panelRef?: RefObject<HTMLElement> }) {
   const { step } = world
-  /** §4: collapsed by default at every width (so also at 1024–1199px, §9); the open state holds for the session */
-  const [internals, setInternals] = useState(() => sessionFlags.get(STEP_INTERNALS_KEY) ?? false)
-  const setOpen = (open: boolean) => { setInternals(open); sessionFlags.set(STEP_INTERNALS_KEY, open) }
-  /** the summary toggles through state at once (the toggle event comes a task later, after a quick reload could already have run); onToggle catches any other opening */
-  const onSummary = (e: Event) => { e.preventDefault(); setOpen(!internals) }
-  const onToggle = (e: Event) => { const open = (e.currentTarget as HTMLDetailsElement).open; if (open !== internals) setOpen(open) }
   const [local, setLocal] = useState<{ id: string; picked: number | null; answers: Record<number, boolean> }>({ id: step.id, picked: null, answers: {} })
   const { picked, answers } = local.id === step.id ? local : { picked: null, answers: {} as Record<number, boolean> }
   const pick = (i: number) => { setLocal({ id: step.id, picked: i, answers }); progress.record(journeyId(journey.slug, step.id), i === step.question!.answer) }
@@ -62,13 +57,7 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
         </div>
       )}
       {canShowClick && <div class="click" aria-label="What should click">{journey.whatShouldClick}</div>}
-      {(step.internals?.length || step.sources?.length) && (
-        <details open={internals} onToggle={onToggle}>
-          <summary onClick={onSummary}>Internals</summary>
-          {step.internals && <ul>{step.internals.map((l) => <li key={l}><code>{l}</code></li>)}</ul>}
-          {step.sources && <ul>{step.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.label}</a></li>)}</ul>}
-        </details>
-      )}
+      <Internals flagKey={STEP_INTERNALS_KEY} internals={step.internals} sources={step.sources} />
       {showText && <p class="text-equivalent">{world.text}</p>}
       <p class="visually-hidden" aria-live="polite">{world.text}</p>
     </section>

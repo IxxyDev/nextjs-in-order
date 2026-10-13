@@ -467,3 +467,7 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
 
 /* predict: Reset progress erases every saved answer, so it sits under the question, away from the question controls */
 .quiz .quiz-reset { display: block; margin-top: 28px; color: var(--muted); }
+
+/* the inspector's Internals is the same disclosure as the step panel's (.panel details) */
+.inspector details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 10px; }
+.inspector summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); }
