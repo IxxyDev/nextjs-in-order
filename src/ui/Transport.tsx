@@ -20,7 +20,7 @@ export interface TransportProps {
 export function Transport({ journey, step, playing, follow, showText, onStep, onPlay, onFollow, onShowText, whole = 'toggle', onWhole }: TransportProps) {
   const last = journey.steps.length - 1
   return (
-    <div class="transport" role="toolbar" aria-label="Journey controls">
+    <div class="transport" role="toolbar" aria-label="Step controls">
       <button onClick={() => onStep(step - 1)} disabled={step === 0} aria-label="Previous step">◀</button>
       <button onClick={() => onPlay(!playing)} aria-pressed={playing} aria-label={playing ? 'Pause' : 'Play'}>{playing ? '❚❚' : '▶'}</button>
       <button onClick={() => onStep(step + 1)} disabled={step === last} aria-label="Next step">▶▶</button>
