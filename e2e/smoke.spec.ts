@@ -33,6 +33,11 @@ test('compare: stepping forward advances the step counter and URL', async ({ pag
   errors.assertClean()
 })
 
+test('compare: the transport is labelled Step controls, not Journey controls', async ({ page }) => {
+  await page.goto('/#/compare/initial-load/1')
+  await expect(page.getByRole('toolbar', { name: 'Step controls' })).toBeVisible()
+})
+
 test('predict: choosing an answer and pressing Check shows feedback', async ({ page }) => {
   const errors = watchErrors(page)
   await page.goto('/#/predict/1')
