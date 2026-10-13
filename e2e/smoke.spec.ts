@@ -50,6 +50,29 @@ test('predict: choosing an answer and pressing Check shows feedback', async ({ p
   errors.assertClean()
 })
 
+test('predict: Reset progress sits outside the question controls and erases only after confirming', async ({ page }) => {
+  await page.goto('/#/predict/1')
+  await expect(page.getByRole('toolbar', { name: 'Question controls' }).getByRole('button', { name: 'Reset progress' })).toHaveCount(0)
+  await page.getByRole('list', { name: 'Picks' }).getByRole('button').first().click()
+  await page.getByRole('button', { name: 'Check', exact: true }).click()
+  await expect(page.getByText(/^answered 1\//)).toBeVisible()
+
+  page.once('dialog', (d) => d.dismiss())
+  await page.getByRole('button', { name: 'Reset progress' }).click()
+  await expect(page.getByText(/^answered 1\//)).toBeVisible()
+  page.once('dialog', (d) => d.accept())
+  await page.getByRole('button', { name: 'Reset progress' }).click()
+  await expect(page.getByText(/^answered 0\//)).toBeVisible()
+})
+
+test('predict: Clear picks empties the picks', async ({ page }) => {
+  await page.goto('/#/predict/1')
+  const first = page.getByRole('list', { name: 'Picks' }).getByRole('button').first()
+  await first.click()
+  await page.getByRole('button', { name: 'Clear picks' }).click()
+  await expect(first).toHaveAttribute('aria-pressed', 'false')
+})
+
 test('deep link: reloading #/journey/app-initial/12 keeps showing step 12', async ({ page }) => {
   const errors = watchErrors(page)
   await page.goto('/#/journey/app-initial/12')
