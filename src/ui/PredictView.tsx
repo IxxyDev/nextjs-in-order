@@ -128,7 +128,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
         </ul>
         <div class="quiz-actions">
           <button onClick={check} disabled={!picks.length}>Check</button>
-          <button onClick={() => set({ picks: [], checked: false })} disabled={!picks.length && !checked}>Reset</button>
+          <button onClick={() => set({ picks: [], checked: false })} disabled={!picks.length && !checked}>Clear picks</button>
         </div>
         <div aria-live="polite">
           {result && (
@@ -150,12 +150,12 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
             </div>
           )}
         </div>
+        <button class="quiz-reset" onClick={reset}>Reset progress</button>
       </section>
       <div class="transport" role="toolbar" aria-label="Question controls">
         <button onClick={() => onGo(n - 1)} disabled={n === 0} aria-label="Previous question">◀ Prev</button>
         <span class="quiz-counter" aria-live="polite">{n + 1} / {quiz.length}</span>
         <span class="quiz-progress">answered {sum.answered}/{sum.total} · correct {sum.correct}</span>
-        <button class="quiz-reset" onClick={reset}>Reset progress</button>
         <button onClick={() => onGo(n + 1)} disabled={n === quiz.length - 1} aria-label="Next question">Next ▶</button>
       </div>
     </div>

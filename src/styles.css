@@ -464,3 +464,6 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
   .compare-panel { max-height: none; overflow: visible; border-top: 1px solid var(--line); }
   .compare .transport { position: sticky; bottom: 0; z-index: 6; }
 }
+
+/* predict: Reset progress erases every saved answer, so it sits under the question, away from the question controls */
+.quiz .quiz-reset { display: block; margin-top: 28px; color: var(--muted); }
