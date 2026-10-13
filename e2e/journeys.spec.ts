@@ -24,8 +24,10 @@ for (const { slug, steps } of JOURNEYS) {
       if (await predict.count()) {
         predicts++
         await expect(predict.locator('.why')).toHaveCount(0)
+        await expect(page.getByLabel('What should click'), 'the takeaway waits for the answer').toHaveCount(0)
         await predict.getByRole('button').first().click()
         await expect(predict.locator('.why')).toBeVisible()
+        await expect(page.getByLabel('What should click')).toBeVisible()
         await expect(predict.locator('.why')).toContainText(/^(Right|Not quite)\./)
         await expect(predict.getByRole('button').first()).toHaveAttribute('aria-pressed', 'true')
       }
