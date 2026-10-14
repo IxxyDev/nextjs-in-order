@@ -1,15 +1,12 @@
 import type { QuizQuestion, QuizResult } from './types'
+import { createLazyCatalog } from './lazyCatalog'
 
-let quiz: QuizQuestion[] | undefined
+/** the question bank lives in its own chunk, loaded on the first visit to #/predict; it is the catalog's one entry */
+const QUIZ_SLUG = 'quiz'
+const catalog = createLazyCatalog([{ slug: QUIZ_SLUG, load: () => import('./quiz').then((m) => m.QUIZ) }])
 
-export function peekQuiz(): QuizQuestion[] | undefined {
-  return quiz
-}
-
-/** the questions live in their own chunk, loaded on the first visit to #/predict */
-export function loadQuiz(): Promise<QuizQuestion[]> {
-  return import('./quiz').then((m) => (quiz = m.QUIZ))
-}
+export const peekQuiz = () => catalog.peek(QUIZ_SLUG)
+export const loadQuiz = () => catalog.load(QUIZ_SLUG)
 
 /** what a pick list is compared against; a choice is the index of its option */
 export function answerIds(q: QuizQuestion): string[] {
