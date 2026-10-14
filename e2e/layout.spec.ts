@@ -59,6 +59,13 @@ test('internals: the step and inspector disclosures stay open across a reload', 
   errors.assertClean()
 })
 
+test('check step: the statements come before the open code lens, in view without scrolling the panel', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/#/journey/whole-lifecycle/10')
+  await expect(page.getByRole('region', { name: 'Code lens' })).toBeVisible()
+  await expect(page.locator('.check').first().getByRole('button', { name: 'True' })).toBeInViewport()
+})
+
 test('atlas: Environment and Region filters change the count; Clear resets them', async ({ page }) => {
   const errors = watchErrors(page)
   await page.goto('/#/atlas')
