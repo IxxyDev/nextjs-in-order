@@ -10,6 +10,11 @@ export function clampIndex(n: number, length: number): number {
   return Math.min(length - 1, Math.max(0, Math.floor(n)))
 }
 
+/** a 1-based step or question number in the URL as a 0-based index; missing, unreadable or below 1 is the first */
+function parseIndex(part: string | undefined): number {
+  return Math.max(0, (parseInt(part ?? '1', 10) || 1) - 1)
+}
+
 function parseCam(value: string | null): Camera | undefined {
   if (!value) return undefined
   const [x, y, zoom] = value.split(',').map(Number)
@@ -28,16 +33,13 @@ export function parseRoute(hash: string): Route {
     return { mode: 'atlas', ...(entity ? { entity } : {}), ...(cam ? { cam } : {}) }
   }
   if (parts[0] === 'journey' && parts[1]) {
-    const step = Math.max(0, (parseInt(parts[2] ?? '1', 10) || 1) - 1)
-    return { mode: 'journey', slug: parts[1], step, ...(cam ? { cam } : {}) }
+    return { mode: 'journey', slug: parts[1], step: parseIndex(parts[2]), ...(cam ? { cam } : {}) }
   }
   if (parts[0] === 'compare') {
-    const step = Math.max(0, (parseInt(parts[2] ?? '1', 10) || 1) - 1)
-    return { mode: 'compare', slug: parts[1] ?? DEFAULT_COMPARE, step }
+    return { mode: 'compare', slug: parts[1] ?? DEFAULT_COMPARE, step: parseIndex(parts[2]) }
   }
   if (parts[0] === 'predict') {
-    const n = Math.max(0, (parseInt(parts[1] ?? '1', 10) || 1) - 1)
-    return { mode: 'predict', n, ...(cam ? { cam } : {}) }
+    return { mode: 'predict', n: parseIndex(parts[1]), ...(cam ? { cam } : {}) }
   }
   return DEFAULT_ROUTE
 }
