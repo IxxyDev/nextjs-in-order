@@ -6,6 +6,7 @@ import { REGIONS, CUSTOM_SERVER_RING as RING } from '../domain/regions'
 import { MAIN_RIG, reservedFor, worldToScreen, type CameraRig } from './camera'
 import { intersects, placeLabels, type LabelCandidate, type ScreenRect } from './labelLayout'
 import { lensLit, mapHover } from './lensLink'
+import { STATE_LABEL } from '../domain/stateLabel'
 
 /** below this zoom, only emphasized entities keep their label (emphasized ones always try for one) */
 const LABEL_ZOOM = 0.7
@@ -35,10 +36,6 @@ export interface LabelsProps {
   verb?: string
 }
 
-const CHIP: Partial<Record<EntityState, string>> = {
-  current: 'now', active: 'running', new: 'new', kept: 'kept', replaced: 'replaced', invalid: 'invalid', stale: 'stale', fresh: 'fresh', na: 'n/a'
-}
-
 export const MARK_CHIP: Partial<Record<PickMark, string>> = { picked: 'picked', correct: 'correct', missed: 'missed', extra: 'extra', answer: 'answer' }
 const PRESSED = new Set<PickMark | undefined>(['picked', 'correct', 'extra'])
 
@@ -64,7 +61,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     if (dense && !emphasized) continue
     if (hiddenGlyph && !emphasized) continue
     const chips: string[] = []
-    if (state && CHIP[state]) chips.push(CHIP[state]!)
+    if (state && STATE_LABEL[state]) chips.push(STATE_LABEL[state])
     if (e.badge && cam.zoom >= BADGE_ZOOM) chips.push(e.badge)
     if (differs?.has(e.id)) chips.push('differs')
     if (mark && MARK_CHIP[mark]) chips.push(MARK_CHIP[mark]!)
@@ -125,13 +122,13 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
             data-entity={c.id}
             onMouseEnter={hover(c.id)} onMouseLeave={hover(undefined)} onFocus={hover(c.id)} onBlur={hover(undefined)}
             aria-pressed={selected === c.id || PRESSED.has(m)}
-            aria-label={`${e.name}${c.state && c.state !== 'dimmed' ? `, ${CHIP[c.state]}` : ''}${differs?.has(c.id) ? ', differs' : ''}${m && MARK_CHIP[m] ? `, ${MARK_CHIP[m]}` : ''}. ${verb}`}
+            aria-label={`${e.name}${c.state && c.state !== 'dimmed' ? `, ${STATE_LABEL[c.state]}` : ''}${differs?.has(c.id) ? ', differs' : ''}${m && MARK_CHIP[m] ? `, ${MARK_CHIP[m]}` : ''}. ${verb}`}
             onClick={() => onSelect(c.id)}
           >
             <span class="label-name">{c.text}</span>
             {c.chips.length > 0 && (
               <span class="label-row">
-                {c.state && CHIP[c.state] && <span class={`chip chip-${c.state}`}>{CHIP[c.state]}</span>}
+                {c.state && STATE_LABEL[c.state] && <span class={`chip chip-${c.state}`}>{STATE_LABEL[c.state]}</span>}
                 {e.badge && cam.zoom >= BADGE_ZOOM && <span class="chip chip-badge">{e.badge}</span>}
                 {differs?.has(c.id) && <span class="chip chip-differs">differs</span>}
                 {m && MARK_CHIP[m] && <span class={`chip chip-mark-${m}`}>{MARK_CHIP[m]}</span>}

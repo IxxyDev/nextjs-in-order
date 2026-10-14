@@ -4,13 +4,12 @@ import type { ComponentChildren, RefObject } from 'preact'
 import type { Journey, WorldState, EntityState } from '../domain/types'
 import { shortNameById } from '../domain/entities'
 import { checkId, journeyId, progress } from '../domain/progress'
+import { STATE_LABEL } from '../domain/stateLabel'
 import { STEP_INTERNALS_KEY } from '../domain/sessionFlags'
 import { Internals } from './Internals'
 
-const GROUPS: { state: EntityState; label: string }[] = [
-  { state: 'new', label: 'New' }, { state: 'replaced', label: 'Replaced' }, { state: 'kept', label: 'Kept' },
-  { state: 'invalid', label: 'Invalidated' }, { state: 'stale', label: 'Stale' }
-]
+/** the changed / kept list (§3.1) */
+const GROUPED: EntityState[] = ['new', 'replaced', 'kept', 'invalid', 'stale']
 
 /** header and expanded: the tablet bottom sheet's handle row and state (on phones, the room toggle of an open code lens); lens: the code lens, on journeys that have one */
 export function StepPanel({ journey, world, showText, header, expanded, lens, panelRef }: { journey: Journey; world: WorldState; showText: boolean; header?: ComponentChildren; expanded?: boolean; lens?: ComponentChildren; panelRef?: RefObject<HTMLElement> }) {
@@ -22,7 +21,7 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
   const earlier = (id: string, shown: boolean) => { const a = shown ? undefined : progress.get(id); return a && <span class={a.correct ? 'ok' : 'bad'}> answered {a.correct ? '✓' : '✗'} earlier</span> }
   /** the takeaway spells out the predict answer, so on a predict step it waits for a pick */
   const canShowClick = !step.question || picked !== null
-  const groups = GROUPS.map((g) => ({ ...g, ids: Object.entries(world.entityStates).filter(([, s]) => s === g.state).map(([id]) => id) })).filter((g) => g.ids.length)
+  const groups = GROUPED.map((state) => ({ state, ids: Object.entries(world.entityStates).filter(([, s]) => s === state).map(([id]) => id) })).filter((g) => g.ids.length)
   return (
     <section class={`panel ${expanded ? 'is-expanded' : ''}`} aria-labelledby="step-title" ref={panelRef}>
       {header}
@@ -31,7 +30,7 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
       {world.token && <div class="following">Following: {world.token.label}</div>}
       <p class="story">{step.story}</p>
       {groups.length > 0 && (
-        <dl>{groups.map((g) => <><dt key={`t-${g.state}`}>{g.label}</dt><dd key={`d-${g.state}`}>{g.ids.map(shortNameById).join(', ')}</dd></>)}</dl>
+        <dl>{groups.map((g) => <><dt key={`t-${g.state}`}>{STATE_LABEL[g.state]}</dt><dd key={`d-${g.state}`}>{g.ids.map(shortNameById).join(', ')}</dd></>)}</dl>
       )}
       {lens}
       {step.question && (

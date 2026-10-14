@@ -1,12 +1,9 @@
 import type { EntityState, Journey, WorldState } from './types'
 import { shortNameById } from './entities'
 import { edgeById } from './edges'
+import { STATE_LABEL } from './stateLabel'
 
 const ORDER: EntityState[] = ['current', 'active', 'new', 'replaced', 'kept', 'invalid', 'stale', 'fresh', 'na']
-const LABEL: Record<EntityState, string> = {
-  current: 'Current', active: 'Running', new: 'New', replaced: 'Replaced', kept: 'Kept', invalid: 'Invalidated',
-  stale: 'Stale', fresh: 'Fresh', na: 'Not available here', dimmed: ''
-}
 
 export function describeState(world: Omit<WorldState, 'text'>, journey: Journey): string {
   return [`Step ${world.stepIndex + 1} of ${journey.steps.length}: ${world.step.title}.`, describeScene(world, world.step.story)].join(' ')
@@ -19,7 +16,7 @@ export function describeScene(world: Pick<WorldState, 'token' | 'entityStates' |
   parts.push(story)
   for (const state of ORDER) {
     const ids = Object.entries(world.entityStates).filter(([, s]) => s === state).map(([id]) => shortNameById(id))
-    if (ids.length) parts.push(`${LABEL[state]}: ${ids.join(', ')}.`)
+    if (ids.length) parts.push(`${STATE_LABEL[state]}: ${ids.join(', ')}.`)
   }
   const edges = [...world.activeEdges].map((id) => {
     const e = edgeById(id)
