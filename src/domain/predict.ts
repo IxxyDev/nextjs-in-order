@@ -1,3 +1,7 @@
+/**
+ * Predict the machine, the mode at #/predict (PredictView): it asks the questions of the quiz, the question bank in
+ * quiz.ts. A journey step of kind 'predict' is another thing: its one question lives on the step (Step.question).
+ */
 import type { QuizQuestion, QuizResult } from './types'
 import { createLazyCatalog } from './lazyCatalog'
 
