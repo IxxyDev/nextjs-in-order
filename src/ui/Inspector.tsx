@@ -1,5 +1,4 @@
 // src/ui/Inspector.tsx
-import { useEffect, useRef, useState } from 'preact/hooks'
 import type { ComponentChildren } from 'preact'
 import { entityById, shortNameById } from '../domain/entities'
 import { regionById } from '../domain/regions'
@@ -9,21 +8,12 @@ import type { Journey } from '../domain/types'
 import { formatRoute } from '../domain/route'
 import { INSPECTOR_INTERNALS_KEY } from '../domain/sessionFlags'
 import { Internals } from './Internals'
+import { useLazy } from './useLazy'
 
 export function Inspector({ id, onClose }: { id: string; onClose: () => void }) {
   const e = entityById(id)
   /** journeys already loaded are used at once; otherwise the catalog loads each chunk once and keeps it */
-  const [journeys, setJourneys] = useState<Journey[] | undefined>(() => { const js = JOURNEY_CATALOG.map((e) => peekJourney(e.slug)); return js.every(Boolean) ? js as Journey[] : undefined })
-  const [failed, setFailed] = useState(false)
-  const live = useRef(true)
-  const load = () => {
-    setFailed(false)
-    loadAllJourneys().then((js) => { if (live.current) setJourneys(js) }, () => { if (live.current) setFailed(true) })
-  }
-  useEffect(() => {
-    if (!journeys) load()
-    return () => { live.current = false }
-  }, [])
+  const { value: journeys, isFailed, retry } = useLazy('all', peekAllJourneys, loadAllJourneys)
   const appearances = journeys ? appearancesOf(journeys, id) : []
   return (
     <aside class="inspector" aria-label={`Inspector: ${e.name}`}>
@@ -40,7 +30,7 @@ export function Inspector({ id, onClose }: { id: string; onClose: () => void }) 
         {e.history && <><dt>History</dt><dd><ol class="history">{e.history.map((h) => <li key={h.version}><strong>{h.version}</strong> {h.text}</li>)}</ol></dd></>}
         <dt>Crosses to the browser</dt><dd>{e.reaches === 'no' ? 'no' : e.reaches === 'code' ? 'yes, as code' : `yes, as ${e.reaches}`}</dd>
         <dt>Appears in</dt>
-        <dd>{failed ? <span role="alert">Couldn't load the journeys. <button onClick={load}>Retry</button></span> : !journeys ? '…' : appearances.length ? appearances.map(({ journey: j, step: i }) => <a key={`${j.id}-${i}`} href={formatRoute({ mode: 'journey', slug: j.slug, step: i })}>{j.title} · step {i + 1}</a>).reduce<ComponentChildren[]>((acc, el, k) => (k ? [...acc, ', ', el] : [el]), []) : '—'}</dd>
+        <dd>{isFailed ? <span role="alert">Couldn't load the journeys. <button onClick={retry}>Retry</button></span> : !journeys ? '…' : appearances.length ? appearances.map(({ journey: j, step: i }) => <a key={`${j.id}-${i}`} href={formatRoute({ mode: 'journey', slug: j.slug, step: i })}>{j.title} · step {i + 1}</a>).reduce<ComponentChildren[]>((acc, el, k) => (k ? [...acc, ', ', el] : [el]), []) : '—'}</dd>
       </dl>
       {e.versionNote && (
         <div class="version-note">
@@ -52,4 +42,9 @@ export function Inspector({ id, onClose }: { id: string; onClose: () => void }) 
       <Internals flagKey={INSPECTOR_INTERNALS_KEY} internals={e.internals} sources={e.sources} />
     </aside>
   )
+}
+
+function peekAllJourneys(): Journey[] | undefined {
+  const journeys = JOURNEY_CATALOG.map((e) => peekJourney(e.slug))
+  return journeys.every(Boolean) ? journeys as Journey[] : undefined
 }

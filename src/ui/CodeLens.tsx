@@ -7,6 +7,7 @@ import { beforePanes, chipRows, entitiesForRow, isFold, rowsForEntities, stripLi
 import { LENS_KEY, sessionFlags } from '../domain/sessionFlags'
 import { reducedMotion } from './useReducedMotion'
 import { clearLensLit, lensLit, lensOpen, mapHover } from './lensLink'
+import { useLazy } from './useLazy'
 
 const FORM: Record<ArtifactForm, string> = {
   tsx: 'TSX', js: 'JS', 'js-reference': 'JS + references', manifest: 'manifests', flight: 'Flight rows', html: 'HTML', dom: 'DOM', 'flight-patch': 'Flight patch',
@@ -88,17 +89,8 @@ function Line({ step, row, k, n, chip, fate, lit, roving, quiet, context }: RowP
 
 /** the code lens (docs/code-lens.md): one specimen app's code changing form along the journey, linked both ways to the map */
 export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: string; selected?: string }) {
-  const [bundle, setBundle] = useState(() => peekLens(slug))
-  const [failed, setFailed] = useState(false)
-  const live = useRef(true)
-  const load = () => {
-    setFailed(false)
-    loadLens(slug).then((b) => { if (live.current) setBundle(b) }, () => { if (live.current) setFailed(true) })
-  }
-  useEffect(() => {
-    if (!bundle) load()
-    return () => { live.current = false; clearLensLit() }
-  }, [])
+  const { value: bundle, isFailed, retry } = useLazy(slug, peekLens, loadLens)
+  useEffect(() => () => clearLensLit(), [])
   /** unset: each step's mode decides; an explicit expand or collapse holds for the session (expand pins it open, collapse keeps open steps to the strip) */
   const [choice, setChoice] = useState(() => sessionFlags.get(LENS_KEY))
   const choose = (open: boolean) => { setChoice(open); sessionFlags.set(LENS_KEY, open) }
@@ -113,7 +105,7 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
   useEffect(() => () => { lensOpen.value = false }, [])
 
   showing.current = false
-  if (failed) return <section class="lens" aria-label="Code lens"><p class="lens-failed" role="alert">Couldn't load the code lens. <button onClick={load}>Retry</button></p></section>
+  if (isFailed) return <section class="lens" aria-label="Code lens"><p class="lens-failed" role="alert">Couldn't load the code lens. <button onClick={retry}>Retry</button></p></section>
   if (!bundle) return null
   const index = bundle.lens.steps.findIndex((s) => s.step === stepId)
   const step = bundle.lens.steps[index]

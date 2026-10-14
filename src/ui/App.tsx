@@ -11,6 +11,7 @@ import { AtlasView } from './AtlasView'
 import { CompareView } from './CompareView'
 import { PredictView } from './PredictView'
 import { MenuSelect } from './MenuSelect'
+import { useLazy } from './useLazy'
 
 const VERSION_NOTE = 'Articles: Next.js 15→16 era (2025) · verified against Next.js 16.3 (Sept 2026)'
 
@@ -42,32 +43,20 @@ function useRoute(): [Route, (r: Route) => void] {
 export function App() {
   const [route, go] = useRoute()
   const slug = route.mode === 'journey' ? (entryBySlug(route.slug) ?? JOURNEY_CATALOG[0]).slug : undefined
-  const journey = slug ? peekJourney(slug) : undefined
+  const journeyLoad = useLazy(slug, peekJourney, loadJourney)
+  const journey = journeyLoad.value
   const pairSlug = route.mode === 'compare' ? (compareBySlug(route.slug) ?? COMPARE_CATALOG[0]).slug : undefined
-  const pair = pairSlug ? peekCompare(pairSlug) : undefined
-  const quiz = route.mode === 'predict' ? peekQuiz() : undefined
+  const pairLoad = useLazy(pairSlug, peekCompare, loadCompare)
+  const pair = pairLoad.value
+  const quizLoad = useLazy(route.mode === 'predict' ? 'quiz' : undefined, peekQuiz, loadQuiz)
+  const quiz = quizLoad.value
   const [, setLoaded] = useState(0)
-  /** the key of the load that failed last, cleared when it is tried again */
-  const [failed, setFailed] = useState<string>()
-  const load = (key: string, run: () => Promise<unknown>) => {
-    setFailed(undefined)
-    run().then(() => setLoaded((n) => n + 1), () => setFailed(key))
-  }
-  const loadOr = (key: string, what: string, message: string, run: () => Promise<unknown>) =>
-    failed === key ? <LoadFailed what={what} onRetry={() => load(key, run)} /> : <p class="loading" role="status">{message}</p>
-  useEffect(() => {
-    if (slug && !journey) load(`journey:${slug}`, () => loadJourney(slug))
-  }, [slug])
+  const loadOr = ({ isFailed, retry }: { isFailed: boolean; retry: () => void }, what: string, message: string) =>
+    isFailed ? <LoadFailed what={what} onRetry={retry} /> : <p class="loading" role="status">{message}</p>
   /** progress meta needs every journey; their chunks load on the first menu open, not on mount */
   const [wantAll, setWantAll] = useState(false)
   /** a failed chunk here only leaves some progress meta blank; the menu retries on its next open */
   useEffect(() => { if (wantAll) loadAllJourneys().then(() => setLoaded((n) => n + 1), () => setWantAll(false)) }, [wantAll])
-  useEffect(() => {
-    if (pairSlug && !pair) load(`compare:${pairSlug}`, () => loadCompare(pairSlug))
-  }, [pairSlug])
-  useEffect(() => {
-    if (route.mode === 'predict' && !quiz) load('predict', loadQuiz)
-  }, [route.mode])
   useEffect(() => {
     if (route.mode === 'predict' && quiz && clampIndex(route.n, quiz.length) !== route.n) go({ mode: 'predict', n: clampIndex(route.n, quiz.length), cam: route.cam })
   }, [route, quiz])
@@ -90,11 +79,11 @@ export function App() {
         <span class="version-chip">{VERSION_NOTE}</span>
       </header>
       {route.mode === 'predict'
-        ? quiz ? <PredictView quiz={quiz} n={clampIndex(route.n, quiz.length)} cam={route.cam} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : loadOr('predict', 'the questions', 'Loading questions…', loadQuiz)
+        ? quiz ? <PredictView quiz={quiz} n={clampIndex(route.n, quiz.length)} cam={route.cam} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : loadOr(quizLoad, 'the questions', 'Loading questions…')
         : route.mode === 'compare'
-        ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : loadOr(`compare:${pairSlug}`, 'this comparison', 'Loading comparison…', () => loadCompare(pairSlug!))
+        ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : loadOr(pairLoad, 'this comparison', 'Loading comparison…')
         : route.mode === 'journey'
-        ? journey ? <JourneyView journey={journey} step={clampIndex(route.step, journey.steps.length)} cam={route.cam} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} /> : loadOr(`journey:${slug}`, 'this journey', 'Loading journey…', () => loadJourney(slug!))
+        ? journey ? <JourneyView journey={journey} step={clampIndex(route.step, journey.steps.length)} cam={route.cam} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} /> : loadOr(journeyLoad, 'this journey', 'Loading journey…')
         : <AtlasView entity={route.mode === 'atlas' ? route.entity : undefined} cam={route.mode === 'atlas' ? route.cam : undefined} onSelect={(id) => go({ mode: 'atlas', ...(id ? { entity: id } : {}) })} />}
     </div>
   )
