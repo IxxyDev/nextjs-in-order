@@ -79,7 +79,7 @@ export function App() {
         <span class="version-chip">{VERSION_NOTE}</span>
       </header>
       {route.mode === 'predict'
-        ? quiz ? <PredictView quiz={quiz} n={clampIndex(route.n, quiz.length)} cam={route.cam} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : loadOr(quizLoad, 'the questions', 'Loading questions…')
+        ? quiz ? <PredictView key={route.n} quiz={quiz} n={clampIndex(route.n, quiz.length)} cam={route.cam} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : loadOr(quizLoad, 'the questions', 'Loading questions…')
         : route.mode === 'compare'
         ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : loadOr(pairLoad, 'this comparison', 'Loading comparison…')
         : route.mode === 'journey'

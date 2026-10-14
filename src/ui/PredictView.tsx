@@ -37,9 +37,7 @@ function markFor(id: string, picked: boolean, checked: boolean, answer: Readonly
 
 export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQuestion[]; n: number; cam?: Camera; onGo: (n: number) => void; onAnswered?: (questionId: string, correct: boolean) => void }) {
   const q = quiz[n]
-  const [state, setState] = useState({ id: q.id, picks: [] as string[], checked: false })
-  const { picks, checked } = state.id === q.id ? state : { picks: [] as string[], checked: false }
-  const set = (next: { picks: string[]; checked: boolean }) => setState({ id: q.id, ...next })
+  const [{ picks, checked }, set] = useState({ picks: [] as string[], checked: false })
   const result = checked ? scoreQuestion(q, picks) : undefined
 
   const vp = viewport.value
@@ -50,7 +48,6 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
   const manual = useRef(false)
   const onManual = (c: Camera) => { manual.current = true; writeCamToUrl(c) }
   useCameraGestures(MAIN_RIG, stage, onManual)
-  useEffect(() => { manual.current = false }, [q.id])
   useEffect(() => { if (!cam && !manual.current) goTo(cameraFor(q), reducedMotion.value) }, [q.id, camKey, vp.w, vp.h])
 
   const toggle = (id: string) => {
