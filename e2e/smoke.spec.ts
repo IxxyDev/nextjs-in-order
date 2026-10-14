@@ -78,6 +78,13 @@ test('predict: Clear picks empties the picks', async ({ page }) => {
   await expect(first).toHaveAttribute('aria-pressed', 'false')
 })
 
+test('journey: the canvas label and Read as text call a state by the same word', async ({ page }) => {
+  await page.goto('/#/journey/whole-lifecycle/2')
+  await expect(page.getByRole('button', { name: 'components/DashboardNav.tsx, current. Inspect' })).toBeVisible()
+  await page.getByRole('button', { name: 'Read as text' }).click()
+  await expect(page.locator('.text-equivalent')).toContainText('Current: DashboardNav.tsx.')
+})
+
 test('deep link: reloading #/journey/app-initial/12 keeps showing step 12', async ({ page }) => {
   const errors = watchErrors(page)
   await page.goto('/#/journey/app-initial/12')
