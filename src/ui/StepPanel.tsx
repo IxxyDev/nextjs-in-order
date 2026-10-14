@@ -21,6 +21,21 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
   const earlier = (id: string, shown: boolean) => { const a = shown ? undefined : progress.get(id); return a && <span class={a.correct ? 'ok' : 'bad'}> answered {a.correct ? '✓' : '✗'} earlier</span> }
   /** the takeaway spells out the predict answer, so on a predict step it waits for a pick */
   const canShowClick = !step.question || picked !== null
+  /** on a check step the statements and the takeaway come before the code lens: j0-10's lens is open (code-lens.md rule 7) and would push them a screen down */
+  const checks = step.checks && (
+    <div>
+      <p><strong>Check yourself</strong></p>
+      {step.checks.map((c, i) => (
+        <div class="check" key={c.statement}>
+          <p>{c.statement}{earlier(checkId(step.id, i), answers[i] !== undefined)}</p>
+          <button onClick={() => answer(i, true)} aria-pressed={answers[i] === true}>True</button>
+          <button onClick={() => answer(i, false)} aria-pressed={answers[i] === false}>False</button>
+          {answers[i] !== undefined && <p class="why"><span class={answers[i] === c.isTrue ? 'ok' : 'bad'}>{answers[i] === c.isTrue ? 'Correct.' : 'Incorrect.'}</span> {c.why}</p>}
+        </div>
+      ))}
+    </div>
+  )
+  const click = canShowClick && <div class="click" aria-label="What should click">{journey.whatShouldClick}</div>
   const groups = GROUPED.map((state) => ({ state, ids: Object.entries(world.entityStates).filter(([, s]) => s === state).map(([id]) => id) })).filter((g) => g.ids.length)
   return (
     <section class={`panel ${expanded ? 'is-expanded' : ''}`} aria-labelledby="step-title" ref={panelRef}>
@@ -29,6 +44,8 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
       <h2 id="step-title">{step.title}</h2>
       {world.token && <div class="following">Following: {world.token.label}</div>}
       <p class="story">{step.story}</p>
+      {checks}
+      {step.checks && click}
       {groups.length > 0 && (
         <dl>{groups.map((g) => <><dt key={`t-${g.state}`}>{STATE_LABEL[g.state]}</dt><dd key={`d-${g.state}`}>{g.ids.map(shortNameById).join(', ')}</dd></>)}</dl>
       )}
@@ -42,20 +59,7 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
           {picked !== null && <p class="why">{picked === step.question.answer ? 'Right. ' : 'Not quite. '}{step.question.why}</p>}
         </div>
       )}
-      {step.checks && (
-        <div>
-          <p><strong>Check yourself</strong></p>
-          {step.checks.map((c, i) => (
-            <div class="check" key={c.statement}>
-              <p>{c.statement}{earlier(checkId(step.id, i), answers[i] !== undefined)}</p>
-              <button onClick={() => answer(i, true)} aria-pressed={answers[i] === true}>True</button>
-              <button onClick={() => answer(i, false)} aria-pressed={answers[i] === false}>False</button>
-              {answers[i] !== undefined && <p class="why"><span class={answers[i] === c.isTrue ? 'ok' : 'bad'}>{answers[i] === c.isTrue ? 'Correct.' : 'Incorrect.'}</span> {c.why}</p>}
-            </div>
-          ))}
-        </div>
-      )}
-      {canShowClick && <div class="click" aria-label="What should click">{journey.whatShouldClick}</div>}
+      {!step.checks && click}
       <Internals flagKey={STEP_INTERNALS_KEY} internals={step.internals} sources={step.sources} />
       {showText && <p class="text-equivalent">{world.text}</p>}
       <p class="visually-hidden" aria-live="polite">{world.text}</p>
