@@ -471,3 +471,6 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
 /* the inspector's Internals is the same disclosure as the step panel's (.panel details) */
 .inspector details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 10px; }
 .inspector summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); }
+
+/* the journeys menu keeps each option on one line: the title gives way to the step count and progress mark */
+.menu-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

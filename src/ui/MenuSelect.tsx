@@ -75,7 +75,7 @@ export function MenuSelect({ id, label, placeholder, options, value, onChange, o
               class={`menu-option ${i === active ? 'is-active' : ''}`}
               onPointerMove={() => setActive(i)} onClick={() => pick(i)}
             >
-              <span class="menu-code">{o.code}</span><span class="menu-title">{o.title}</span>{o.meta && <span class="menu-meta">{o.meta}</span>}
+              <span class="menu-code">{o.code}</span><span class="menu-title" title={o.title}>{o.title}</span>{o.meta && <span class="menu-meta">{o.meta}</span>}
             </li>
           ))}
         </ul>

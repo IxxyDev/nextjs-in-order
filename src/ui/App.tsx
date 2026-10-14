@@ -14,11 +14,14 @@ import { MenuSelect } from './MenuSelect'
 
 const VERSION_NOTE = 'Articles: Next.js 15→16 era (2025) · verified against Next.js 16.3 (Sept 2026)'
 
+/** the step count, then the progress mark once anything is answered: ✓ when every answer is right, else answered/total */
 function journeyMeta(slug: string): string | undefined {
   const j = peekJourney(slug)
   if (!j) return undefined
+  const steps = `${j.steps.length} steps`
   const { answered, correct, total } = progress.summaryForJourney(j)
-  return answered === 0 ? undefined : answered === total && correct === total ? '✓' : `${answered}/${total}`
+  if (answered === 0) return steps
+  return `${steps} · ${answered === total && correct === total ? '✓' : `${answered}/${total}`}`
 }
 
 /** shown in place of the loading message when a chunk fails; the catalogs retry a failed load on the next call */
