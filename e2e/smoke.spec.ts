@@ -85,6 +85,16 @@ test('journey: the canvas label and Read as text call a state by the same word',
   await expect(page.locator('.text-equivalent')).toContainText('Current: DashboardNav.tsx.')
 })
 
+test('journeys menu: each journey shows its step count on one line with its progress mark', async ({ page }) => {
+  await page.goto('/#/journey/app-initial/7')
+  await page.locator('.predict button').first().click()
+  await page.getByRole('button', { name: /^Journey:/ }).click()
+  const option = page.getByRole('option', { name: /App Router: the initial request/ })
+  await expect(option).toContainText('22 steps · 1/')
+  const box = (await option.boundingBox())!
+  expect(box.height, 'one line').toBeLessThan(48)
+})
+
 test('deep link: reloading #/journey/app-initial/12 keeps showing step 12', async ({ page }) => {
   const errors = watchErrors(page)
   await page.goto('/#/journey/app-initial/12')
