@@ -1,6 +1,6 @@
 // src/ui/Labels.tsx
 import type { EntityState, PickMark, RegionId, TokenState } from '../domain/types'
-import { ENTITIES, entityById } from '../domain/entities'
+import { ENTITIES, entityById, shortNameById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
 import { REGIONS, CUSTOM_SERVER_RING as RING } from '../domain/regions'
 import { MAIN_RIG, reservedFor, worldToScreen, type CameraRig } from './camera'
@@ -69,7 +69,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     if (differs?.has(e.id)) chips.push('differs')
     if (mark && MARK_CHIP[mark]) chips.push(MARK_CHIP[mark]!)
     const p = worldToScreen({ x: e.x, y: e.y + 30 }, cam, vp)
-    candidates.push({ id: e.id, x: p.x, y: p.y, inline: dense, text: token?.at === e.id ? token.label : (e.short ?? e.name.split(' · ')[0]), chips, state, isToken: token?.at === e.id, isSelected: selected === e.id || PRESSED.has(mark) })
+    candidates.push({ id: e.id, x: p.x, y: p.y, inline: dense, text: token?.at === e.id ? token.label : shortNameById(e.id), chips, state, isToken: token?.at === e.id, isSelected: selected === e.id || PRESSED.has(mark) })
   }
   /** edge chips take part in the same layout, so they slide off entity labels instead of covering them */
   if (activeEdges) for (const e of EDGES) {

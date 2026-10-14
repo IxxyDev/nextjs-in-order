@@ -963,3 +963,9 @@ export function entityById(id: string): Entity {
   if (!e) throw new Error(`unknown entity ${id}`)
   return e
 }
+
+/** the one name an entity goes by on the canvas, in the panels and in Read as text: its short label, else its name before ' · ' */
+export function shortNameById(id: string): string {
+  const e = entityById(id)
+  return e.short ?? e.name.split(' · ')[0]
+}

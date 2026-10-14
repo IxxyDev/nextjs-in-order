@@ -1,7 +1,7 @@
 // src/ui/PredictView.tsx
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { Camera, CameraTarget, EntityState, PickMark, QuizQuestion, RegionId } from '../domain/types'
-import { ENTITIES, entityById } from '../domain/entities'
+import { ENTITIES, entityById, shortNameById } from '../domain/entities'
 import { regionById } from '../domain/regions'
 import { entryBySlug } from '../domain/journeys'
 import { answerIds, scoreQuestion } from '../domain/predict'
@@ -16,7 +16,6 @@ import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera
 import { reducedMotion } from './useReducedMotion'
 import { useCameraGestures } from './useCameraGestures'
 
-const short = (id: string) => { const e = entityById(id); return e.short ?? e.name.split(' · ')[0] }
 const HINT = {
   entities: 'Pick every entity that applies, on the map or in the list. Picks are scored as an exact set.',
   regions: 'Pick every region that applies: click a region or its title, or use the list.',
@@ -97,7 +96,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
     if (q.type === 'entities') toggle(id)
     else if (q.type === 'regions') toggle(entityById(id).region)
   }
-  const name = (id: string) => (q.type === 'regions' ? regionById(id as RegionId).title : short(id))
+  const name = (id: string) => (q.type === 'regions' ? regionById(id as RegionId).title : shortNameById(id))
   const listMark = (id: string) => (q.type === 'regions' ? regionMarks[id as RegionId] : marks[id])
 
   return (

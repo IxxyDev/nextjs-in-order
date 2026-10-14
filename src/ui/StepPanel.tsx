@@ -2,7 +2,7 @@
 import { useState } from 'preact/hooks'
 import type { ComponentChildren, RefObject } from 'preact'
 import type { Journey, WorldState, EntityState } from '../domain/types'
-import { entityById } from '../domain/entities'
+import { shortNameById } from '../domain/entities'
 import { checkId, journeyId, progress } from '../domain/progress'
 import { STEP_INTERNALS_KEY } from '../domain/sessionFlags'
 import { Internals } from './Internals'
@@ -31,7 +31,7 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
       {world.token && <div class="following">Following: {world.token.label}</div>}
       <p class="story">{step.story}</p>
       {groups.length > 0 && (
-        <dl>{groups.map((g) => <><dt key={`t-${g.state}`}>{g.label}</dt><dd key={`d-${g.state}`}>{g.ids.map((id) => entityById(id).name.split(' · ')[0]).join(', ')}</dd></>)}</dl>
+        <dl>{groups.map((g) => <><dt key={`t-${g.state}`}>{g.label}</dt><dd key={`d-${g.state}`}>{g.ids.map(shortNameById).join(', ')}</dd></>)}</dl>
       )}
       {lens}
       {step.question && (

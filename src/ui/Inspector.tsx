@@ -1,7 +1,7 @@
 // src/ui/Inspector.tsx
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { ComponentChildren } from 'preact'
-import { entityById } from '../domain/entities'
+import { entityById, shortNameById } from '../domain/entities'
 import { regionById } from '../domain/regions'
 import { JOURNEY_CATALOG, loadAllJourneys, peekJourney } from '../domain/journeys'
 import { appearancesOf } from '../domain/appearances'
@@ -36,7 +36,7 @@ export function Inspector({ id, onClose }: { id: string; onClose: () => void }) 
         <dt>Exists during</dt><dd>{e.exists} ({e.phase.join(', ')})</dd>
         <dt>Consumes</dt><dd>{e.consumes.join('; ') || '—'}</dd>
         <dt>Produces</dt><dd>{e.produces.join('; ') || '—'}</dd>
-        <dt>Connected through</dt><dd>{e.connects.length ? e.connects.map((c) => entityById(c).name.split(' · ')[0]).join(', ') : '—'}</dd>
+        <dt>Connected through</dt><dd>{e.connects.length ? e.connects.map(shortNameById).join(', ') : '—'}</dd>
         {e.history && <><dt>History</dt><dd><ol class="history">{e.history.map((h) => <li key={h.version}><strong>{h.version}</strong> {h.text}</li>)}</ol></dd></>}
         <dt>Crosses to the browser</dt><dd>{e.reaches === 'no' ? 'no' : e.reaches === 'code' ? 'yes, as code' : `yes, as ${e.reaches}`}</dd>
         <dt>Appears in</dt>

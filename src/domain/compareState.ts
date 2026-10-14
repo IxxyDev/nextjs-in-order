@@ -1,5 +1,5 @@
 import type { CompareWorld, EntityState, LaneWorld, ResolvedPair } from './types'
-import { ENTITIES } from './entities'
+import { ENTITIES, shortNameById } from './entities'
 import { describeScene } from './textEquivalent'
 import { clampIndex } from './route'
 
@@ -22,7 +22,7 @@ export function deriveCompareState(pair: ResolvedPair, stepIndex: number): Compa
   const ruler = step.ruler ?? lanes.map(() => at)
   const text = [
     `Step ${index + 1} of ${pair.steps.length}: ${step.title}.`, step.story,
-    ...lanes.map((l, i) => `${pair.lanes[i].title}: ${describeScene(l, l.lane.story)}${l.differs.size ? ` Only here: ${[...l.differs].map((id) => ENTITIES.find((e) => e.id === id)!.name.split(' · ')[0]).join(', ')}.` : ''}`)
+    ...lanes.map((l, i) => `${pair.lanes[i].title}: ${describeScene(l, l.lane.story)}${l.differs.size ? ` Only here: ${[...l.differs].map(shortNameById).join(', ')}.` : ''}`)
   ].join(' ')
   return { pairId: pair.id, stepIndex: index, step, lanes, ruler, text }
 }
