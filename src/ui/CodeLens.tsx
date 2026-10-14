@@ -4,10 +4,11 @@ import type { ComponentChildren } from 'preact'
 import type { ArtifactForm, CodeLine, Fate, FateId, LensPane, LensRow, LensStep, LineChange } from '../domain/types'
 import { loadLens, peekLens } from '../domain/codeLens'
 import { beforePanes, chipRows, entitiesForRow, isFold, rowsForEntities, stripLines } from '../domain/codeLens/view'
-import { LENS_KEY, sessionFlags } from '../domain/sessionFlags'
+import { LENS_KEY } from '../domain/sessionFlags'
 import { reducedMotion } from './useReducedMotion'
 import { clearLensLit, lensLit, lensOpen, mapHover } from './lensLink'
 import { useLazy } from './useLazy'
+import { useSessionFlag } from './useSessionFlag'
 
 const FORM: Record<ArtifactForm, string> = {
   tsx: 'TSX', js: 'JS', 'js-reference': 'JS + references', manifest: 'manifests', flight: 'Flight rows', html: 'HTML', dom: 'DOM', 'flight-patch': 'Flight patch',
@@ -92,8 +93,7 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
   const { value: bundle, isFailed, retry } = useLazy(slug, peekLens, loadLens)
   useEffect(() => () => clearLensLit(), [])
   /** unset: each step's mode decides; an explicit expand or collapse holds for the session (expand pins it open, collapse keeps open steps to the strip) */
-  const [choice, setChoice] = useState(() => sessionFlags.get(LENS_KEY))
-  const choose = (open: boolean) => { setChoice(open); sessionFlags.set(LENS_KEY, open) }
+  const [choice, choose] = useSessionFlag(LENS_KEY)
   const [folds, setFolds] = useState<ReadonlySet<string>>(new Set())
   /** one tab stop for all lines; ↑/↓ move between them (←/→/Space/Home/End stay with the step controls) */
   const [active, setActive] = useState<string>()
