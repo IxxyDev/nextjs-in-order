@@ -42,9 +42,9 @@ function Text({ text, morph, children }: { text: string; morph?: string; childre
 const CHANGE: Record<LineChange, string> = { new: 'new line', same: '', gone: 'removed' }
 const SIGN: Partial<Record<LineChange, string>> = { new: '+', gone: '−' }
 
-interface RowProps {
-  step: LensStep; row: CodeLine; k: string; n: number; chip: { hue: boolean; mark: boolean }
-  fate: (id?: FateId) => Fate | undefined; lit: boolean; roving: (k: string) => { tabIndex: number; 'data-key': string; 'data-lens-row': true }
+interface LineProps {
+  step: LensStep; row: CodeLine; rowKey: string; index: number; chip: { hue: boolean; mark: boolean }
+  fate: (id?: FateId) => Fate | undefined; lit: boolean; roving: (rowKey: string) => { tabIndex: number; 'data-key': string; 'data-lens-row': true }
   /** the pane's own header says it (every line new, or every line gone): the lines carry no per-line change */
   quiet?: boolean
   /** a reduced-motion before pane: earlier context, linked to nothing at this step and never flagged off-map */
@@ -55,7 +55,7 @@ interface RowProps {
  * one code line: change as a diff sign and tint, fate as the hue bar and gutter glyphs, the note as a trailing
  * annotation; the group's fate chip sits on its first line only, so color is never the only signal
  */
-function Line({ step, row, k, n, chip, fate, lit, roving, quiet, context }: RowProps) {
+function Line({ step, row, rowKey, index, chip, fate, lit, roving, quiet, context }: LineProps) {
   const hue = fate(row.fate), mark = fate(row.mark)
   const entities = context ? [] : entitiesForRow(step, row)
   const change = quiet ? undefined : row.change
@@ -65,7 +65,7 @@ function Line({ step, row, k, n, chip, fate, lit, roving, quiet, context }: RowP
   const offMap = !context && (!!hue || !!mark) && !entities.length
   const chips = (hue && chip.hue) || (mark && chip.mark) || offMap
   return (
-    <li class={cls.filter(Boolean).join(' ')} style={{ '--i': String(n) }} {...roving(k)} onMouseEnter={point} onMouseLeave={clearLensLit} onFocus={point} onBlur={clearLensLit}>
+    <li class={cls.filter(Boolean).join(' ')} style={{ '--i': String(index) }} {...roving(rowKey)} onMouseEnter={point} onMouseLeave={clearLensLit} onFocus={point} onBlur={clearLensLit}>
       <span class="lens-sign" aria-hidden="true">{change && SIGN[change]}</span>
       <span class="lens-gutter" aria-hidden="true"><span>{hue?.glyph}</span><span>{mark?.glyph}</span></span>
       <div class="lens-cell">
@@ -141,32 +141,32 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
     return c && c !== 'same' && lines.every((r) => r.change === c) ? c : undefined
   }
 
-  const rowFor = (row: LensRow, k: string, n: number, chip: { hue: boolean; mark: boolean }, isLit: boolean, quiet: boolean, context: boolean) => {
-    if (!isFold(row)) return <Line key={k} step={step} row={row} k={k} n={n} chip={chip} fate={fate} lit={isLit} roving={roving} quiet={quiet} context={context} />
+  const rowFor = (row: LensRow, rowKey: string, index: number, chip: { hue: boolean; mark: boolean }, isLit: boolean, quiet: boolean, context: boolean) => {
+    if (!isFold(row)) return <Line key={rowKey} step={step} row={row} rowKey={rowKey} index={index} chip={chip} fate={fate} lit={isLit} roving={roving} quiet={quiet} context={context} />
     /** a fold is one calm line, never struck: what it leaves out, and (when it can) a toggle that shows it */
     const cls = 'lens-row is-fold'
     const gone = row.change === 'gone' && <span class="visually-hidden"> · removed</span>
     const source = row.lines?.length ? undefined : row.from?.map((id) => specimen.find((l) => l.id === id)).filter((l) => !!l)
     if (!row.lines?.length && !source?.length) {
-      return <li key={k} class={cls} style={{ '--i': String(n) }} {...roving(k)}><span class="lens-sign" aria-hidden="true" /><span class="lens-fold"><span aria-hidden="true">⋯ </span>{row.label}{gone}</span></li>
+      return <li key={rowKey} class={cls} style={{ '--i': String(index) }} {...roving(rowKey)}><span class="lens-sign" aria-hidden="true" /><span class="lens-fold"><span aria-hidden="true">⋯ </span>{row.label}{gone}</span></li>
     }
-    const open = folds.has(`${stepId}:${k}`)
+    const open = folds.has(`${stepId}:${rowKey}`)
     const inner: CodeLine[] = row.lines?.length ? row.lines.map((text) => ({ text })) : source!.map((l) => ({ text: l.text, from: [l.id], fate: l.fate, mark: l.mark }))
     const chips = chipRows(inner)
     /** source lines inside a compiled pane say where they come from */
     const file = source && bundle.specimen.find((f) => f.lines.some((l) => l.id === source[0].id))
     const caption = source && step.form !== 'tsx' ? `as written in ${file ? `${file.path}${file.variant ? ' (what if)' : ''}` : 'the source'}` : undefined
     return (
-      <li key={k} class={cls} style={{ '--i': String(n) }}>
+      <li key={rowKey} class={cls} style={{ '--i': String(index) }}>
         <span class="lens-sign" aria-hidden="true" />
         <div class="lens-cell">
-          <button type="button" class="lens-fold" aria-expanded={open} {...roving(k)} onClick={() => toggleFold(`${stepId}:${k}`)}>
+          <button type="button" class="lens-fold" aria-expanded={open} {...roving(rowKey)} onClick={() => toggleFold(`${stepId}:${rowKey}`)}>
             <span class="lens-fold-icon" aria-hidden="true">▸</span>{row.label}{gone}
           </button>
           {open && (
             <div class="lens-unfolded">
               {caption && <p class="lens-caption">{caption}</p>}
-              <ol class="lens-rows">{inner.map((r, j) => <Line key={`${k}:${j}`} step={step} row={r} k={`${k}:${j}`} n={0} chip={chips[j]} fate={fate} lit={!context && entitiesForRow(step, r).some((e) => pointed.has(e))} roving={roving} context={context} />)}</ol>
+              <ol class="lens-rows">{inner.map((r, j) => <Line key={`${rowKey}:${j}`} step={step} row={r} rowKey={`${rowKey}:${j}`} index={0} chip={chips[j]} fate={fate} lit={!context && entitiesForRow(step, r).some((e) => pointed.has(e))} roving={roving} context={context} />)}</ol>
             </div>
           )}
         </div>
