@@ -7,6 +7,7 @@ import { MAIN_RIG, reservedFor, worldToScreen, type CameraRig } from './camera'
 import { intersects, placeLabels, type LabelCandidate, type ScreenRect } from './labelLayout'
 import { lensLit, mapHover } from './lensLink'
 import { STATE_LABEL } from '../domain/stateLabel'
+import { MARK_CHIP } from '../domain/predict'
 
 /** below this zoom, only emphasized entities keep their label (emphasized ones always try for one) */
 const LABEL_ZOOM = 0.7
@@ -36,7 +37,6 @@ export interface LabelsProps {
   verb?: string
 }
 
-export const MARK_CHIP: Partial<Record<PickMark, string>> = { picked: 'picked', correct: 'correct', missed: 'missed', extra: 'extra', answer: 'answer' }
 const PRESSED = new Set<PickMark | undefined>(['picked', 'correct', 'extra'])
 
 export function Labels({ entityStates, activeEdges, token, selected, onSelect, rig = MAIN_RIG, differs, marks, regionMarks, onRegion, verb = 'Inspect' }: LabelsProps) {
