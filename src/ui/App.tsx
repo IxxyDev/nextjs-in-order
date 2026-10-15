@@ -1,5 +1,6 @@
 // src/ui/App.tsx
 import { useEffect, useState } from 'preact/hooks'
+import type { FunctionComponent } from 'preact'
 import { DEFAULT_COMPARE, DEFAULT_JOURNEY, clampIndex, parseRoute, formatRoute } from '../domain/route'
 import type { Route } from '../domain/types'
 import { entryBySlug, JOURNEY_CATALOG, loadAllJourneys, loadJourney, peekJourney } from '../domain/journeys'
@@ -15,6 +16,85 @@ import { MenuSelect } from './MenuSelect'
 import { useLazy } from './useLazy'
 
 const VERSION_NOTE = 'Articles: Next.js 15→16 era (2025) · verified against Next.js 16.3 (Sept 2026)'
+
+export function App() {
+  const [route, go] = useRoute()
+  const [, setLoaded] = useState(0)
+  /** progress meta needs every journey; their chunks load on the first menu open, not on mount */
+  const [wantAll, setWantAll] = useState(false)
+  /** a failed chunk here only leaves some progress meta blank; the menu retries on its next open */
+  useEffect(() => { if (wantAll) loadAllJourneys().then(() => setLoaded((n) => n + 1), () => setWantAll(false)) }, [wantAll])
+  const Page = pageMap[route.mode] as FunctionComponent<PageProps<Route['mode']>>
+  return (
+    <div class="app">
+      <header class="app-header">
+        <h1>Next.js <em>Under the Hood</em></h1>
+        <nav aria-label="Modes">
+          <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={route.mode === 'journey' ? route.slug : undefined} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: catalogCode(j.id), title: j.title, meta: journeyMeta(j.slug) }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} onOpen={() => setWantAll(true)} />
+          <MenuSelect id="compare-select" label="Compare" placeholder="Compare…" value={route.mode === 'compare' ? route.slug : undefined} options={COMPARE_CATALOG.map((c) => ({ value: c.slug, code: catalogCode(c.id), title: c.title }))} onChange={(slug) => go({ mode: 'compare', slug, step: 0 })} />
+          <a href={formatRoute({ mode: 'atlas' })} aria-current={route.mode === 'atlas' ? 'page' : undefined}>System Atlas</a>
+          <a href={formatRoute({ mode: 'predict', n: 0 })} aria-current={route.mode === 'predict' ? 'page' : undefined}>Predict</a>
+        </nav>
+        <span class="version-chip">{VERSION_NOTE}</span>
+      </header>
+      <Page route={route} go={go} />
+    </div>
+  )
+}
+
+function JourneyPage({ route, go }: PageProps<'journey'>) {
+  const load = useLazy(entryBySlug(route.slug)?.slug ?? DEFAULT_JOURNEY, peekJourney, loadJourney)
+  const journey = load.value
+  const step = journey ? clampIndex(route.step, journey.steps.length) : 0
+  useCanonicalRoute(route, journey && { ...route, slug: journey.slug, step }, go)
+  if (!journey) return <LoadStatus isFailed={load.isFailed} retry={load.retry} what="this journey" message="Loading journey…" />
+  return <JourneyView journey={journey} step={step} cam={route.cam} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} />
+}
+
+function ComparePage({ route, go }: PageProps<'compare'>) {
+  const load = useLazy(compareBySlug(route.slug)?.slug ?? DEFAULT_COMPARE, peekCompare, loadCompare)
+  const pair = load.value
+  const step = pair ? clampIndex(route.step, pair.steps.length) : 0
+  useCanonicalRoute(route, pair && { ...route, slug: pair.slug, step }, go)
+  if (!pair) return <LoadStatus isFailed={load.isFailed} retry={load.retry} what="this comparison" message="Loading comparison…" />
+  return <CompareView key={pair.slug} pair={pair} step={step} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} />
+}
+
+function PredictPage({ route, go }: PageProps<'predict'>) {
+  const load = useLazy('quiz', peekQuiz, loadQuiz)
+  const quiz = load.value
+  const n = quiz ? clampIndex(route.n, quiz.length) : 0
+  useCanonicalRoute(route, quiz && { ...route, n }, go)
+  if (!quiz) return <LoadStatus isFailed={load.isFailed} retry={load.retry} what="the questions" message="Loading questions…" />
+  return <PredictView key={quiz[n].id} quiz={quiz} n={n} cam={route.cam} onGo={(next) => go({ mode: 'predict', n: clampIndex(next, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} />
+}
+
+function AtlasPage({ route, go }: PageProps<'atlas'>) {
+  return <AtlasView entity={route.entity} cam={route.cam} onSelect={(id) => go({ mode: 'atlas', ...(id ? { entity: id } : {}) })} />
+}
+
+const pageMap: { [M in Route['mode']]: FunctionComponent<PageProps<M>> } = {
+  journey: JourneyPage,
+  compare: ComparePage,
+  predict: PredictPage,
+  atlas: AtlasPage
+}
+
+function useRoute(): [Route, (r: Route) => void] {
+  const [route, setRoute] = useState<Route>(() => parseRoute(location.hash))
+  useEffect(() => {
+    const onHash = () => setRoute(parseRoute(location.hash))
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+  return [route, (r) => { location.hash = formatRoute(r) }]
+}
+
+/** once the entry has loaded, a route naming an unknown slug or an out-of-range step or question gives way to its canonical form */
+function useCanonicalRoute(route: Route, canonical: Route | undefined, go: (r: Route) => void) {
+  const canonicalHash = canonical && formatRoute(canonical)
+  useEffect(() => { if (canonical && canonicalHash !== formatRoute(route)) go(canonical) }, [route, canonicalHash])
+}
 
 /** the step count, then the progress mark once anything is answered: ✓ when every answer is right, else answered/total */
 function journeyMeta(slug: string): string | undefined {
@@ -32,59 +112,7 @@ function LoadStatus({ isFailed, retry, what, message }: { isFailed: boolean; ret
   return <p class="loading" role="status">{message}</p>
 }
 
-function useRoute(): [Route, (r: Route) => void] {
-  const [route, setRoute] = useState<Route>(() => parseRoute(location.hash))
-  useEffect(() => {
-    const onHash = () => setRoute(parseRoute(location.hash))
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
-  }, [])
-  return [route, (r) => { location.hash = formatRoute(r) }]
-}
-
-export function App() {
-  const [route, go] = useRoute()
-  const slug = route.mode === 'journey' ? entryBySlug(route.slug)?.slug ?? DEFAULT_JOURNEY : undefined
-  const journeyLoad = useLazy(slug, peekJourney, loadJourney)
-  const journey = journeyLoad.value
-  const pairSlug = route.mode === 'compare' ? compareBySlug(route.slug)?.slug ?? DEFAULT_COMPARE : undefined
-  const pairLoad = useLazy(pairSlug, peekCompare, loadCompare)
-  const pair = pairLoad.value
-  const quizLoad = useLazy(route.mode === 'predict' ? 'quiz' : undefined, peekQuiz, loadQuiz)
-  const quiz = quizLoad.value
-  const [, setLoaded] = useState(0)
-  /** progress meta needs every journey; their chunks load on the first menu open, not on mount */
-  const [wantAll, setWantAll] = useState(false)
-  /** a failed chunk here only leaves some progress meta blank; the menu retries on its next open */
-  useEffect(() => { if (wantAll) loadAllJourneys().then(() => setLoaded((n) => n + 1), () => setWantAll(false)) }, [wantAll])
-  useEffect(() => {
-    if (route.mode === 'predict' && quiz && clampIndex(route.n, quiz.length) !== route.n) go({ mode: 'predict', n: clampIndex(route.n, quiz.length), cam: route.cam })
-  }, [route, quiz])
-  useEffect(() => {
-    if (route.mode === 'compare' && pair && (pair.slug !== route.slug || clampIndex(route.step, pair.steps.length) !== route.step)) go({ mode: 'compare', slug: pair.slug, step: clampIndex(route.step, pair.steps.length) })
-  }, [route, pair])
-  useEffect(() => {
-    if (route.mode === 'journey' && journey && (journey.slug !== route.slug || clampIndex(route.step, journey.steps.length) !== route.step)) go({ mode: 'journey', slug: journey.slug, step: clampIndex(route.step, journey.steps.length), cam: route.cam })
-  }, [route, journey])
-  return (
-    <div class="app">
-      <header class="app-header">
-        <h1>Next.js <em>Under the Hood</em></h1>
-        <nav aria-label="Modes">
-          <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={slug} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: catalogCode(j.id), title: j.title, meta: journeyMeta(j.slug) }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} onOpen={() => setWantAll(true)} />
-          <MenuSelect id="compare-select" label="Compare" placeholder="Compare…" value={pairSlug} options={COMPARE_CATALOG.map((c) => ({ value: c.slug, code: catalogCode(c.id), title: c.title }))} onChange={(slug) => go({ mode: 'compare', slug, step: 0 })} />
-          <a href={formatRoute({ mode: 'atlas' })} aria-current={route.mode === 'atlas' ? 'page' : undefined}>System Atlas</a>
-          <a href={formatRoute({ mode: 'predict', n: 0 })} aria-current={route.mode === 'predict' ? 'page' : undefined}>Predict</a>
-        </nav>
-        <span class="version-chip">{VERSION_NOTE}</span>
-      </header>
-      {route.mode === 'predict'
-        ? quiz ? <PredictView key={route.n} quiz={quiz} n={clampIndex(route.n, quiz.length)} cam={route.cam} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : <LoadStatus isFailed={quizLoad.isFailed} retry={quizLoad.retry} what="the questions" message="Loading questions…" />
-        : route.mode === 'compare'
-        ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : <LoadStatus isFailed={pairLoad.isFailed} retry={pairLoad.retry} what="this comparison" message="Loading comparison…" />
-        : route.mode === 'journey'
-        ? journey ? <JourneyView journey={journey} step={clampIndex(route.step, journey.steps.length)} cam={route.cam} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} /> : <LoadStatus isFailed={journeyLoad.isFailed} retry={journeyLoad.retry} what="this journey" message="Loading journey…" />
-        : <AtlasView entity={route.mode === 'atlas' ? route.entity : undefined} cam={route.mode === 'atlas' ? route.cam : undefined} onSelect={(id) => go({ mode: 'atlas', ...(id ? { entity: id } : {}) })} />}
-    </div>
-  )
+interface PageProps<M extends Route['mode']> {
+  route: Extract<Route, { mode: M }>
+  go: (r: Route) => void
 }
