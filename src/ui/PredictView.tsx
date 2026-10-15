@@ -8,6 +8,7 @@ import { answerIds, scoreQuestion } from '../domain/predict'
 import { formatRoute } from '../domain/route'
 import { progress, quizId } from '../domain/progress'
 import { breadcrumbFor } from '../domain/breadcrumb'
+import { catalogCode } from '../domain/catalogCode'
 import { World } from './World'
 import { Labels, MARK_CHIP } from './Labels'
 import { Minimap } from './Minimap'
@@ -105,7 +106,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
         <Minimap onManual={onManual} />
       </div>
       <section class="panel quiz" aria-labelledby="quiz-title">
-        <div class="eyebrow">Predict the machine · question {n + 1} of {quiz.length} · {q.source === 'reviewer' ? 'reviewer question' : `scenario · J${entryBySlug(q.journey!)!.id.slice(1)}`}</div>
+        <div class="eyebrow">Predict the machine · question {n + 1} of {quiz.length} · {q.source === 'reviewer' ? 'reviewer question' : `scenario · ${catalogCode(entryBySlug(q.journey!)!.id)}`}</div>
         <h2 id="quiz-title">{q.title}</h2>
         <p class="story">{q.prompt}</p>
         <p class="quiz-hint">{HINT[q.type]}</p>
@@ -140,7 +141,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
               <ul class="plain replays">
                 {q.replays.map((r) => {
                   const e = entryBySlug(r.journey)!
-                  return <li key={`${r.journey}-${r.step}`}><a href={formatRoute({ mode: 'journey', slug: r.journey, step: r.step - 1 })}>Replay: J{e.id.slice(1)} step {r.step}</a> <span class="replay-title">{e.title}</span></li>
+                  return <li key={`${r.journey}-${r.step}`}><a href={formatRoute({ mode: 'journey', slug: r.journey, step: r.step - 1 })}>Replay: {catalogCode(e.id)} step {r.step}</a> <span class="replay-title">{e.title}</span></li>
                 })}
               </ul>
             </div>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { CompareLane, CompareWorld, LaneWorld, ResolvedPair } from '../domain/types'
 import { deriveCompareState } from '../domain/compareState'
 import { formatRoute } from '../domain/route'
+import { catalogCode } from '../domain/catalogCode'
 import { World } from './World'
 import { Labels } from './Labels'
 import { Transport } from './Transport'
@@ -46,7 +47,7 @@ function ComparePanel({ pair, world, showText }: { pair: ResolvedPair; world: Co
   const { step } = world
   return (
     <section class="panel compare-panel" aria-labelledby="compare-title">
-      <div class="eyebrow">C{pair.id.slice(1)} · {pair.title} · step {world.stepIndex + 1} of {pair.steps.length}</div>
+      <div class="eyebrow">{catalogCode(pair.id)} · {pair.title} · step {world.stepIndex + 1} of {pair.steps.length}</div>
       <h2 id="compare-title">{step.title}</h2>
       <p class="story">{step.story}</p>
       {world.lanes.map((l, i) => (

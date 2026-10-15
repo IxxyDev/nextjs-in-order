@@ -2,6 +2,7 @@ import type { ComparePair, Journey, ResolvedPair } from '../types'
 import { loadJourney } from '../journeys'
 import { createLazyCatalog } from '../lazyCatalog'
 import { COMPARE_META } from './meta'
+import { catalogCode } from '../catalogCode'
 
 export interface CompareEntry { id: string; slug: string; title: string; load: () => Promise<ComparePair> }
 
@@ -39,7 +40,7 @@ export function resolvePair(pair: ComparePair, journey: (slug: string) => Journe
         return {
           camera: step.camera, token: step.token, states: step.states, edges: step.edges,
           story: lane.story ?? step.story, rows: lane.rows,
-          source: { slug: j.slug, step: lane.ref.step, label: `J${j.id.slice(1)} step ${lane.ref.step} · ${step.title}` }
+          source: { slug: j.slug, step: lane.ref.step, label: `${catalogCode(j.id)} step ${lane.ref.step} · ${step.title}` }
         }
       })
     }))

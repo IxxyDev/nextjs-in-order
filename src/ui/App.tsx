@@ -6,6 +6,7 @@ import { entryBySlug, JOURNEY_CATALOG, loadAllJourneys, loadJourney, peekJourney
 import { COMPARE_CATALOG, compareBySlug, loadCompare, peekCompare } from '../domain/compare'
 import { loadQuiz, peekQuiz } from '../domain/predict'
 import { progress, quizId } from '../domain/progress'
+import { catalogCode } from '../domain/catalogCode'
 import { JourneyView } from './JourneyView'
 import { AtlasView } from './AtlasView'
 import { CompareView } from './CompareView'
@@ -71,8 +72,8 @@ export function App() {
       <header class="app-header">
         <h1>Next.js <em>Under the Hood</em></h1>
         <nav aria-label="Modes">
-          <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={slug} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: `J${j.id.slice(1)}`, title: j.title, meta: journeyMeta(j.slug) }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} onOpen={() => setWantAll(true)} />
-          <MenuSelect id="compare-select" label="Compare" placeholder="Compare…" value={pairSlug} options={COMPARE_CATALOG.map((c) => ({ value: c.slug, code: `C${c.id.slice(1)}`, title: c.title }))} onChange={(slug) => go({ mode: 'compare', slug, step: 0 })} />
+          <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={slug} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: catalogCode(j.id), title: j.title, meta: journeyMeta(j.slug) }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} onOpen={() => setWantAll(true)} />
+          <MenuSelect id="compare-select" label="Compare" placeholder="Compare…" value={pairSlug} options={COMPARE_CATALOG.map((c) => ({ value: c.slug, code: catalogCode(c.id), title: c.title }))} onChange={(slug) => go({ mode: 'compare', slug, step: 0 })} />
           <a href={formatRoute({ mode: 'atlas' })} aria-current={route.mode === 'atlas' ? 'page' : undefined}>System Atlas</a>
           <a href={formatRoute({ mode: 'predict', n: 0 })} aria-current={route.mode === 'predict' ? 'page' : undefined}>Predict</a>
         </nav>
