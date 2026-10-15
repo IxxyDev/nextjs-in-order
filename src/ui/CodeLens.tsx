@@ -1,7 +1,7 @@
 // src/ui/CodeLens.tsx
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { ComponentChildren } from 'preact'
-import type { ArtifactForm, CodeLine, Fate, FateId, LensPane, LensRow, LensStep, LineChange } from '../domain/types'
+import type { ArtifactForm, CodeLine, Fate, FateId, LensPane, LensRow, LensStep, LineChange, SpecimenFile } from '../domain/types'
 import { loadLens, peekLens } from '../domain/codeLens'
 import { beforePanes, chipRows, entitiesForRow, isFold, rowsForEntities, stripLines } from '../domain/codeLens/view'
 import { LENS_KEY } from '../domain/sessionFlags'
@@ -155,7 +155,7 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
     const chips = chipRows(inner)
     /** source lines inside a compiled pane say where they come from */
     const file = sourceLines && bundle.specimen.find((f) => f.lines.some((l) => l.id === sourceLines[0].id))
-    const caption = sourceLines && step.form !== 'tsx' ? `as written in ${file ? `${file.path}${file.variant ? ' (what if)' : ''}` : 'the source'}` : undefined
+    const caption = sourceLines && step.form !== 'tsx' ? `as written in ${writtenIn(file)}` : undefined
     return (
       <li key={rowKey} class={cls} style={{ '--i': String(index) }}>
         <span class="lens-sign" aria-hidden="true" />
@@ -178,20 +178,13 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
     const isBefore = i < before.length
     const chips = chipRows(p.rows)
     const all = uniform(p.rows)
-    /** a title is 'path' or 'path · description': the path keeps its file name whole and truncates its folders from the start;
-     * the description follows it; any other title truncates at the end */
-    const [head, ...desc] = p.title.split(' · ')
-    const path = !/\s/.test(head) && /[/.]/.test(head)
-    const cut = head.lastIndexOf('/') + 1
     /** the side label is left out only when the title already opens with it ('server · rsc layer'), not for a path such as server/pages/… */
     const side = isBefore ? 'before' : p.side && !p.title.startsWith(`${p.side} ·`) ? p.side : undefined
     return (
       <section key={`${step.step}:${i}`} class={`lens-pane ${p.side ? `side-${p.side}` : ''} ${isBefore ? 'is-before' : ''} ${all === 'gone' ? 'is-all-gone' : ''} ${isBefore && step.reduced === 'three-pane' ? 'is-wide' : ''}`} aria-label={`${isBefore ? 'Before: ' : ''}${p.title}`}>
         <header class="lens-pane-head">
           {side && <span class="lens-side">{side}</span>}
-          {path
-            ? <span class="lens-file is-path" title={p.title}><span class="lens-dir"><bdi>{head.slice(0, cut)}</bdi></span><span class="lens-base">{head.slice(cut)}</span>{desc.length > 0 && <span class="lens-desc">{` · ${desc.join(' · ')}`}</span>}</span>
-            : <span class="lens-file" title={p.title}>{p.title}</span>}
+          <PaneTitle title={p.title} />
           {p.badge && <span class="lens-badge">{p.badge}</span>}
           {all === 'new' && !isBefore && <span class="lens-flag is-new">new</span>}
           {all === 'gone' && <span class="lens-flag is-gone">replaced</span>}
@@ -215,16 +208,18 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
         {expanded && <button type="button" class="lens-toggle" aria-expanded="true" aria-controls={BODY_ID} onClick={() => choose(false)}>Hide code</button>}
       </div>
       {step.chip && <p class="lens-chipline">{step.chip}</p>}
-      {expanded
-        ? <div id={BODY_ID} key={step.step} class={`lens-body ${motion}`}>
-            <div class={`lens-panes ${paired ? 'is-paired' : ''}`}>{panes.map(paneFor)}</div>
-          </div>
-        : expandable
-          ? <button type="button" class={`lens-strip ${step.dimmed ? 'is-dimmed' : ''}`} aria-expanded="false" onClick={() => choose(true)}>
-              {strip}
-              <span class="lens-strip-cta">Show code</span>
-            </button>
-          : <div class={`lens-strip ${step.dimmed ? 'is-dimmed' : ''}`}>{strip}</div>}
+      {expanded && (
+        <div id={BODY_ID} key={step.step} class={`lens-body ${motion}`}>
+          <div class={`lens-panes ${paired ? 'is-paired' : ''}`}>{panes.map(paneFor)}</div>
+        </div>
+      )}
+      {expandable && !expanded && (
+        <button type="button" class={`lens-strip ${step.dimmed ? 'is-dimmed' : ''}`} aria-expanded="false" onClick={() => choose(true)}>
+          {strip}
+          <span class="lens-strip-cta">Show code</span>
+        </button>
+      )}
+      {!expandable && <div class={`lens-strip ${step.dimmed ? 'is-dimmed' : ''}`}>{strip}</div>}
       {step.footer && (
         <div key={`${step.step}:ledger`} class={`lens-ledger ${motion}`} role="note" aria-label="Ledger">
           {step.footer.map((l) => { const [head, ...rest] = l.split(' · '); return <p key={l}><strong>{head}</strong>{rest.length ? ` · ${rest.join(' · ')}` : ''}</p> })}
@@ -232,4 +227,22 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
       )}
     </section>
   )
+}
+
+/**
+ * a title is 'path' or 'path · description': the path keeps its file name whole and truncates its folders from the start;
+ * the description follows it; any other title truncates at the end
+ */
+function PaneTitle({ title }: { title: string }) {
+  const [head, ...desc] = title.split(' · ')
+  const isPath = !/\s/.test(head) && /[/.]/.test(head)
+  if (!isPath) return <span class="lens-file" title={title}>{title}</span>
+  const cut = head.lastIndexOf('/') + 1
+  return <span class="lens-file is-path" title={title}><span class="lens-dir"><bdi>{head.slice(0, cut)}</bdi></span><span class="lens-base">{head.slice(cut)}</span>{desc.length > 0 && <span class="lens-desc">{` · ${desc.join(' · ')}`}</span>}</span>
+}
+
+/** the specimen file a fold's source lines are written in, badged when it is a what-if variant */
+function writtenIn(file: SpecimenFile | undefined): string {
+  if (!file) return 'the source'
+  return file.variant ? `${file.path} (what if)` : file.path
 }
