@@ -26,9 +26,10 @@ function journeyMeta(slug: string): string | undefined {
   return `${steps} · ${answered === total && correct === total ? '✓' : `${answered}/${total}`}`
 }
 
-/** shown in place of the loading message when a chunk fails; the catalogs retry a failed load on the next call */
-function LoadFailed({ what, onRetry }: { what: string; onRetry: () => void }) {
-  return <div class="loading" role="alert"><p>Couldn't load {what}.</p><button onClick={onRetry}>Retry</button></div>
+/** the loading message, or once the chunk fails the failure with Retry; the catalogs retry a failed load on the next call */
+function LoadStatus({ isFailed, retry, what, message }: { isFailed: boolean; retry: () => void; what: string; message: string }) {
+  if (isFailed) return <div class="loading" role="alert"><p>Couldn't load {what}.</p><button onClick={retry}>Retry</button></div>
+  return <p class="loading" role="status">{message}</p>
 }
 
 function useRoute(): [Route, (r: Route) => void] {
@@ -52,8 +53,6 @@ export function App() {
   const quizLoad = useLazy(route.mode === 'predict' ? 'quiz' : undefined, peekQuiz, loadQuiz)
   const quiz = quizLoad.value
   const [, setLoaded] = useState(0)
-  const loadOr = ({ isFailed, retry }: { isFailed: boolean; retry: () => void }, what: string, message: string) =>
-    isFailed ? <LoadFailed what={what} onRetry={retry} /> : <p class="loading" role="status">{message}</p>
   /** progress meta needs every journey; their chunks load on the first menu open, not on mount */
   const [wantAll, setWantAll] = useState(false)
   /** a failed chunk here only leaves some progress meta blank; the menu retries on its next open */
@@ -80,11 +79,11 @@ export function App() {
         <span class="version-chip">{VERSION_NOTE}</span>
       </header>
       {route.mode === 'predict'
-        ? quiz ? <PredictView key={route.n} quiz={quiz} n={clampIndex(route.n, quiz.length)} cam={route.cam} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : loadOr(quizLoad, 'the questions', 'Loading questions…')
+        ? quiz ? <PredictView key={route.n} quiz={quiz} n={clampIndex(route.n, quiz.length)} cam={route.cam} onGo={(n) => go({ mode: 'predict', n: clampIndex(n, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} /> : <LoadStatus isFailed={quizLoad.isFailed} retry={quizLoad.retry} what="the questions" message="Loading questions…" />
         : route.mode === 'compare'
-        ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : loadOr(pairLoad, 'this comparison', 'Loading comparison…')
+        ? pair ? <CompareView key={pair.slug} pair={pair} step={clampIndex(route.step, pair.steps.length)} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} /> : <LoadStatus isFailed={pairLoad.isFailed} retry={pairLoad.retry} what="this comparison" message="Loading comparison…" />
         : route.mode === 'journey'
-        ? journey ? <JourneyView journey={journey} step={clampIndex(route.step, journey.steps.length)} cam={route.cam} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} /> : loadOr(journeyLoad, 'this journey', 'Loading journey…')
+        ? journey ? <JourneyView journey={journey} step={clampIndex(route.step, journey.steps.length)} cam={route.cam} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} /> : <LoadStatus isFailed={journeyLoad.isFailed} retry={journeyLoad.retry} what="this journey" message="Loading journey…" />
         : <AtlasView entity={route.mode === 'atlas' ? route.entity : undefined} cam={route.mode === 'atlas' ? route.cam : undefined} onSelect={(id) => go({ mode: 'atlas', ...(id ? { entity: id } : {}) })} />}
     </div>
   )
