@@ -11,7 +11,7 @@ export function stepsByEntity(j: Journey): Map<string, number[]> {
   const index = new Map<string, number[]>()
   const add = (id: string, i: number) => { const at = index.get(id) ?? []; if (at[at.length - 1] !== i) at.push(i); index.set(id, at) }
   j.steps.forEach((s, i) => {
-    for (const id of Object.keys(s.states)) if (s.states[id]) add(id, i)
+    for (const id of Object.keys(s.states)) add(id, i)
     if (s.token) add(s.token.at, i)
   })
   byJourney.set(j, index)
