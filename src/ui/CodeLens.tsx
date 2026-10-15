@@ -146,16 +146,16 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
     /** a fold is one calm line, never struck: what it leaves out, and (when it can) a toggle that shows it */
     const cls = 'lens-row is-fold'
     const gone = row.change === 'gone' && <span class="visually-hidden"> · removed</span>
-    const source = row.lines?.length ? undefined : row.from?.map((id) => specimen.find((l) => l.id === id)).filter((l) => !!l)
-    if (!row.lines?.length && !source?.length) {
+    const sourceLines = row.lines?.length ? undefined : row.from?.map((id) => specimen.find((l) => l.id === id)).filter((l) => !!l)
+    if (!row.lines?.length && !sourceLines?.length) {
       return <li key={rowKey} class={cls} style={{ '--i': String(index) }} {...roving(rowKey)}><span class="lens-sign" aria-hidden="true" /><span class="lens-fold"><span aria-hidden="true">⋯ </span>{row.label}{gone}</span></li>
     }
     const open = folds.has(`${stepId}:${rowKey}`)
-    const inner: CodeLine[] = row.lines?.length ? row.lines.map((text) => ({ text })) : source!.map((l) => ({ text: l.text, from: [l.id], fate: l.fate, mark: l.mark }))
+    const inner: CodeLine[] = row.lines?.length ? row.lines.map((text) => ({ text })) : sourceLines!.map((l) => ({ text: l.text, from: [l.id], fate: l.fate, mark: l.mark }))
     const chips = chipRows(inner)
     /** source lines inside a compiled pane say where they come from */
-    const file = source && bundle.specimen.find((f) => f.lines.some((l) => l.id === source[0].id))
-    const caption = source && step.form !== 'tsx' ? `as written in ${file ? `${file.path}${file.variant ? ' (what if)' : ''}` : 'the source'}` : undefined
+    const file = sourceLines && bundle.specimen.find((f) => f.lines.some((l) => l.id === sourceLines[0].id))
+    const caption = sourceLines && step.form !== 'tsx' ? `as written in ${file ? `${file.path}${file.variant ? ' (what if)' : ''}` : 'the source'}` : undefined
     return (
       <li key={rowKey} class={cls} style={{ '--i': String(index) }}>
         <span class="lens-sign" aria-hidden="true" />
