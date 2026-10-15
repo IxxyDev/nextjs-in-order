@@ -1,6 +1,6 @@
 // src/ui/App.tsx
 import { useEffect, useState } from 'preact/hooks'
-import { clampIndex, parseRoute, formatRoute } from '../domain/route'
+import { DEFAULT_COMPARE, DEFAULT_JOURNEY, clampIndex, parseRoute, formatRoute } from '../domain/route'
 import type { Route } from '../domain/types'
 import { entryBySlug, JOURNEY_CATALOG, loadAllJourneys, loadJourney, peekJourney } from '../domain/journeys'
 import { COMPARE_CATALOG, compareBySlug, loadCompare, peekCompare } from '../domain/compare'
@@ -42,10 +42,10 @@ function useRoute(): [Route, (r: Route) => void] {
 
 export function App() {
   const [route, go] = useRoute()
-  const slug = route.mode === 'journey' ? (entryBySlug(route.slug) ?? JOURNEY_CATALOG[0]).slug : undefined
+  const slug = route.mode === 'journey' ? entryBySlug(route.slug)?.slug ?? DEFAULT_JOURNEY : undefined
   const journeyLoad = useLazy(slug, peekJourney, loadJourney)
   const journey = journeyLoad.value
-  const pairSlug = route.mode === 'compare' ? (compareBySlug(route.slug) ?? COMPARE_CATALOG[0]).slug : undefined
+  const pairSlug = route.mode === 'compare' ? compareBySlug(route.slug)?.slug ?? DEFAULT_COMPARE : undefined
   const pairLoad = useLazy(pairSlug, peekCompare, loadCompare)
   const pair = pairLoad.value
   const quizLoad = useLazy(route.mode === 'predict' ? 'quiz' : undefined, peekQuiz, loadQuiz)

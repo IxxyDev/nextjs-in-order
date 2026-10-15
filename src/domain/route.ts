@@ -1,8 +1,11 @@
 // src/domain/route.ts
 import type { Camera, Route } from './types'
+import { JOURNEY_CATALOG } from './journeys'
+import { COMPARE_CATALOG } from './compare'
 
-export const DEFAULT_ROUTE: Route = { mode: 'journey', slug: 'whole-lifecycle', step: 0 }
-export const DEFAULT_COMPARE = 'initial-load'
+/** the journey and the pair a route opens when it names none, or one the catalog does not have */
+export const DEFAULT_JOURNEY = JOURNEY_CATALOG[0].slug
+export const DEFAULT_COMPARE = COMPARE_CATALOG[0].slug
 
 /** a whole index in [0, length - 1]; anything not finite is 0 */
 export function clampIndex(n: number, length: number): number {
@@ -41,7 +44,7 @@ export function parseRoute(hash: string): Route {
   if (parts[0] === 'predict') {
     return { mode: 'predict', n: parseIndex(parts[1]), ...(cam ? { cam } : {}) }
   }
-  return DEFAULT_ROUTE
+  return { mode: 'journey', slug: DEFAULT_JOURNEY, step: 0 }
 }
 
 export function formatRoute(route: Route): string {
