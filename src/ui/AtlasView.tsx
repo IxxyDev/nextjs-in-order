@@ -43,13 +43,8 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
     return () => window.removeEventListener('keydown', onKey)
   }, [])
   const filtering = isFiltering(filter)
-  const states: Record<string, EntityState> = {}
-  let matching = 0
-  for (const e of ENTITIES) {
-    const ok = matchesFilter(e, filter)
-    if (ok) matching++
-    if (filtering) states[e.id] = ok ? 'active' : 'dimmed'
-  }
+  const matching = new Set(ENTITIES.filter((e) => matchesFilter(e, filter)))
+  const states: Record<string, EntityState> = filtering ? Object.fromEntries(ENTITIES.map((e) => [e.id, matching.has(e) ? 'active' : 'dimmed'])) : {}
   if (entity) states[entity] = 'current'
   const set = (k: keyof AtlasFilter) => (e: Event) => setFilter({ ...filter, [k]: (e.currentTarget as HTMLSelectElement).value || undefined })
   return (
@@ -60,7 +55,7 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
         <label>Region <select value={filter.region ?? ''} onChange={set('region')}><option value="">all</option>{REGIONS.map((r) => <option key={r.id} value={r.id}>{r.title.split(' · ')[0]}</option>)}</select></label>
         <label>Reaches the browser <select value={filter.reaches ?? ''} onChange={set('reaches')}><option value="">all</option>{REACHES.map((r) => <option key={r} value={r}>{r}</option>)}</select></label>
         <button type="button" onClick={() => setFilter({})} disabled={!filtering}>Clear</button>
-        <span aria-live="polite"><strong class="atlas-count">{matching} of {ENTITIES.length}</strong> entities. Click any to inspect. Press Escape to return to the whole system.</span>
+        <span aria-live="polite"><strong class="atlas-count">{matching.size} of {ENTITIES.length}</strong> entities. Click any to inspect. Press Escape to return to the whole system.</span>
       </div>
       <div class="history-strip">
         <button type="button" onClick={() => onSelect('next-build')} aria-label="Next.js history. Inspect next build">Next.js history</button>
