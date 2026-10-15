@@ -4,7 +4,7 @@ import type { Camera, CameraTarget, EntityState, PickMark, QuizQuestion, RegionI
 import { ENTITIES, entityById, shortNameById } from '../domain/entities'
 import { regionById } from '../domain/regions'
 import { entryBySlug } from '../domain/journeys'
-import { answerIds, scoreQuestion } from '../domain/predict'
+import { answerIds, markFor, scoreQuestion } from '../domain/predict'
 import { formatRoute } from '../domain/route'
 import { progress, quizId } from '../domain/progress'
 import { breadcrumbFor } from '../domain/breadcrumb'
@@ -27,13 +27,6 @@ function cameraFor(q: QuizQuestion): CameraTarget {
   if (q.type === 'entities') return { kind: 'entities', ids: q.candidates }
   if (q.type === 'choice') return { kind: 'entities', ids: q.highlight }
   return { kind: 'world' }
-}
-
-/** pick marks before Check, result marks after it */
-function markFor(id: string, picked: boolean, checked: boolean, answer: ReadonlySet<string>, candidate: boolean): PickMark | undefined {
-  if (!checked) return picked ? 'picked' : candidate ? 'candidate' : undefined
-  if (answer.has(id)) return picked ? 'correct' : 'missed'
-  return picked ? 'extra' : undefined
 }
 
 export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQuestion[]; n: number; cam?: Camera; onGo: (n: number) => void; onAnswered?: (questionId: string, correct: boolean) => void }) {
@@ -65,7 +58,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
   const sum = progress.summaryForQuiz(quiz.map((x) => x.id))
   const reset = () => { if (window.confirm('Reset all saved progress? This clears your answered and correct counts.')) progress.reset() }
 
-  const answer = new Set<string>(q.type === 'choice' ? [] : answerIds(q))
+  const answer = new Set(answerIds(q))
   const picked = new Set(picks)
   const candidates: string[] = q.type === 'choice' ? [] : q.candidates
   const listed = [...candidates, ...picks.filter((p) => !candidates.includes(p))]
@@ -75,14 +68,14 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
   const regionMarks: Partial<Record<RegionId, PickMark>> = {}
   if (q.type === 'entities') {
     for (const e of ENTITIES) {
-      const m = markFor(e.id, picked.has(e.id), checked, answer, candidates.includes(e.id) && !checked)
+      const m = markFor(e.id, picked.has(e.id), checked, answer, candidates.includes(e.id))
       if (m) marks[e.id] = m
       else entityStates[e.id] = 'dimmed'
     }
   } else if (q.type === 'regions') {
     for (const e of ENTITIES) entityStates[e.id] = 'dimmed'
     for (const id of new Set([...candidates, ...picks]) as Set<RegionId>) {
-      const m = markFor(id, picked.has(id), checked, answer, false)
+      const m = markFor(id, picked.has(id), checked, answer)
       if (m) regionMarks[id] = m
     }
   } else if (checked) {
@@ -115,7 +108,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
           {q.type === 'choice'
             ? q.options.map((o, i) => {
               const id = String(i), mine = picked.has(id)
-              const m = checked ? (i === q.answer ? (mine ? 'correct' : 'answer') : mine ? 'extra' : undefined) : mine ? 'picked' : undefined
+              const m = markFor(id, mine, checked, answer)
               return <li key={o}><button aria-pressed={mine} onClick={() => toggle(id)}>{o}{m && checked && <span class={`chip chip-mark-${m}`}>{MARK_CHIP[m]}</span>}</button></li>
             })
             : listed.map((id) => {

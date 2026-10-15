@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { QUIZ } from './quiz'
-import { loadQuiz, peekQuiz, scoreQuestion } from './predict'
+import { loadQuiz, markFor, peekQuiz, scoreQuestion } from './predict'
 
 const byId = (id: string) => QUIZ.find((q) => q.id === id)!
 
@@ -23,5 +23,28 @@ describe('loadQuiz', () => {
   it('loads the question bank lazily', async () => {
     expect(await loadQuiz()).toBe(QUIZ)
     expect(peekQuiz()).toBe(QUIZ)
+  })
+})
+
+describe('markFor', () => {
+  const answer = new Set(['browser-chunks', 'client-reference-manifest'])
+
+  it('marks a pick before Check', () => {
+    expect(markFor('server-chunks', true, false, answer)).toBe('picked')
+  })
+  it('marks an unpicked candidate before Check', () => {
+    expect(markFor('server-chunks', false, false, answer, true)).toBe('candidate')
+  })
+  it('marks a picked answer correct after Check', () => {
+    expect(markFor('browser-chunks', true, true, answer)).toBe('correct')
+  })
+  it('marks an unpicked answer missed after Check', () => {
+    expect(markFor('client-reference-manifest', false, true, answer)).toBe('missed')
+  })
+  it('marks a pick outside the answer extra after Check', () => {
+    expect(markFor('server-chunks', true, true, answer)).toBe('extra')
+  })
+  it('leaves an unpicked non-answer unmarked after Check', () => {
+    expect(markFor('server-chunks', false, true, answer, true)).toBeUndefined()
   })
 })
