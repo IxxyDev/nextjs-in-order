@@ -82,7 +82,10 @@ test('keyboard only: Space on a focused predict option answers it and does not s
   await expect(page).toHaveURL(/#\/journey\/app-initial\/7$/)
 })
 
-/** spec §11: keyboard-only runs for J5, J6 and J7, through the predict step and the closing check */
+/**
+ * spec §11: keyboard-only runs for J5, J6 and J7 through the predict step and the closing check; walking every step
+ * and the feedback text are journeys.spec's, so this opens the predict step and answers by keyboard alone
+ */
 for (const { slug, steps, predictAt } of [
   { slug: 'app-initial', steps: 22, predictAt: 7 },
   { slug: 'app-navigation', steps: 18, predictAt: 7 },
@@ -90,32 +93,24 @@ for (const { slug, steps, predictAt } of [
 ]) {
   test(`keyboard only: ${slug} predict and check`, async ({ page }) => {
     const errors = watchErrors(page)
-    await page.goto(`/#/journey/${slug}/1`)
-    await expect(eyebrow(page)).toContainText(`step 1 of ${steps}`)
+    await page.goto(`/#/journey/${slug}/${predictAt}`)
+    await expect(eyebrow(page)).toContainText(`step ${predictAt} of ${steps}`)
     const tabTo = async (target: ReturnType<typeof page.locator>) => {
       for (let i = 0; i < 200 && !(await target.evaluate((el) => el === document.activeElement)); i++) await page.keyboard.press('Tab')
       await expect(target).toBeFocused()
     }
 
-    for (let n = 2; n <= predictAt; n++) {
-      await page.keyboard.press('ArrowRight')
-      await expect(eyebrow(page)).toContainText(`step ${n} of ${steps}`)
-    }
     const option = page.locator('.predict button').first()
     await tabTo(option)
     await page.keyboard.press('Space')
     await expect(option).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.locator('.predict .why')).toBeVisible()
-    await expect(page).toHaveURL(new RegExp(`#/journey/${slug}/${predictAt}$`))
 
     await page.keyboard.press('End')
     await expect(eyebrow(page)).toContainText(`step ${steps} of ${steps}`)
-    const check = page.locator('.check').first()
-    const yes = check.getByRole('button', { name: 'True' })
+    const yes = page.locator('.check').first().getByRole('button', { name: 'True' })
     await tabTo(yes)
     await page.keyboard.press('Enter')
     await expect(yes).toHaveAttribute('aria-pressed', 'true')
-    await expect(check.locator('.why')).toContainText(/Correct\.|Incorrect\./)
     errors.assertClean()
   })
 }

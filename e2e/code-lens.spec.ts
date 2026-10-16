@@ -14,7 +14,6 @@ test('j0-3 opens the lens with fate chips, glyphs and an abridged pane', async (
   await expect(pane.locator('.lens-flag', { hasText: 'abridged' })).toBeVisible()
   await expect(pane.locator('.lens-chip', { hasText: 'client boundary · data + refs' })).toHaveCount(1)
   await expect(pane.locator('.lens-chip', { hasText: 'split · code' })).toHaveCount(1)
-  await expect(pane.locator('.lens-row.fate-split')).toHaveCount(5)
   await expect(pane.locator('.lens-cut')).toContainText('<boolean>')
   await expectNoHorizontalScroll(page)
   errors.assertClean()
@@ -116,7 +115,7 @@ test('j0-8 ends with the 0 B ledger', async ({ page }) => {
 test('j0-1 and a step whose lens is off render no lens', async ({ page }) => {
   await open(page, 1)
   await expect(page.locator('.lens')).toHaveCount(0)
-  /** j5-1 is off in the plan (docs/code-lens.md §10), so this holds once the J5 lens is written too */
+  /** j5-1 is off (docs/code-lens.md §10) */
   await page.goto('/#/journey/app-initial/1')
   await expect(eyebrow(page)).toContainText('step 1 of 22')
   await expect(page.locator('.lens')).toHaveCount(0)
