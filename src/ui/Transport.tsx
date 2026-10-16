@@ -1,9 +1,10 @@
 // src/ui/Transport.tsx
+import { useId } from 'preact/hooks'
 import type { Step } from '../domain/types'
 
 export interface TransportProps {
-  /** a journey or a compare pair: anything with an id and titled steps */
-  journey: { id: string; steps: Pick<Step, 'id' | 'title'>[] }
+  /** a journey's or a compare pair's steps, for the scrubber and its ticks */
+  steps: Pick<Step, 'id' | 'title'>[]
   step: number
   playing: boolean
   follow: boolean
@@ -17,15 +18,16 @@ export interface TransportProps {
   onWhole?: () => void
 }
 
-export function Transport({ journey, step, playing, follow, showText, onStep, onPlay, onFollow, onShowText, whole = 'toggle', onWhole }: TransportProps) {
-  const last = journey.steps.length - 1
+export function Transport({ steps, step, playing, follow, showText, onStep, onPlay, onFollow, onShowText, whole = 'toggle', onWhole }: TransportProps) {
+  const last = steps.length - 1
+  const ticksId = useId()
   return (
     <div class="transport" role="toolbar" aria-label="Step controls">
       <button onClick={() => onStep(step - 1)} disabled={step === 0} aria-label="Previous step">◀</button>
       <button onClick={() => onPlay(!playing)} aria-pressed={playing} aria-label={playing ? 'Pause' : 'Play'}>{playing ? '❚❚' : '▶'}</button>
       <button onClick={() => onStep(step + 1)} disabled={step === last} aria-label="Next step">▶▶</button>
-      <input type="range" min={0} max={last} value={step} aria-label="Step" aria-valuetext={`Step ${step + 1} of ${last + 1}: ${journey.steps[step].title}`} onInput={(e) => onStep(Number((e.currentTarget as HTMLInputElement).value))} list={`ticks-${journey.id}`} />
-      <datalist id={`ticks-${journey.id}`}>{journey.steps.map((s, i) => <option key={s.id} value={i} label={s.title} />)}</datalist>
+      <input type="range" min={0} max={last} value={step} aria-label="Step" aria-valuetext={`Step ${step + 1} of ${last + 1}: ${steps[step].title}`} onInput={(e) => onStep(Number((e.currentTarget as HTMLInputElement).value))} list={ticksId} />
+      <datalist id={ticksId}>{steps.map((s, i) => <option key={s.id} value={i} label={s.title} />)}</datalist>
       <button onClick={() => onFollow(true)} aria-pressed={follow}>Follow</button>
       {whole === 'toggle' && <button onClick={() => onFollow(false)} aria-pressed={!follow}>Whole system</button>}
       {whole === 'overlay' && <button onClick={onWhole} aria-haspopup="dialog">Whole system</button>}

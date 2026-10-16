@@ -106,7 +106,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
       </div>
       <StepPanel journey={journey} world={world} showText={showText} header={sheetHead || roomHead} expanded={isTablet && expanded} panelRef={panel}
         lens={lensed && <CodeLens key={journey.slug} slug={journey.slug} stepId={world.step.id} selected={selected} />} />
-      <Transport journey={journey} step={step} playing={playing} follow={shown === 'follow'} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={pickView}
+      <Transport steps={journey.steps} step={step} playing={playing} follow={shown === 'follow'} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={pickView}
         onShowText={setShowText} whole={isTablet ? 'none' : isPhone ? 'overlay' : 'toggle'} onWhole={() => { setPlaying(false); setOverlay(true) }} />
       {overlay && <WholeOverlay world={world} onSelect={(id) => { setOverlay(false); select(id) }} onClose={() => setOverlay(false)} />}
     </div>

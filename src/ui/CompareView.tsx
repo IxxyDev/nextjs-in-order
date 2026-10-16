@@ -88,7 +88,7 @@ export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: 
         {pair.lanes.slice(1).map((_, i) => lane(i + 1))}
       </div>
       <ComparePanel pair={pair} world={world} showText={showText} />
-      <Transport journey={pair} step={world.stepIndex} playing={playing} follow={follow} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={setFollow} onShowText={setShowText} />
+      <Transport steps={pair.steps} step={world.stepIndex} playing={playing} follow={follow} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={setFollow} onShowText={setShowText} />
     </div>
   )
 }
