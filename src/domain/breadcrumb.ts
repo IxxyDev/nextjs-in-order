@@ -7,7 +7,7 @@ export interface Crumb { label: string; target: CameraTarget }
 const prefix = (a: RegionId[], b: RegionId[]) => { let i = 0; while (i < a.length && a[i] === b[i]) i++; return a.slice(0, i) }
 
 /** what a camera target is about: its band, the regions all of it sits in (outermost first) and its one entity, if it has one */
-export function focusOf(target: CameraTarget, entity?: string): { band?: Band; regions: RegionId[]; entity?: string } {
+function focusOf(target: CameraTarget, entity?: string): { band?: Band; regions: RegionId[]; entity?: string } {
   const ids = entity ? [entity] : target.kind === 'entities' ? target.ids : []
   const chains = ids.length ? ids.map((id) => regionChain(entityById(id).region)) : target.kind === 'region' ? [regionChain(target.id)] : []
   const bands = new Set(chains.map((c) => regionById(c[0]).band))

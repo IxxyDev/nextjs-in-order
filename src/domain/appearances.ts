@@ -1,6 +1,6 @@
 import type { Journey } from './types'
 
-export interface Appearance { journey: Journey; step: number }
+interface Appearance { journey: Journey; step: number }
 
 const byJourney = new WeakMap<Journey, Map<string, number[]>>()
 

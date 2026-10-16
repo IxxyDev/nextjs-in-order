@@ -2,7 +2,7 @@
 import { useId } from 'preact/hooks'
 import type { Step } from '../domain/types'
 
-export interface TransportProps {
+interface TransportProps {
   /** a journey's or a compare pair's steps, for the scrubber and its ticks */
   steps: Pick<Step, 'id' | 'title'>[]
   step: number

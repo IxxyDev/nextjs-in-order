@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
 
-export interface MenuOption { value: string; code: string; title: string; meta?: string }
+interface MenuOption { value: string; code: string; title: string; meta?: string }
 
 const GUTTER = 16
 const MAX_W = 420

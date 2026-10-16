@@ -4,9 +4,9 @@ import { browserStorage, type StorageLike } from './storage'
 
 export const PROGRESS_KEY = 'nextjs-in-order:progress:v1'
 
-export interface Answer { correct: boolean; at: number }
-export type ProgressData = Record<string, Answer>
-export interface Summary { answered: number; correct: number; total: number }
+interface Answer { correct: boolean; at: number }
+type ProgressData = Record<string, Answer>
+interface Summary { answered: number; correct: number; total: number }
 
 export const journeyId = (slug: string, stepId: string) => `journey:${slug}:${stepId}`
 export const checkId = (stepId: string, index: number) => `check:${stepId}:${index}`
