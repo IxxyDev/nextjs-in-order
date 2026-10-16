@@ -1,16 +1,12 @@
-export type StorageLike = Pick<Storage, 'getItem' | 'setItem'>
+import { browserStorage, type StorageLike } from './storage'
 
 export const STEP_INTERNALS_KEY = 'nextjs-in-order:internals:step:v1'
 export const INSPECTOR_INTERNALS_KEY = 'nextjs-in-order:internals:inspector:v1'
 /** the code lens: unset follows each step's data; true keeps it open everywhere, false keeps it collapsed */
 export const LENS_KEY = 'nextjs-in-order:lens:v1'
 
-function defaultStorage(): StorageLike | undefined {
-  try { return typeof window === 'undefined' ? undefined : window.sessionStorage } catch { return undefined }
-}
-
 /** open/closed flags for this tab's session (sessionStorage); storage failures leave an in-memory copy for the page's life */
-export function createSessionFlags(getStorage: () => StorageLike | undefined = defaultStorage) {
+export function createSessionFlags(getStorage: () => StorageLike | undefined = () => browserStorage('sessionStorage')) {
   const memory = new Map<string, boolean>()
   return {
     get(key: string): boolean | undefined {

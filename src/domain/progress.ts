@@ -1,20 +1,16 @@
 import { signal } from '@preact/signals'
 import type { Journey } from './types'
+import { browserStorage, type StorageLike } from './storage'
 
 export const PROGRESS_KEY = 'nextjs-in-order:progress:v1'
 
 export interface Answer { correct: boolean; at: number }
 export type ProgressData = Record<string, Answer>
 export interface Summary { answered: number; correct: number; total: number }
-export type StorageLike = Pick<Storage, 'getItem' | 'setItem'>
 
 export const journeyId = (slug: string, stepId: string) => `journey:${slug}:${stepId}`
 export const checkId = (stepId: string, index: number) => `check:${stepId}:${index}`
 export const quizId = (questionId: string) => `quiz:${questionId}`
-
-function defaultStorage(): StorageLike | undefined {
-  try { return typeof window === 'undefined' ? undefined : window.localStorage } catch { return undefined }
-}
 
 function load(storage: StorageLike | undefined): ProgressData {
   try {
@@ -28,7 +24,7 @@ function load(storage: StorageLike | undefined): ProgressData {
 }
 
 /** answers live in a signal, mirrored to storage; storage failures leave an in-memory store */
-export function createProgress(getStorage: () => StorageLike | undefined = defaultStorage) {
+export function createProgress(getStorage: () => StorageLike | undefined = () => browserStorage('localStorage')) {
   const data = signal<ProgressData>(load(getStorage()))
   const save = () => { try { getStorage()?.setItem(PROGRESS_KEY, JSON.stringify(data.value)) } catch { /* in-memory only */ } }
   const summarize = (ids: string[]): Summary => {
