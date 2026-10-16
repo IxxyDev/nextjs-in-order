@@ -14,7 +14,7 @@ export default defineConfig({
   reporter: [['list']],
   use: { baseURL: `http://localhost:${PORT}`, trace: 'retain-on-failure' },
   webServer: {
-    command: `npm run dev -- --port ${PORT} --strictPort`,
+    command: `node_modules/.bin/vite --port ${PORT} --strictPort`,
     port: PORT,
     reuseExistingServer: false,
     timeout: 60_000
