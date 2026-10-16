@@ -217,7 +217,10 @@ test.describe('phone room', () => {
     await more.click()
     const less = page.getByRole('button', { name: 'More room for the map' })
     await expect(less).toHaveAttribute('aria-expanded', 'true')
-    await expect.poll(async () => (await panel.boundingBox())!.height).toBeGreaterThan(peek * 1.4)
+    /** the peek already ends under the story, so "most of the screen" is measured against the room between breadcrumb and transport */
+    await expect.poll(async () => (await panel.boundingBox())!.height).toBeGreaterThan(peek)
+    const room = (await panel.boundingBox())!.height + (await stage.boundingBox())!.height
+    expect((await panel.boundingBox())!.height).toBeGreaterThan(room * 0.75)
     expect((await stage.boundingBox())!.height).toBeGreaterThanOrEqual(100)
     await expect(panes(page).first()).toBeInViewport()
     await expectNoHorizontalScroll(page)

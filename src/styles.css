@@ -423,8 +423,11 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
   .menu, .menu-trigger { max-width: 100%; }
   .menu-option { min-height: 44px; align-items: center; }
   .version-chip { display: none; }
-  .journey { grid-template-rows: auto minmax(40vh, 1fr) auto auto; }
+  /* the journey panel peeks down to the end of its story (--story-end, set by JourneyView); the map keeps the rest, never less than the room-mode strip */
+  .journey { grid-template-rows: auto minmax(112px, 1fr) minmax(0, auto) auto; }
   .panel { max-height: 36vh; padding: 14px 16px; }
+  .journey .panel { max-height: var(--story-end, 36vh); }
+  .panel .story { font-size: 16px; line-height: 1.55; }
   .panel h2 { font-size: 22px; }
   .minimap { display: none; }
   .crumbs { padding: 0 8px; }
