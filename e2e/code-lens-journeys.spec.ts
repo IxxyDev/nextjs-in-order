@@ -1,10 +1,7 @@
-import { expect, test, type Page } from './fixtures'
-import { eyebrow, expectNoHorizontalScroll, watchErrors } from './helpers'
+import { expect, test } from './fixtures'
+import { afterPanes, expectNoHorizontalScroll, glyph, lens, openStep, watchErrors } from './helpers'
 
 /** one open step per journey for J3, J4, J7, J8, J9 and J11 (docs/code-lens/<slug>.md): it renders, a line lights the map, nothing is off-map */
-const lens = (page: Page) => page.getByRole('region', { name: 'Code lens' })
-const panes = (page: Page) => lens(page).locator('.lens-pane:not(.is-before)')
-const glyph = (page: Page, id: string) => page.locator(`svg.world [data-entity="${id}"] .glyph`)
 
 const CASES = [
   { journey: 'J3', slug: 'pages-initial', step: 7, of: 16, shows: '<h1>Desk lamp</h1>', row: '<article>', entity: 'html' },
@@ -18,11 +15,10 @@ const CASES = [
 for (const c of CASES) {
   test(`${c.journey} step ${c.step}: the open lens renders, a line lights ${c.entity}, nothing is off-map`, async ({ page }) => {
     const errors = watchErrors(page)
-    await page.goto(`/#/journey/${c.slug}/${c.step}`)
-    await expect(eyebrow(page)).toContainText(`step ${c.step} of ${c.of}`)
-    await expect(panes(page).first()).toBeVisible()
+    await openStep(page, c.slug, c.step, c.of)
+    await expect(afterPanes(page).first()).toBeVisible()
     await expect(lens(page)).toContainText(c.shows)
-    await panes(page).locator('.lens-row', { hasText: c.row }).last().hover()
+    await afterPanes(page).locator('.lens-row', { hasText: c.row }).last().hover()
     await expect(glyph(page, c.entity)).toHaveClass(/is-linked/)
     await expect(lens(page)).not.toContainText('off-map')
     await expectNoHorizontalScroll(page)

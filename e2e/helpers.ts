@@ -26,3 +26,16 @@ export async function sampleCamera(page: Page) {
   await page.waitForTimeout(900)
   return { initial, early, settled: await camera() }
 }
+
+export const lens = (page: Page) => page.getByRole('region', { name: 'Code lens' })
+/** every lens pane, a reduced-motion before pane included */
+export const panes = (page: Page) => lens(page).locator('.lens-pane')
+/** the panes of this step, without a reduced-motion before pane */
+export const afterPanes = (page: Page) => lens(page).locator('.lens-pane:not(.is-before)')
+export const glyph = (page: Page, id: string) => page.locator(`svg.world [data-entity="${id}"] .glyph`)
+
+/** go to a journey step and wait until the panel shows it */
+export async function openStep(page: Page, slug: string, step: number, of: number) {
+  await page.goto(`/#/journey/${slug}/${step}`)
+  await expect(eyebrow(page)).toContainText(`step ${step} of ${of}`)
+}

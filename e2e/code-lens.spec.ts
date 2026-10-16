@@ -1,13 +1,8 @@
 import { expect, test, type Page } from './fixtures'
-import { eyebrow, expectNoHorizontalScroll, watchErrors } from './helpers'
+import { eyebrow, expectNoHorizontalScroll, glyph, lens, openStep, panes, watchErrors } from './helpers'
 
-const lens = (page: Page) => page.getByRole('region', { name: 'Code lens' })
-const panes = (page: Page) => lens(page).locator('.lens-pane')
-const glyph = (page: Page, id: string) => page.locator(`svg.world [data-entity="${id}"] .glyph`)
-const open = async (page: Page, step: number) => {
-  await page.goto(`/#/journey/whole-lifecycle/${step}`)
-  await expect(eyebrow(page)).toContainText(`step ${step} of 10`)
-}
+/** the J0 lens: every step here is a whole-lifecycle step */
+const open = (page: Page, step: number) => openStep(page, 'whole-lifecycle', step, 10)
 
 test('j0-3 opens the lens with fate chips, glyphs and an abridged pane', async ({ page }) => {
   const errors = watchErrors(page)
