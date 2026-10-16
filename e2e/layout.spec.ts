@@ -203,6 +203,13 @@ test.describe('phone', () => {
       expect(await isInside(), `Tab ${i + 1}`).toBe(true)
     }
   })
+
+  test('the page does not scroll past the app', async ({ page }) => {
+    await page.goto('/#/journey/whole-lifecycle/3')
+    await expect(eyebrow(page)).toContainText('step 3 of 10')
+    const m = await page.evaluate(() => ({ scrollHeight: document.documentElement.scrollHeight, innerHeight: window.innerHeight }))
+    expect(m.scrollHeight, `scrollHeight ${m.scrollHeight} vs innerHeight ${m.innerHeight}`).toBeLessThanOrEqual(m.innerHeight)
+  })
 })
 
 test('atlas: the history strip opens next build, whose inspector lists the releases in order', async ({ page }) => {
