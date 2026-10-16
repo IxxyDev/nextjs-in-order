@@ -1,8 +1,7 @@
 import { expect, test, type Page } from './fixtures'
-import { eyebrow, expectNoHorizontalScroll, watchErrors } from './helpers'
+import { eyebrow, expectNoHorizontalScroll, settle, watchErrors } from './helpers'
 
 const transform = (page: Page) => page.locator('svg.world > g').first().getAttribute('transform')
-const settle = (page: Page) => page.waitForTimeout(700)
 const crumbs = (page: Page) => page.getByRole('navigation', { name: 'Camera breadcrumb' })
 const follow = (page: Page) => page.getByRole('button', { name: 'Follow', exact: true })
 

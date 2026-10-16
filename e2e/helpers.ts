@@ -39,3 +39,13 @@ export async function openStep(page: Page, slug: string, step: number, of: numbe
   await page.goto(`/#/journey/${slug}/${step}`)
   await expect(eyebrow(page)).toContainText(`step ${step} of ${of}`)
 }
+
+/** the camera of a lane's world, read back from its transform: translate(w/2 h/2) scale(zoom) translate(-x -y) */
+export async function camera(page: Page, lane = 0) {
+  const t = (await page.locator('svg.world > g').nth(lane).getAttribute('transform')) ?? ''
+  const [, , zoom, x, y] = (t.match(/-?[\d.]+/g) ?? []).map(Number)
+  return { x: -x, y: -y, zoom }
+}
+
+/** wait for the opening camera tween to finish */
+export const settle = (page: Page) => page.waitForTimeout(700)

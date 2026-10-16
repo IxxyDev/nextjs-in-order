@@ -1,20 +1,11 @@
 import { expect, test, type Page } from './fixtures'
-import { watchErrors } from './helpers'
-
-/** the world group's transform is translate(w/2 h/2) scale(zoom) translate(-x -y) */
-async function camera(page: Page, lane = 0) {
-  const t = (await page.locator('svg.world > g').nth(lane).getAttribute('transform')) ?? ''
-  const [, , zoom, x, y] = (t.match(/-?[\d.]+/g) ?? []).map(Number)
-  return { x: -x, y: -y, zoom }
-}
+import { camera, settle, watchErrors } from './helpers'
 
 async function canvasBox(page: Page, lane = 0) {
   const box = await page.locator('.canvas-wrap').nth(lane).boundingBox()
   return box!
 }
 
-/** wait for the opening camera tween to finish */
-const settle = (page: Page) => page.waitForTimeout(700)
 const follow = (page: Page) => page.getByRole('button', { name: 'Follow', exact: true })
 
 test('drag pans the journey camera, turns Follow off and writes cam; ArrowRight hands back to Follow', async ({ page }) => {

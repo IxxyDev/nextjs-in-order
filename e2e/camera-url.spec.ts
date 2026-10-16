@@ -1,12 +1,5 @@
-import { expect, test, type Page } from './fixtures'
-import { watchErrors } from './helpers'
-
-/** the world group's transform is translate(w/2 h/2) scale(zoom) translate(-x -y) */
-async function camera(page: Page) {
-  const t = (await page.locator('svg.world > g').first().getAttribute('transform')) ?? ''
-  const [, , zoom, x, y] = (t.match(/-?[\d.]+/g) ?? []).map(Number)
-  return { x: -x, y: -y, zoom }
-}
+import { expect, test } from './fixtures'
+import { camera, watchErrors } from './helpers'
 
 test('cam in the URL restores the atlas camera', async ({ page }) => {
   const errors = watchErrors(page)
