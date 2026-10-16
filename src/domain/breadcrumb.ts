@@ -1,5 +1,5 @@
 import type { Band, CameraTarget, RegionId } from './types'
-import { BAND_TITLES, regionById, regionChain } from './regions'
+import { BAND_TITLES, WORLD, regionById, regionChain } from './regions'
 import { entityById, shortNameById } from './entities'
 
 export interface Crumb { label: string; target: CameraTarget }
@@ -31,9 +31,12 @@ export function breadcrumbFor({ target, entity }: { target: CameraTarget; entity
   return crumbs
 }
 
-/** Region level (tablets): the innermost region the whole target sits in, else its band, else the target as it is */
+/** a region this share of the world's width or height or more (the build pipeline, the shelf, the strips, the dev column) frames like the whole system */
+const WORLD_SPAN = 0.5
+
+/** Region level (tablets): the innermost region the whole target sits in, unless it spans the world; else the target as it is */
 export function regionLevel(target: CameraTarget): CameraTarget {
-  const f = focusOf(target)
-  const id = f.regions.at(-1)
-  return id ? { kind: 'region', id } : f.band ? { kind: 'band', id: f.band } : target
+  const id = focusOf(target).regions.at(-1)
+  const r = id && regionById(id)
+  return r && r.w < WORLD.w * WORLD_SPAN && r.h < WORLD.h * WORLD_SPAN ? { kind: 'region', id: r.id } : target
 }

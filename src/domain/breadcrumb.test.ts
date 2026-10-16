@@ -35,12 +35,16 @@ describe('breadcrumbFor', () => {
 })
 
 describe('regionLevel', () => {
-  it('lifts entities to the innermost shared region, then the band, else leaves the target', () => {
+  it('lifts entities to the innermost shared region, else leaves the target', () => {
     const a = inRegion('rsc-runtime'), b = inRegion('ssr-runtime'), d = inRegion('source')
     expect(regionLevel({ kind: 'entities', ids: [a.id] })).toEqual({ kind: 'region', id: 'rsc-runtime' })
     expect(regionLevel({ kind: 'entities', ids: [a.id, b.id] })).toEqual({ kind: 'region', id: 'render-server' })
-    expect(regionLevel({ kind: 'entities', ids: [d.id, inRegion('build').id] })).toEqual({ kind: 'band', id: 'build' })
+    expect(regionLevel({ kind: 'entities', ids: [d.id, inRegion('build').id] })).toEqual({ kind: 'entities', ids: [d.id, inRegion('build').id] })
     expect(regionLevel({ kind: 'entities', ids: [a.id, d.id] })).toEqual({ kind: 'entities', ids: [a.id, d.id] })
     expect(regionLevel({ kind: 'world' })).toEqual({ kind: 'world' })
+  })
+  it('leaves the target in a region that spans half the world', () => {
+    const dev = inRegion('dev')
+    expect(regionLevel({ kind: 'entities', ids: [dev.id] })).toEqual({ kind: 'entities', ids: [dev.id] })
   })
 })
