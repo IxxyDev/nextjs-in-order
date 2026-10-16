@@ -221,6 +221,17 @@ test.describe('phone', () => {
     const m = await page.evaluate(() => ({ scrollHeight: document.documentElement.scrollHeight, innerHeight: window.innerHeight }))
     expect(m.scrollHeight, `scrollHeight ${m.scrollHeight} vs innerHeight ${m.innerHeight}`).toBeLessThanOrEqual(m.innerHeight)
   })
+
+  /** J0 step 3 opens its code lens under the More room handle; J2 step 12 has one of the longest stories */
+  for (const at of ['whole-lifecycle/3', 'request-routing/12']) {
+    test(`the step panel shows the whole story without scrolling on ${at}`, async ({ page }) => {
+      await page.goto(`/#/journey/${at}`)
+      await expect(page.locator('section.panel .lens')).toBeVisible()
+      const panel = (await page.locator('section.panel').boundingBox())!
+      const story = (await page.locator('section.panel .story').boundingBox())!
+      expect(story.y + story.height).toBeLessThanOrEqual(panel.y + panel.height)
+    })
+  }
 })
 
 test('atlas: the history strip opens next build, whose inspector lists the releases in order', async ({ page }) => {
