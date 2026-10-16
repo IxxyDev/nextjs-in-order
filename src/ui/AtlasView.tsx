@@ -1,4 +1,3 @@
-// src/ui/AtlasView.tsx
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { Camera, CameraTarget, EntityState } from '../domain/types'
 import { ENTITIES, entityById } from '../domain/entities'

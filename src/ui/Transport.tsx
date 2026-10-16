@@ -1,4 +1,3 @@
-// src/ui/Transport.tsx
 import { useId } from 'preact/hooks'
 import type { Step } from '../domain/types'
 

@@ -1,4 +1,3 @@
-// src/ui/lensLink.ts
 import { signal } from '@preact/signals'
 import type { HueFate } from '../domain/types'
 

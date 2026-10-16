@@ -1,4 +1,3 @@
-// src/ui/Breadcrumb.tsx
 import type { CameraTarget } from '../domain/types'
 import type { Crumb } from '../domain/breadcrumb'
 

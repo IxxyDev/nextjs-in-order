@@ -1,4 +1,3 @@
-// src/ui/CodeLens.tsx
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { ComponentChildren } from 'preact'
 import type { ArtifactForm, CodeLine, Fate, FateId, LensPane, LensRow, LensStep, LineChange, SpecimenFile } from '../domain/types'

@@ -1,4 +1,3 @@
-// src/ui/StepPanel.tsx
 import { useState } from 'preact/hooks'
 import type { ComponentChildren, RefObject } from 'preact'
 import type { Journey, WorldState, EntityState, MisconceptionCheck, PredictQuestion } from '../domain/types'

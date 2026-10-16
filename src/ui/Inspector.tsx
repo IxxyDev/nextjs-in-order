@@ -1,4 +1,3 @@
-// src/ui/Inspector.tsx
 import type { ComponentChildren } from 'preact'
 import { entityById, shortNameById } from '../domain/entities'
 import { regionById } from '../domain/regions'

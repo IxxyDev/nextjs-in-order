@@ -1,4 +1,3 @@
-// src/ui/PredictView.tsx
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { Camera, CameraTarget, EntityState, PickMark, QuizQuestion, RegionId } from '../domain/types'
 import { ENTITIES, entityById, shortNameById } from '../domain/entities'

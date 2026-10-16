@@ -1,4 +1,3 @@
-// src/ui/WholeOverlay.tsx
 import { useEffect, useMemo, useRef } from 'preact/hooks'
 import type { WorldState } from '../domain/types'
 import { World } from './World'

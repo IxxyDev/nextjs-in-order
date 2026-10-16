@@ -1,4 +1,3 @@
-// src/domain/route.ts
 import type { Camera, Route } from './types'
 import { JOURNEY_CATALOG } from './journeys'
 import { COMPARE_CATALOG } from './compare'

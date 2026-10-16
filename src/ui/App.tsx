@@ -1,4 +1,3 @@
-// src/ui/App.tsx
 import { useEffect, useState } from 'preact/hooks'
 import type { FunctionComponent } from 'preact'
 import { DEFAULT_COMPARE, DEFAULT_JOURNEY, clampIndex, parseRoute, formatRoute } from '../domain/route'
