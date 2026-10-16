@@ -29,7 +29,7 @@ function cameraFor(q: QuizQuestion): CameraTarget {
   return { kind: 'world' }
 }
 
-export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQuestion[]; n: number; cam?: Camera; onGo: (n: number) => void; onAnswered?: (questionId: string, correct: boolean) => void }) {
+export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQuestion[]; n: number; cam?: Camera; onGo: (n: number) => void; onAnswered: (questionId: string, correct: boolean) => void }) {
   const q = quiz[n]
   const [{ picks, checked }, set] = useState({ picks: [] as string[], checked: false })
   const result = checked ? scoreQuestion(q, picks) : undefined
@@ -51,7 +51,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
   const check = () => {
     if (!picks.length) return
     set({ picks, checked: true })
-    onAnswered?.(q.id, scoreQuestion(q, picks).correct)
+    onAnswered(q.id, scoreQuestion(q, picks).correct)
   }
 
   const earlier = progress.get(quizId(q.id))
