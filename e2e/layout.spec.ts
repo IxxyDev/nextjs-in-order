@@ -134,6 +134,17 @@ test('tablet: the step panel is a bottom sheet with the minimap in its header, a
   errors.assertClean()
 })
 
+/** J0 step 3 spans two regions of the build band; J9 step 2 sits in the dev column, as tall as the world */
+for (const at of ['whole-lifecycle/3', 'dev-mode/2']) {
+  test(`tablet: Follow frames the followed token at a readable size on ${at}`, async ({ page }, info) => {
+    test.skip(info.project.name !== 'tablet-768', 'the 768–1023px camera')
+    await page.goto(`/#/journey/${at}`)
+    await settle(page)
+    const token = (await page.locator('.token .shape').first().boundingBox())!
+    expect(token.width, 'the token is drawn 40–64 world units wide, so this is a zoom of at least 0.5').toBeGreaterThanOrEqual(24)
+  })
+}
+
 test.describe('phone', () => {
   test.use({ hasTouch: true })
   test.beforeEach(({}, info) => test.skip(info.project.name !== 'phone-390', 'the ≤767px layout'))
