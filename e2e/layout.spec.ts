@@ -247,3 +247,14 @@ test('atlas: the history strip opens next build, whose inspector lists the relea
   await expectNoHorizontalScroll(page)
   errors.assertClean()
 })
+
+test('compare: every label stays inside its lane, the long token label of the segment-cache step included', async ({ page }) => {
+  await page.goto('/#/compare/client-navigation/3')
+  await settle(page)
+  const outside = await page.locator('.lane').evaluateAll((lanes) => lanes.flatMap((lane) => {
+    const l = lane.getBoundingClientRect()
+    return [...lane.querySelectorAll('.label-name, .label .chip, .edge-label')].map((el) => ({ text: el.textContent, r: el.getBoundingClientRect() }))
+      .filter(({ r }) => r.left < l.left - 1 || l.right + 1 < r.right).map(({ text }) => text)
+  }))
+  expect(outside).toEqual([])
+})
