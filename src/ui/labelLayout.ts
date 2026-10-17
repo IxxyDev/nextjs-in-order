@@ -105,7 +105,9 @@ export function placeLabels(candidates: LabelCandidate[], glyphBoxes: Map<string
     return true
   }
   for (const c of ordered) {
-    const w = c.isEdge ? edgeLabelWidth(c.text, c.chips) : c.inline ? inlineLabelWidth(c.text, c.chips) : labelWidth(c.text, c.chips)
+    const natural = c.isEdge ? edgeLabelWidth(c.text, c.chips) : c.inline ? inlineLabelWidth(c.text, c.chips) : labelWidth(c.text, c.chips)
+    /** a label wider than the overlay is cut to it; its text ellipsizes (.label-name, .edge-label-text in styles.css) */
+    const w = bounds ? Math.min(natural, bounds.w - 2 * INSET) : natural
     const h = c.isEdge ? EDGE_H : c.inline ? LABEL_H : labelHeight(c.chips)
     const g = glyphBoxes.get(c.id)
     const ax = g ? g.x + g.w / 2 : c.x, ay = g ? g.y + g.h / 2 : c.y

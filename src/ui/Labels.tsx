@@ -108,7 +108,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
       {ringAt && clearOf(ringAt.x, ringAt.y, ringText, true) && <div class="region-label ring-label" style={{ left: `${ringAt.x}px`, top: `${ringAt.y}px` }} aria-hidden="true">{ringText}</div>}
       {candidates.filter((c) => c.isEdge && shown.has(c.id)).map((c) => {
         const at = shown.get(c.id)!
-        return <div key={c.id} class="edge-label" style={{ left: `${at.x}px`, top: `${at.y + at.box.h / 2}px` }} aria-hidden="true">{c.text}{c.chips[0] ? <span class="chip chip-crossing">{c.chips[0]}</span> : null}</div>
+        return <div key={c.id} class="edge-label" style={{ left: `${at.x}px`, top: `${at.y + at.box.h / 2}px` }} aria-hidden="true"><span class="edge-label-text">{c.text}</span>{c.chips[0] ? <span class="chip chip-crossing">{c.chips[0]}</span> : null}</div>
       })}
       {candidates.filter((c) => !c.isEdge && shown.has(c.id)).map((c) => {
         const e = entityById(c.id)
