@@ -40,12 +40,15 @@ export function regionById(id: RegionId): Region {
 
 export const BAND_TITLES: Record<Band, string> = { build: 'Build', server: 'Server', browser: 'Browser', dev: 'Dev column' }
 
+/** the time bands run from the world's left edge to here; the dev column takes the rest */
+const DEV_X = 2020
+
 /** the band backgrounds as World draws them: build takes in the shelf, server the network */
 const BAND_RECTS: Record<Band, Rect> = {
-  build: { x: 0, y: BANDS.build.y, w: 2020, h: BANDS.build.h + BANDS.artifacts.h },
-  server: { x: 0, y: BANDS.server.y, w: 2020, h: BANDS.server.h + BANDS.network.h },
-  browser: { x: 0, y: BANDS.browser.y, w: 2020, h: BANDS.browser.h },
-  dev: { x: 2020, y: 0, w: WORLD.w - 2020, h: WORLD.h }
+  build: { x: 0, y: BANDS.build.y, w: DEV_X, h: BANDS.build.h + BANDS.artifacts.h },
+  server: { x: 0, y: BANDS.server.y, w: DEV_X, h: BANDS.server.h + BANDS.network.h },
+  browser: { x: 0, y: BANDS.browser.y, w: DEV_X, h: BANDS.browser.h },
+  dev: { x: DEV_X, y: 0, w: WORLD.w - DEV_X, h: WORLD.h }
 }
 
 export const bandRect = (band: Band): Rect => BAND_RECTS[band]
