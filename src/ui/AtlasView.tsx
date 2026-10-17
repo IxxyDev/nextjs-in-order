@@ -10,24 +10,21 @@ import { Minimap } from './Minimap'
 import { Legend } from './Legend'
 import { Inspector } from './Inspector'
 import { Breadcrumb } from './Breadcrumb'
-import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
+import { MAIN_RIG, goTo, viewport } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useCameraGestures } from './useCameraGestures'
+import { useUrlCamera } from './useUrlCamera'
 import { TEXT } from './useStepControls'
 
 /** a URL camera, or one the user moved, holds until the route changes; until then framing leaves it alone */
 export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Camera; onSelect: (id?: string) => void }) {
   const [filter, setFilter] = useState<AtlasFilter>({})
   const vp = viewport.value
-  const camKey = cam && `${cam.x},${cam.y},${cam.zoom}`
-  useEffect(() => { if (cam) restoreCamera(cam) }, [camKey])
+  const { isHeld, hold: onManual, release } = useUrlCamera(cam, entity ?? '')
   const stage = useRef<HTMLDivElement>(null)
-  const manual = useRef(false)
-  const onManual = (c: Camera) => { manual.current = true; writeCamToUrl(c) }
   useCameraGestures(MAIN_RIG, stage, onManual)
-  useEffect(() => { manual.current = false }, [entity])
   const target: CameraTarget = entity ? { kind: 'entities', ids: [entity] } : { kind: 'world' }
-  useEffect(() => { if (!cam && !manual.current) goTo(target, reducedMotion.value) }, [entity, camKey, vp.w, vp.h])
+  useEffect(() => { if (!isHeld) goTo(target, reducedMotion.value) }, [entity, isHeld, vp.w, vp.h])
   /** Escape closes the inspector; with none open it returns the camera to the whole system */
   const latest = useRef({ entity, onSelect })
   latest.current = { entity, onSelect }
@@ -35,8 +32,7 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || (e.target as HTMLElement).closest?.(TEXT)) return
       if (latest.current.entity) { latest.current.onSelect(undefined); return }
-      manual.current = false
-      writeCamToUrl(undefined, 0)
+      release()
       goTo({ kind: 'world' }, reducedMotion.value)
     }
     window.addEventListener('keydown', onKey)

@@ -13,9 +13,10 @@ import { Labels } from './Labels'
 import { Minimap } from './Minimap'
 import { Legend } from './Legend'
 import { Breadcrumb } from './Breadcrumb'
-import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
+import { MAIN_RIG, goTo, viewport } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useCameraGestures } from './useCameraGestures'
+import { useUrlCamera } from './useUrlCamera'
 
 const HINT = {
   entities: 'Pick every entity that applies, on the map or in the list. Picks are scored as an exact set.',
@@ -35,14 +36,10 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
   const result = checked ? scoreQuestion(q, picks) : undefined
 
   const vp = viewport.value
-  /** a URL camera, or one the user moved, holds until the route changes; until then framing leaves it alone */
-  const camKey = cam && `${cam.x},${cam.y},${cam.zoom}`
-  useEffect(() => { if (cam) restoreCamera(cam) }, [camKey])
+  const { isHeld, hold: onManual } = useUrlCamera(cam, q.id)
   const stage = useRef<HTMLDivElement>(null)
-  const manual = useRef(false)
-  const onManual = (c: Camera) => { manual.current = true; writeCamToUrl(c) }
   useCameraGestures(MAIN_RIG, stage, onManual)
-  useEffect(() => { if (!cam && !manual.current) goTo(cameraFor(q), reducedMotion.value) }, [q.id, camKey, vp.w, vp.h])
+  useEffect(() => { if (!isHeld) goTo(cameraFor(q), reducedMotion.value) }, [q.id, isHeld, vp.w, vp.h])
 
   const toggle = (id: string) => {
     if (q.type === 'choice') { set({ picks: [id], checked: false }); return }

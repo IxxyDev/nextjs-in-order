@@ -15,10 +15,11 @@ import { Breadcrumb } from './Breadcrumb'
 import { WholeOverlay } from './WholeOverlay'
 import { CodeLens } from './CodeLens'
 import { lensOpen } from './lensLink'
-import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
+import { MAIN_RIG, goTo, viewport } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useStepControls, useSwipeSteps } from './useStepControls'
 import { useCameraGestures } from './useCameraGestures'
+import { useUrlCamera } from './useUrlCamera'
 import { phone, tablet } from './layout'
 
 /** follow the step's target, show the whole system, or hold a camera the user left (a URL cam) until they step or pick a view */
@@ -30,8 +31,10 @@ const STORY_GAP = 12
 
 export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; step: number; cam?: Camera; onStep: (n: number) => void }) {
   const world = useMemo(() => deriveWorldState(journey, step), [journey, step])
-  const [view, setView] = useState<View>(cam ? 'manual' : 'follow')
-  const pickView = (follow: boolean) => { setView(follow ? 'follow' : 'whole'); writeCamToUrl(undefined, 0) }
+  const [framing, setFraming] = useState<Exclude<View, 'manual'>>('follow')
+  /** stepping drops cam from the URL and hands the camera back to Follow */
+  const { isHeld, hold, release } = useUrlCamera(cam, `${journey.slug}/${step}`)
+  const pickView = (follow: boolean) => { setFraming(follow ? 'follow' : 'whole'); release() }
   const [showText, setShowText] = useState(false)
   const [selected, setSelected] = useState<string | undefined>()
   const [expanded, setExpanded] = useState(false)
@@ -39,14 +42,10 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   const isTablet = tablet.value, isPhone = phone.value
   /** tablets lock the camera to Follow at Region level and phones keep it at Focus level: neither shows the whole system on this canvas */
   const locked = isTablet || isPhone
-  const shown: View = locked && view === 'whole' ? 'follow' : view
+  const shown: View = isHeld ? 'manual' : locked && framing === 'whole' ? 'follow' : framing
   const target = isTablet ? regionLevel(world.cameraTarget) : world.cameraTarget
 
   const vp = viewport.value
-  const camKey = cam && `${cam.x},${cam.y},${cam.zoom}`
-  useEffect(() => { if (cam) { restoreCamera(cam); setView('manual') } }, [camKey])
-  /** stepping drops cam from the URL and hands the camera back to Follow */
-  useEffect(() => { if (!cam) setView((v) => (v === 'manual' ? 'follow' : v)) }, [step, journey.slug])
   useEffect(() => { MAIN_RIG.sheet.value = isTablet ? PEEK : 0; return () => { MAIN_RIG.sheet.value = 0 } }, [isTablet])
   useEffect(() => { if (!isPhone) setOverlay(false) }, [isPhone])
   useEffect(() => { if (shown !== 'manual') goTo(shown === 'follow' ? target : { kind: 'world' }, reducedMotion.value) }, [world, shown, vp.w, vp.h, isTablet])
@@ -86,7 +85,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   const root = useRef<HTMLDivElement>(null)
   useSwipeSteps(root, (dir) => stepTo(step + dir))
   const stage = useRef<HTMLDivElement>(null)
-  const onManual = (c: Camera) => { setView('manual'); writeCamToUrl(c) }
+  const onManual = (c: Camera) => { setFraming('follow'); hold(c) }
   useCameraGestures(MAIN_RIG, stage, onManual)
   const select = (id: string) => { setPlaying(false); setSelected(id) }
   const current = Object.keys(world.entityStates).find((id) => world.entityStates[id] === 'current')
