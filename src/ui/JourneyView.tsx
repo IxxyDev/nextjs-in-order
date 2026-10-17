@@ -16,11 +16,10 @@ import { WholeOverlay } from './WholeOverlay'
 import { CodeLens } from './CodeLens'
 import { lensOpen } from './lensLink'
 import { MAIN_RIG, goTo, viewport } from './camera'
-import { reducedMotion } from './useReducedMotion'
 import { useStepControls, useSwipeSteps } from './useStepControls'
 import { useCameraGestures } from './useCameraGestures'
 import { useUrlCamera } from './useUrlCamera'
-import { phone, tablet } from './layout'
+import { phone, reducedMotion, tablet } from './layout'
 
 /** follow the step's target, show the whole system, or hold a camera the user left (a URL cam) until they step or pick a view */
 type View = 'follow' | 'whole' | 'manual'

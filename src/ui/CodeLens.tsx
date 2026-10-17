@@ -4,7 +4,7 @@ import type { ArtifactForm, CodeLine, Fate, FateId, LensPane, LensRow, LensStep,
 import { loadLens, peekLens } from '../domain/codeLens'
 import { beforePanes, chipRows, entitiesForRow, isFold, rowsForEntities, stripLines } from '../domain/codeLens/view'
 import { LENS_KEY } from '../domain/sessionFlags'
-import { reducedMotion } from './useReducedMotion'
+import { reducedMotion } from './layout'
 import { clearLensLit, lensLit, lensOpen, mapHover } from './lensLink'
 import { useLazy } from './useLazy'
 import { useSessionFlag } from './useSessionFlag'

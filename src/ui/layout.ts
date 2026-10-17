@@ -11,3 +11,6 @@ function media(q: string) {
 /** the §9 viewport bands that change behavior, not only CSS */
 export const phone = media('(max-width: 767px)')
 export const tablet = media('(min-width: 768px) and (max-width: 1023px)')
+
+/** prefers-reduced-motion: camera moves land at once and the token jumps instead of travelling */
+export const reducedMotion = media('(prefers-reduced-motion: reduce)')

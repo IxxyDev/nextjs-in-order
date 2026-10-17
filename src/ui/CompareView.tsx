@@ -9,7 +9,7 @@ import { Transport } from './Transport'
 import { Inspector } from './Inspector'
 import { Legend } from './Legend'
 import { createRig, goTo, type CameraRig } from './camera'
-import { reducedMotion } from './useReducedMotion'
+import { reducedMotion } from './layout'
 import { useStepControls } from './useStepControls'
 import { useCameraGestures } from './useCameraGestures'
 

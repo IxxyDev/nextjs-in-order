@@ -6,7 +6,7 @@ import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
 import { MAIN_RIG, transformFor, type CameraRig } from './camera'
 import { Glyph } from './Glyph'
-import { reducedMotion } from './useReducedMotion'
+import { reducedMotion } from './layout'
 import { lensLit, mapHover } from './lensLink'
 
 export interface WorldProps {

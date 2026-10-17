@@ -3,7 +3,7 @@ import type { RefObject } from 'preact'
 import type { Camera } from '../domain/types'
 import { REGIONS } from '../domain/regions'
 import { cancelCameraAnimation, goTo, pinchCamera, screenToWorld, setCamera, zoomAt, type CameraRig } from './camera'
-import { reducedMotion } from './useReducedMotion'
+import { reducedMotion } from './layout'
 import { TEXT } from './useStepControls'
 
 /** a press that moves this far or less is a click */

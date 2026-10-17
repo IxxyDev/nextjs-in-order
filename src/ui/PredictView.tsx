@@ -14,7 +14,7 @@ import { Minimap } from './Minimap'
 import { Legend } from './Legend'
 import { Breadcrumb } from './Breadcrumb'
 import { MAIN_RIG, goTo, viewport } from './camera'
-import { reducedMotion } from './useReducedMotion'
+import { reducedMotion } from './layout'
 import { useCameraGestures } from './useCameraGestures'
 import { useUrlCamera } from './useUrlCamera'
 
