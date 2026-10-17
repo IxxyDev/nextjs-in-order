@@ -1,5 +1,6 @@
 import { expect, test, type Page } from './fixtures'
 import { eyebrow, expectNoHorizontalScroll, settle, watchErrors } from './helpers'
+import { GLYPH_NAME } from '../src/domain/glyphName'
 
 const transform = (page: Page) => page.locator('svg.world > g').first().getAttribute('transform')
 const crumbs = (page: Page) => page.getByRole('navigation', { name: 'Camera breadcrumb' })
@@ -244,6 +245,18 @@ test('atlas: the history strip opens next build, whose inspector lists the relea
   await expect(page).toHaveURL(/entity=next-build/)
   const history = page.getByRole('complementary', { name: 'Inspector: next build · pipeline' }).locator('ol.history li strong')
   await expect(history).toHaveText(['1 · 2016', '9.3', '12', '13', '16'])
+  await expectNoHorizontalScroll(page)
+  errors.assertClean()
+})
+
+test('legend: the canvas disclosure opens from the keyboard and names every glyph kind', async ({ page }) => {
+  const errors = watchErrors(page)
+  await page.goto('/#/journey/whole-lifecycle/3')
+  await page.locator('.legend summary').focus()
+  await page.keyboard.press('Enter')
+  const shapes = page.getByRole('list', { name: 'Shapes' })
+  await expect(shapes.getByRole('listitem')).toHaveCount(Object.keys(GLYPH_NAME).length)
+  for (const name of Object.values(GLYPH_NAME)) await expect(shapes.getByText(name, { exact: true })).toBeVisible()
   await expectNoHorizontalScroll(page)
   errors.assertClean()
 })

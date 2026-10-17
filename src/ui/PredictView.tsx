@@ -11,6 +11,7 @@ import { catalogCode } from '../domain/catalogCode'
 import { World } from './World'
 import { Labels } from './Labels'
 import { Minimap } from './Minimap'
+import { Legend } from './Legend'
 import { Breadcrumb } from './Breadcrumb'
 import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
 import { reducedMotion } from './useReducedMotion'
@@ -96,6 +97,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
         <World entityStates={entityStates} activeEdges={new Set()} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} />
         <Labels entityStates={entityStates} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} verb={q.type === 'choice' ? 'No pick in this question' : 'Toggle pick'} />
         <Minimap onManual={onManual} />
+        <Legend />
       </div>
       <section class="panel quiz" aria-labelledby="quiz-title">
         <div class="eyebrow">Predict the machine · question {n + 1} of {quiz.length} · {q.source === 'reviewer' ? 'reviewer question' : `scenario · ${catalogCode(entryBySlug(q.journey!)!.id)}`}</div>

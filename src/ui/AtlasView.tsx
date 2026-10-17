@@ -7,6 +7,7 @@ import { breadcrumbFor } from '../domain/breadcrumb'
 import { World } from './World'
 import { Labels } from './Labels'
 import { Minimap } from './Minimap'
+import { Legend } from './Legend'
 import { Inspector } from './Inspector'
 import { Breadcrumb } from './Breadcrumb'
 import { MAIN_RIG, goTo, restoreCamera, viewport, writeCamToUrl } from './camera'
@@ -65,6 +66,7 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
         <World entityStates={states} activeEdges={new Set()} selected={entity} onSelect={(id) => onSelect(id)} />
         <Labels entityStates={states} selected={entity} onSelect={(id) => onSelect(id)} />
         <Minimap onManual={onManual} />
+        <Legend />
         {entity && <Inspector id={entity} onClose={() => onSelect(undefined)} />}
       </div>
     </div>

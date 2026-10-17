@@ -7,6 +7,7 @@ import { hasLens } from '../domain/codeLens'
 import { World } from './World'
 import { Labels } from './Labels'
 import { Minimap } from './Minimap'
+import { Legend } from './Legend'
 import { StepPanel } from './StepPanel'
 import { Transport } from './Transport'
 import { Inspector } from './Inspector'
@@ -114,6 +115,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
         <World entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={select} />
         <Labels entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={select} />
         {!isTablet && <Minimap onManual={onManual} />}
+        <Legend />
         {selected && <Inspector id={selected} onClose={() => setSelected(undefined)} />}
       </div>
       <StepPanel journey={journey} world={world} showText={showText} header={sheetHead || roomHead} expanded={isTablet && expanded} panelRef={panel}

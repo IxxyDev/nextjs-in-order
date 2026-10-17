@@ -47,12 +47,20 @@ export function minimapRect(vp: Viewport): ScreenRect | undefined {
   return { x: 0, y: vp.h - MINIMAP.bottom - MINIMAP.h - MINIMAP_GAP, w: MINIMAP.left + MINIMAP.w + MINIMAP_GAP, h: MINIMAP.bottom + MINIMAP.h + MINIMAP_GAP }
 }
 
-/** screen zones a rig's labels and framing keep clear: the sheet's peek when there is one (the minimap sits in it), else the minimap */
+/** the legend's toggle on the stage (top-right); it is drawn on every MAIN_RIG view, phones included */
+export const LEGEND = { top: 12, right: 12, w: 84, h: 32 }
+
+function legendRect(vp: Viewport): ScreenRect {
+  return { x: vp.w - LEGEND.right - LEGEND.w - MINIMAP_GAP, y: 0, w: LEGEND.right + LEGEND.w + MINIMAP_GAP, h: LEGEND.top + LEGEND.h + MINIMAP_GAP }
+}
+
+/** screen zones a rig's labels and framing keep clear: the legend's toggle, and the sheet's peek when there is one (the minimap sits in it), else the minimap */
 export function reservedFor(rig: CameraRig): ScreenRect[] {
   const vp = rig.viewport.value, sheet = rig.sheet.value
-  if (sheet) return [{ x: 0, y: vp.h * (1 - sheet), w: vp.w, h: vp.h * sheet }]
+  const legend = rig === MAIN_RIG ? [legendRect(vp)] : []
+  if (sheet) return [{ x: 0, y: vp.h * (1 - sheet), w: vp.w, h: vp.h * sheet }, ...legend]
   const r = rig === MAIN_RIG ? minimapRect(vp) : undefined
-  return r ? [r] : []
+  return r ? [r, ...legend] : legend
 }
 
 export function targetToRect(target: CameraTarget): Rect {

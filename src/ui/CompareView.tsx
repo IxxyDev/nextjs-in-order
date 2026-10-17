@@ -7,6 +7,7 @@ import { World } from './World'
 import { Labels } from './Labels'
 import { Transport } from './Transport'
 import { Inspector } from './Inspector'
+import { Legend } from './Legend'
 import { createRig, goTo, type CameraRig } from './camera'
 import { reducedMotion } from './useReducedMotion'
 import { useStepControls } from './useStepControls'
@@ -86,6 +87,7 @@ export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: 
         {lane(0)}
         <Ruler lanes={pair.lanes} times={world.ruler} />
         {pair.lanes.slice(1).map((_, i) => lane(i + 1))}
+        <Legend />
       </div>
       <ComparePanel pair={pair} world={world} showText={showText} />
       <Transport steps={pair.steps} step={world.stepIndex} playing={playing} follow={follow} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={setFollow} onShowText={setShowText} />
