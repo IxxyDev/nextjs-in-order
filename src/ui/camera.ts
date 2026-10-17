@@ -20,6 +20,11 @@ const DURATION = 500
  */
 export interface CameraRig { camera: Signal<Camera>; viewport: Signal<Viewport>; frame: number; sheet: Signal<number> }
 
+/** what a view frames: the step's target or the whole system */
+export type Framing = 'follow' | 'whole'
+/** a framing, or a camera the user left (a URL cam) held until they step or pick a framing */
+export type View = Framing | 'manual'
+
 export function createRig(): CameraRig {
   return { camera: signal<Camera>({ x: WORLD.w / 2, y: WORLD.h / 2, zoom: 0.5 }), viewport: signal<Viewport>({ w: 1200, h: 800 }), frame: 0, sheet: signal(0) }
 }

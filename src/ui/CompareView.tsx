@@ -8,7 +8,7 @@ import { Labels } from './Labels'
 import { Transport } from './Transport'
 import { Inspector } from './Inspector'
 import { Legend } from './Legend'
-import { createRig, goTo, type CameraRig } from './camera'
+import { createRig, goTo, type CameraRig, type Framing } from './camera'
 import { reducedMotion } from './layout'
 import { useStepControls } from './useStepControls'
 import { useCameraGestures } from './useCameraGestures'
@@ -16,11 +16,11 @@ import { useCameraGestures } from './useCameraGestures'
 /** ruler times closer than this count as in step */
 const TIE = 0.02
 
-function Lane({ meta, world, rig, follow, selected, onSelect }: { meta: CompareLane; world: LaneWorld; rig: CameraRig; follow: boolean; selected?: string; onSelect: (id?: string) => void }) {
+function Lane({ meta, world, rig, framing, selected, onSelect }: { meta: CompareLane; world: LaneWorld; rig: CameraRig; framing: Framing; selected?: string; onSelect: (id?: string) => void }) {
   const vp = rig.viewport.value
   const stage = useRef<HTMLElement>(null)
   useCameraGestures(rig, stage)
-  useEffect(() => { goTo(follow ? world.cameraTarget : { kind: 'world' }, reducedMotion.value, rig) }, [world, follow, vp.w, vp.h])
+  useEffect(() => { goTo(framing === 'follow' ? world.cameraTarget : { kind: 'world' }, reducedMotion.value, rig) }, [world, framing, vp.w, vp.h])
   return (
     <section class="lane" ref={stage} aria-label={meta.title}>
       <World rig={rig} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
@@ -70,13 +70,13 @@ function ComparePanel({ pair, world, showText }: { pair: ResolvedPair; world: Co
 export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: number; onStep: (n: number) => void }) {
   const world = useMemo(() => deriveCompareState(pair, step), [pair, step])
   const rigs = useMemo(() => pair.lanes.map(() => createRig()), [pair])
-  const [follow, setFollow] = useState(true)
+  const [framing, setFraming] = useState<Framing>('follow')
   const [showText, setShowText] = useState(false)
   const [selected, setSelected] = useState<{ lane: number; id: string } | undefined>()
 
-  const { playing, setPlaying, stepTo } = useStepControls({ count: pair.steps.length, step, onStep, onEscape: () => { setSelected(undefined); setFollow(false) } })
+  const { playing, setPlaying, stepTo } = useStepControls({ count: pair.steps.length, step, onStep, onEscape: () => { setSelected(undefined); setFraming('whole') } })
   const lane = (i: number) => (
-    <Lane key={pair.lanes[i].title} meta={pair.lanes[i]} world={world.lanes[i]} rig={rigs[i]} follow={follow}
+    <Lane key={pair.lanes[i].title} meta={pair.lanes[i]} world={world.lanes[i]} rig={rigs[i]} framing={framing}
       selected={selected?.lane === i ? selected.id : undefined}
       onSelect={(id) => { setPlaying(false); setSelected(id ? { lane: i, id } : undefined) }} />
   )
@@ -90,7 +90,7 @@ export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: 
         <Legend />
       </div>
       <ComparePanel pair={pair} world={world} showText={showText} />
-      <Transport steps={pair.steps} step={world.stepIndex} playing={playing} follow={follow} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={setFollow} onShowText={setShowText} />
+      <Transport steps={pair.steps} step={world.stepIndex} playing={playing} view={framing} showText={showText} onStep={stepTo} onPlay={setPlaying} onView={setFraming} onShowText={setShowText} />
     </div>
   )
 }

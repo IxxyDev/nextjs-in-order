@@ -15,14 +15,12 @@ import { Breadcrumb } from './Breadcrumb'
 import { WholeOverlay } from './WholeOverlay'
 import { CodeLens } from './CodeLens'
 import { lensOpen } from './lensLink'
-import { MAIN_RIG, goTo, viewport } from './camera'
+import { MAIN_RIG, goTo, viewport, type Framing, type View } from './camera'
 import { useStepControls, useSwipeSteps } from './useStepControls'
 import { useCameraGestures } from './useCameraGestures'
 import { useUrlCamera } from './useUrlCamera'
 import { phone, reducedMotion, tablet } from './layout'
 
-/** follow the step's target, show the whole system, or hold a camera the user left (a URL cam) until they step or pick a view */
-type View = 'follow' | 'whole' | 'manual'
 /** the tablet sheet's peek height as a share of the canvas; .has-sheet .panel in styles.css uses the same 30% */
 const PEEK = 0.3
 /** room the phone peek leaves under the story, so the next block shows its top edge */
@@ -30,10 +28,10 @@ const STORY_GAP = 12
 
 export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; step: number; cam?: Camera; onStep: (n: number) => void }) {
   const world = useMemo(() => deriveWorldState(journey, step), [journey, step])
-  const [framing, setFraming] = useState<Exclude<View, 'manual'>>('follow')
+  const [framing, setFraming] = useState<Framing>('follow')
   /** stepping drops cam from the URL and hands the camera back to Follow */
   const { isHeld, hold, release } = useUrlCamera(cam, `${journey.slug}/${step}`)
-  const pickView = (follow: boolean) => { setFraming(follow ? 'follow' : 'whole'); release() }
+  const pickView = (picked: Framing) => { setFraming(picked); release() }
   const [showText, setShowText] = useState(false)
   const [selected, setSelected] = useState<string | undefined>()
   const [expanded, setExpanded] = useState(false)
@@ -78,7 +76,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
     if (overlay) { setOverlay(false); return }
     if (roomy) { setExpanded(false); return }
     setSelected(undefined)
-    pickView(locked)
+    pickView(locked ? 'follow' : 'whole')
   }
   const { playing, setPlaying, stepTo } = useStepControls({ count: journey.steps.length, step, onStep, onEscape })
   const root = useRef<HTMLDivElement>(null)
@@ -118,7 +116,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
       </div>
       <StepPanel journey={journey} world={world} showText={showText} header={sheetHead || roomHead} expanded={isTablet && expanded} panelRef={panel}
         lens={lensed && <CodeLens key={journey.slug} slug={journey.slug} stepId={world.step.id} selected={selected} />} />
-      <Transport steps={journey.steps} step={step} playing={playing} follow={shown === 'follow'} showText={showText} onStep={stepTo} onPlay={setPlaying} onFollow={pickView}
+      <Transport steps={journey.steps} step={step} playing={playing} view={shown} showText={showText} onStep={stepTo} onPlay={setPlaying} onView={pickView}
         onShowText={setShowText} whole={isTablet ? 'none' : isPhone ? 'overlay' : 'toggle'} onWhole={() => { setPlaying(false); setOverlay(true) }} />
       {overlay && <WholeOverlay world={world} onSelect={(id) => { setOverlay(false); select(id) }} onClose={() => setOverlay(false)} />}
     </div>
