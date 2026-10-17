@@ -314,7 +314,9 @@ a { color: var(--accent); }
 .history-strip { display: flex; gap: 12px; align-items: center; min-width: 0; padding: 6px 20px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; color: var(--hi); }
 .history-strip button { flex: none; font: inherit; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: transparent; border: 1px solid var(--line); padding: 4px 10px; cursor: pointer; }
 .history-strip button:hover { color: var(--fg); border-color: var(--mid); }
-.history-strip ol { display: flex; gap: 18px; min-width: 0; margin: 0; padding: 0; list-style: none; overflow-x: auto; white-space: nowrap; }
+/* scroll hint: the text fades out at the right edge; the end padding lets the last release scroll clear of the fade */
+.history-strip ol { display: flex; gap: 18px; min-width: 0; margin: 0; padding: 0 56px 0 0; list-style: none; overflow-x: auto; white-space: nowrap;
+  mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent); }
 
 /* tablet sheet header (shown only in the 768–1023px band) and the phone whole-system overlay */
 .sheet-head { display: none; }
