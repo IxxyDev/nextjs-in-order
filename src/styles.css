@@ -404,7 +404,7 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
 .quiz-reset { font-size: 11px; }
 .quiz-earlier { margin: 0 0 8px; font-family: var(--font-mono); font-size: 12px; } .quiz-earlier .ok { color: var(--ok); } .quiz-earlier .bad { color: var(--bad); }
 
-/* responsive */
+/* responsive: the 767px and 1023px breakpoints are phone and tablet in src/ui/layout.ts, written again here because CSS cannot import them */
 @media (max-width: 1199px) { .journey { grid-template-columns: minmax(0, 60fr) minmax(300px, 40fr); } .panel { padding: 20px 22px; } .panel h2 { font-size: 26px; } }
 /*
  * journeys with a code lens: from 1280px the panel takes what the stage can spare above 760px (the transport's one-row width),

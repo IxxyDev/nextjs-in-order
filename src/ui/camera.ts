@@ -5,6 +5,7 @@ import { WORLD, bandRect, regionById } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
 import { intersects, type ScreenRect } from './labelLayout'
 import { withCam } from '../domain/route'
+import { phone } from './layout'
 
 export interface Viewport { w: number; h: number }
 
@@ -43,7 +44,7 @@ export const MINIMAP = { left: 12, bottom: 12, w: 132, h: 82 }
 const MINIMAP_GAP = 8
 
 export function minimapRect(vp: Viewport): ScreenRect | undefined {
-  if (typeof matchMedia === 'function' && matchMedia('(max-width: 767px)').matches) return undefined
+  if (phone.value) return undefined
   return { x: 0, y: vp.h - MINIMAP.bottom - MINIMAP.h - MINIMAP_GAP, w: MINIMAP.left + MINIMAP.w + MINIMAP_GAP, h: MINIMAP.bottom + MINIMAP.h + MINIMAP_GAP }
 }
 
