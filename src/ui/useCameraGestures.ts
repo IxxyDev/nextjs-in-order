@@ -9,7 +9,7 @@ import { TEXT } from './useStepControls'
 /** a press that moves this far or less is a click */
 const SLOP = 4
 /** overlays on the stage that keep their own pointer and wheel behavior */
-const OWN = '.inspector, .minimap'
+const OWN = '.inspector, .minimap, .legend'
 const KEY_ZOOM = 1.25
 
 type Point = { x: number; y: number }
