@@ -3,7 +3,7 @@ import { signal, type Signal } from '@preact/signals'
 import type { Camera, CameraTarget, Rect } from '../domain/types'
 import { WORLD, bandRect, regionById } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
-import type { ScreenRect } from './labelLayout'
+import { intersects, type ScreenRect } from './labelLayout'
 import { withCam } from '../domain/route'
 
 export interface Viewport { w: number; h: number }
@@ -96,8 +96,6 @@ function rectOnScreen(r: Rect, cam: Camera, vp: Viewport): ScreenRect {
   return { x: p.x, y: p.y, w: r.w * cam.zoom, h: r.h * cam.zoom }
 }
 
-const hits = (a: ScreenRect, b: ScreenRect) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y
-
 /**
  * Plain fit first. When that puts any of the target's entities under a reserved zone, try the smallest
  * pan of the same fit that clears the zone (when the target still fits on screen), then
@@ -108,14 +106,14 @@ export function frame(target: CameraTarget, vp: Viewport, reserved: ScreenRect[]
   const rect = targetToRect(target)
   const plain = clampToWorld(fitRect(rect, vp, 0.12, inset), vp)
   const points = targetEntities(target, rect)
-  const covered = (cam: Camera) => reserved.some((r) => points.some((p) => hits(footprint(p, cam, vp), r)))
+  const covered = (cam: Camera) => reserved.some((r) => points.some((p) => intersects(footprint(p, cam, vp), r)))
   if (!covered(plain)) return plain
   const inside = (f: ScreenRect) => f.x >= 0 && f.x + f.w <= vp.w && f.y >= 0 && f.y + f.h <= vp.h
   /** a region or the world must stay whole on screen; an entity target only needs its entities */
   const inView = (cam: Camera) => points.every((p) => inside(footprint(p, cam, vp))) && (target.kind === 'entities' || inside(rectOnScreen(rect, cam, vp)))
   /** the smallest pan right or up that takes every covered footprint out of the zone */
   const pans = reserved.flatMap((r) => {
-    const under = points.map((p) => footprint(p, plain, vp)).filter((f) => hits(f, r))
+    const under = points.map((p) => footprint(p, plain, vp)).filter((f) => intersects(f, r))
     if (!under.length) return []
     const dx = Math.max(...under.map((f) => r.x + r.w - f.x)), dy = Math.max(...under.map((f) => f.y + f.h - r.y))
     return [{ x: -dx / plain.zoom, y: 0 }, { x: 0, y: dy / plain.zoom }]
