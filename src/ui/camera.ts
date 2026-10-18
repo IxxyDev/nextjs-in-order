@@ -7,6 +7,8 @@ import { intersects, type ScreenRect } from './labelLayout'
 import { withCam } from '../domain/route'
 import { phone } from './layout'
 
+/** a screen or world position */
+export interface Point { x: number; y: number }
 export interface Viewport { w: number; h: number }
 
 export const MIN_ZOOM = 0.2
@@ -86,13 +88,13 @@ export function targetToRect(target: CameraTarget): Rect {
 }
 
 /** the entities a target is about: its ids, or everything inside its rect */
-function targetEntities(target: CameraTarget, rect: Rect): { x: number; y: number }[] {
+function targetEntities(target: CameraTarget, rect: Rect): Point[] {
   if (target.kind === 'entities') return target.ids.map(entityById)
   return ENTITIES.filter((e) => e.x >= rect.x && e.x <= rect.x + rect.w && e.y >= rect.y && e.y <= rect.y + rect.h)
 }
 
 /** glyph plus a typical two-row label under it, in screen px */
-function footprint(p: { x: number; y: number }, cam: Camera, vp: Viewport): ScreenRect {
+function footprint(p: Point, cam: Camera, vp: Viewport): ScreenRect {
   const s = worldToScreen(p, cam, vp)
   return { x: s.x - 60, y: s.y - 28 * cam.zoom, w: 120, h: 58 * cam.zoom + 44 }
 }
@@ -134,15 +136,14 @@ export function transformFor(cam: Camera, vp: Viewport): string {
   return `translate(${vp.w / 2} ${vp.h / 2}) scale(${cam.zoom}) translate(${-cam.x} ${-cam.y})`
 }
 
-export function worldToScreen(p: { x: number; y: number }, cam: Camera, vp: Viewport): { x: number; y: number } {
+export function worldToScreen(p: Point, cam: Camera, vp: Viewport): Point {
   return { x: vp.w / 2 + (p.x - cam.x) * cam.zoom, y: vp.h / 2 + (p.y - cam.y) * cam.zoom }
 }
 
-export function screenToWorld(p: { x: number; y: number }, cam: Camera, vp: Viewport): { x: number; y: number } {
+export function screenToWorld(p: Point, cam: Camera, vp: Viewport): Point {
   return { x: cam.x + (p.x - vp.w / 2) / cam.zoom, y: cam.y + (p.y - vp.h / 2) / cam.zoom }
 }
 
-type Point = { x: number; y: number }
 const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z))
 
 /** the world point under screen point `from` lands under `to` at the new zoom (clamped), then the view is kept on the world */

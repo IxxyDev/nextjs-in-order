@@ -5,7 +5,7 @@ import { REGIONS, BANDS, BAND_TITLES, CUSTOM_SERVER_RING as RING, bandRect } fro
 import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
 import { isLit, isRingOn } from '../domain/worldState'
-import { MAIN_RIG, transformFor, type CameraRig } from './camera'
+import { MAIN_RIG, transformFor, type CameraRig, type Point } from './camera'
 import { Glyph } from './Glyph'
 import { reducedMotion } from './layout'
 import { lensLit, mapHover } from './lensLink'
@@ -27,7 +27,7 @@ export interface WorldProps {
 /** the build and network boundaries run across the time bands, up to the dev column */
 const timeBandsW = bandRect('server').w
 
-function edgePath(from: { x: number; y: number }, to: { x: number; y: number }): string {
+function edgePath(from: Point, to: Point): string {
   const dx = to.x - from.x, dy = to.y - from.y
   if (Math.abs(dx) >= Math.abs(dy)) {
     const c = Math.max(60, Math.abs(dx) / 2)

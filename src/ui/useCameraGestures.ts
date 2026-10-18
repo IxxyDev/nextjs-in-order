@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'preact/hooks'
 import type { RefObject } from 'preact'
 import type { Camera } from '../domain/types'
 import { REGIONS } from '../domain/regions'
-import { cancelCameraAnimation, goTo, pinchCamera, screenToWorld, setCamera, zoomAt, type CameraRig } from './camera'
+import { cancelCameraAnimation, goTo, pinchCamera, screenToWorld, setCamera, zoomAt, type CameraRig, type Point } from './camera'
 import { reducedMotion } from './layout'
 import { TEXT } from './useStepControls'
 
@@ -14,8 +14,6 @@ const KEY_ZOOM = 1.25
 
 /** a region pick takes the first click only: the second click of a double-click belongs to the region fit; a key press counts as a first click */
 export const isFirstClick = (e: MouseEvent) => e.detail < 2
-
-type Point = { x: number; y: number }
 
 /** per group of sibling stages (compare lanes), the one the pointer or focus last touched; keys go there only */
 const active = new WeakMap<Element, Element>()
