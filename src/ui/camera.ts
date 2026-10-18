@@ -13,6 +13,7 @@ export interface Viewport { w: number; h: number }
 
 export const MIN_ZOOM = 0.2
 export const MAX_ZOOM = 4
+const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z))
 const ENTITY_MARGIN = 140
 const DURATION = 500
 
@@ -42,7 +43,7 @@ const NO_INSET: Inset = { left: 0, bottom: 0 }
 /** fits the rect into the viewport minus the inset, centered in what is left */
 export function fitRect(rect: Rect, vp: Viewport, pad = 0.12, inset: Inset = NO_INSET): Camera {
   const fit = Math.min((vp.w - inset.left) / (rect.w * (1 + pad)), (vp.h - inset.bottom) / (rect.h * (1 + pad)))
-  const zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, fit))
+  const zoom = clampZoom(fit)
   return { x: rect.x + rect.w / 2 - inset.left / 2 / zoom, y: rect.y + rect.h / 2 + inset.bottom / 2 / zoom, zoom }
 }
 
@@ -143,8 +144,6 @@ export function worldToScreen(p: Point, cam: Camera, vp: Viewport): Point {
 export function screenToWorld(p: Point, cam: Camera, vp: Viewport): Point {
   return { x: cam.x + (p.x - vp.w / 2) / cam.zoom, y: cam.y + (p.y - vp.h / 2) / cam.zoom }
 }
-
-const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z))
 
 /** the world point under screen point `from` lands under `to` at the new zoom (clamped), then the view is kept on the world */
 function anchored(cam: Camera, vp: Viewport, from: Point, to: Point, zoom: number): Camera {
