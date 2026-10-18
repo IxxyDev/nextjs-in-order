@@ -21,7 +21,7 @@ import { useCameraGestures } from './useCameraGestures'
 import { useUrlCamera } from './useUrlCamera'
 import { phone, reducedMotion, tablet } from './layout'
 
-/** the tablet sheet's peek height as a share of the canvas; .has-sheet .panel in styles.css uses the same 30% */
+/** the tablet sheet's peek height as a share of the canvas; .has-sheet .panel in styles.css reads it as --sheet-peek */
 const PEEK = 0.3
 /** room the phone peek leaves under the story, so the next block shows its top edge */
 const STORY_GAP = 12
@@ -107,7 +107,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   )
 
   return (
-    <div class={`journey ${isTablet ? 'has-sheet' : ''} ${lensed ? 'has-lens' : ''} ${roomy ? 'is-roomy' : ''}`} ref={root}>
+    <div class={`journey ${isTablet ? 'has-sheet' : ''} ${lensed ? 'has-lens' : ''} ${roomy ? 'is-roomy' : ''}`} style={`--sheet-peek: ${PEEK}`} ref={root}>
       <Breadcrumb crumbs={crumbs} onGo={(t) => onManual(goTo(t, reducedMotion.value))} />
       <div class="stage" ref={stage}>
         <World entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={select} />
