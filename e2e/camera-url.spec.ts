@@ -26,3 +26,9 @@ test('cam in a journey URL turns Follow off until the user steps, and stepping c
   await expect(follow).toHaveAttribute('aria-pressed', 'true')
   errors.assertClean()
 })
+
+test('a held URL camera does not press Whole system either', async ({ page }, info) => {
+  test.skip(info.project.name === 'tablet-768' || info.project.name === 'phone-390', 'Whole system is a toggle from 1024px')
+  await page.goto('/#/journey/app-initial/3?cam=900,700,1.5')
+  await expect(page.getByRole('button', { name: 'Whole system' })).toHaveAttribute('aria-pressed', 'false')
+})
