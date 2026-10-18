@@ -3,7 +3,8 @@ import type { Band, Rect, Region, RegionId } from './types'
 
 export const WORLD: Rect = { x: 0, y: 0, w: 2400, h: 2080 }
 
-export const BANDS = {
+/** the world's horizontal layout rows, top to bottom; the time bands (Band) are built from them in BAND_RECTS */
+export const ROWS = {
   build: { y: 0, h: 680 },
   artifacts: { y: 680, h: 140 },
   server: { y: 820, h: 640 },
@@ -45,9 +46,9 @@ const DEV_X = 2020
 
 /** the band backgrounds as World draws them: build takes in the shelf, server the network */
 const BAND_RECTS: Record<Band, Rect> = {
-  build: { x: 0, y: BANDS.build.y, w: DEV_X, h: BANDS.build.h + BANDS.artifacts.h },
-  server: { x: 0, y: BANDS.server.y, w: DEV_X, h: BANDS.server.h + BANDS.network.h },
-  browser: { x: 0, y: BANDS.browser.y, w: DEV_X, h: BANDS.browser.h },
+  build: { x: 0, y: ROWS.build.y, w: DEV_X, h: ROWS.build.h + ROWS.artifacts.h },
+  server: { x: 0, y: ROWS.server.y, w: DEV_X, h: ROWS.server.h + ROWS.network.h },
+  browser: { x: 0, y: ROWS.browser.y, w: DEV_X, h: ROWS.browser.h },
   dev: { x: DEV_X, y: 0, w: WORLD.w - DEV_X, h: WORLD.h }
 }
 
