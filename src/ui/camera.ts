@@ -108,7 +108,7 @@ function rectOnScreen(r: Rect, cam: Camera, vp: Viewport): ScreenRect {
  * refitting into the viewport minus the zone's height or width. The best uncovered try with the most
  * zoom wins, so the corner stays clear without shrinking the scene more than needed.
  */
-export function frame(target: CameraTarget, vp: Viewport, reserved: ScreenRect[] = [], inset: Inset = NO_INSET): Camera {
+export function fitTarget(target: CameraTarget, vp: Viewport, reserved: ScreenRect[] = [], inset: Inset = NO_INSET): Camera {
   const rect = targetToRect(target)
   const plain = clampToWorld(fitRect(rect, vp, 0.12, inset), vp)
   const points = targetEntities(target, rect)
@@ -229,14 +229,14 @@ export function clampToWorld(cam: Camera, vp: Viewport): Camera {
 }
 
 /** the rig's framing of a target: reserved zones kept clear, and the fit inset by a sheet's peek */
-export function frameFor(target: CameraTarget, rig = MAIN_RIG): Camera {
+export function fitTargetFor(target: CameraTarget, rig = MAIN_RIG): Camera {
   const vp = rig.viewport.value
-  return frame(target, vp, reservedFor(rig), { left: 0, bottom: vp.h * rig.sheet.value })
+  return fitTarget(target, vp, reservedFor(rig), { left: 0, bottom: vp.h * rig.sheet.value })
 }
 
 /** moves the rig's camera to the target and returns where it lands */
 export function goTo(target: CameraTarget, instant: boolean, rig = MAIN_RIG): Camera {
-  const cam = frameFor(target, rig)
+  const cam = fitTargetFor(target, rig)
   if (instant) setCamera(cam, rig)
   else animateTo(cam, rig)
   return cam

@@ -1,6 +1,6 @@
 // src/ui/camera.test.ts
 import { describe, it, expect } from 'vitest'
-import { fitRect, targetToRect, transformFor, worldToScreen, screenToWorld, clampToWorld, frame, zoomAt, pinchCamera, OVERSCROLL, MIN_ZOOM, MAX_ZOOM } from './camera'
+import { fitRect, targetToRect, transformFor, worldToScreen, screenToWorld, clampToWorld, fitTarget, zoomAt, pinchCamera, OVERSCROLL, MIN_ZOOM, MAX_ZOOM } from './camera'
 import { WORLD } from '../domain/regions'
 
 describe('camera math', () => {
@@ -44,7 +44,7 @@ describe('camera math', () => {
     const vp = { w: 900, h: 600 }
     const corner = { x: 0, y: 500, w: 150, h: 100 }
     const target = { kind: 'region', id: 'browser' } as const
-    const plain = frame(target, vp), kept = frame(target, vp, [corner])
+    const plain = fitTarget(target, vp), kept = fitTarget(target, vp, [corner])
     const clear = (cam: typeof plain) => {
       const p = worldToScreen({ x: 200, y: 1990 }, cam, vp)
       return p.x - 60 >= corner.x + corner.w || p.y + 30 * cam.zoom + 44 <= corner.y
