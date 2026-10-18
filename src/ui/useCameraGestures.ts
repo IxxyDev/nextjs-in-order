@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'preact/hooks'
 import type { RefObject } from 'preact'
 import type { Camera } from '../domain/types'
-import { REGIONS } from '../domain/regions'
+import { smallestRegionAround } from '../domain/regions'
 import { cancelCameraAnimation, goTo, pinchCamera, screenToWorld, setCamera, zoomAt, type CameraRig, type Point } from './camera'
 import { reducedMotion } from './layout'
 import { TEXT } from './useStepControls'
@@ -81,9 +81,8 @@ export function useCameraGestures(rig: CameraRig, stageRef: RefObject<HTMLElemen
     }
     const onDblClick = (e: MouseEvent) => {
       if ((e.target as Element).closest(OWN)) return
-      const vp = rig.viewport.value
-      const w = screenToWorld(local(e), rig.camera.value, vp)
-      const hit = REGIONS.filter((r) => w.x >= r.x && w.x <= r.x + r.w && w.y >= r.y && w.y <= r.y + r.h).sort((a, b) => a.w * a.h - b.w * b.h)[0]
+      const at = screenToWorld(local(e), rig.camera.value, rig.viewport.value)
+      const hit = smallestRegionAround({ ...at, w: 0, h: 0 })
       if (!hit) return
       manual.current?.(goTo({ kind: 'region', id: hit.id }, reducedMotion.value, rig))
     }

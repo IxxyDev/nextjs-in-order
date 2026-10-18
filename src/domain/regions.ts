@@ -55,8 +55,14 @@ const BAND_RECTS: Record<Band, Rect> = {
 export const bandRect = (band: Band): Rect => BAND_RECTS[band]
 
 const contains = (a: Rect, b: Rect) => a.x <= b.x && a.y <= b.y && a.x + a.w >= b.x + b.w && a.y + a.h >= b.y + b.h
+
+/** the smallest region that holds the whole rect (a point is a rect of no size), other than the region `except` */
+export function smallestRegionAround(rect: Rect, except?: RegionId): Region | undefined {
+  return REGIONS.filter((r) => r.id !== except && contains(r, rect)).sort((a, b) => a.w * a.h - b.w * b.h)[0]
+}
+
 /** a region drawn inside another (the two runtimes inside render-server) has the smallest such one as parent */
-const parent = new Map(REGIONS.map((r) => [r.id, REGIONS.filter((o) => o !== r && contains(o, r)).sort((a, b) => a.w * a.h - b.w * b.h)[0]?.id]))
+const parent = new Map(REGIONS.map((r) => [r.id, smallestRegionAround(r, r.id)?.id]))
 
 /** the region and the regions it sits in, outermost first */
 export function regionChain(id: RegionId): RegionId[] {
