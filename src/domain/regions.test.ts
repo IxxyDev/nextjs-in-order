@@ -1,6 +1,6 @@
 // src/domain/regions.test.ts
 import { describe, it, expect } from 'vitest'
-import { REGIONS, WORLD, regionById } from './regions'
+import { CUSTOM_SERVER_RING, REGIONS, WORLD, regionById } from './regions'
 
 describe('regions', () => {
   it('has the 13 regions from the visual language', () => {
@@ -26,5 +26,8 @@ describe('regions', () => {
       expect(r.y).toBeGreaterThanOrEqual(rs.y)
       expect(r.y + r.h).toBeLessThanOrEqual(rs.y + rs.h)
     }
+  })
+  it('frames HTTP entry and router-server with the custom-server ring, 6 units clear', () => {
+    expect(CUSTOM_SERVER_RING).toEqual({ x: 14, y: 834, w: 892, h: 492 })
   })
 })

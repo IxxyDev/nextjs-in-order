@@ -12,9 +12,6 @@ export const ROWS = {
   browser: { y: 1520, h: 560 }
 } as const
 
-/** the custom-server ring: a frame around HTTP entry + router-server */
-export const CUSTOM_SERVER_RING: Rect = { x: 14, y: 828, w: 894, h: 502 }
-
 export const REGIONS: Region[] = [
   { id: 'source', title: 'Source code', band: 'build', x: 20, y: 30, w: 450, h: 630 },
   { id: 'build', title: 'Build pipeline', band: 'build', x: 490, y: 30, w: 1250, h: 630 },
@@ -37,6 +34,18 @@ export function regionById(id: RegionId): Region {
   const r = byId.get(id)
   if (!r) throw new Error(`unknown region ${id}`)
   return r
+}
+
+/** room the custom-server ring leaves around the regions it frames */
+const RING_MARGIN = 6
+
+/** the custom-server ring: a frame around HTTP entry + router-server */
+export const CUSTOM_SERVER_RING: Rect = around([regionById('http-entry'), regionById('router-server')], RING_MARGIN)
+
+function around(rects: Rect[], margin: number): Rect {
+  const x = Math.min(...rects.map((r) => r.x)) - margin, y = Math.min(...rects.map((r) => r.y)) - margin
+  const right = Math.max(...rects.map((r) => r.x + r.w)) + margin, bottom = Math.max(...rects.map((r) => r.y + r.h)) + margin
+  return { x, y, w: right - x, h: bottom - y }
 }
 
 export const BAND_TITLES: Record<Band, string> = { build: 'Build', server: 'Server', browser: 'Browser', dev: 'Dev column' }
