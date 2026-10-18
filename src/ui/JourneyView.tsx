@@ -34,7 +34,9 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   const pickView = (picked: Framing) => { setFraming(picked); release() }
   const [showText, setShowText] = useState(false)
   const [selected, setSelected] = useState<string | undefined>()
-  const [expanded, setExpanded] = useState(false)
+  /** the tablet sheet and the phone code room are two panels: a resize from one layout to the other opens neither */
+  const [isSheetExpanded, setSheetExpanded] = useState(false)
+  const [isRoomAsked, setRoomAsked] = useState(false)
   const [overlay, setOverlay] = useState(false)
   const isTablet = tablet.value, isPhone = phone.value
   /** tablets lock the camera to Follow at Region level and phones keep it at Focus level: neither shows the whole system on this canvas */
@@ -51,7 +53,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   /** every registered lens has open steps (codeLens.test.ts), so the wide panel is set at once, never after the chunk loads */
   const lensed = hasLens(journey.slug)
   const canRoom = isPhone && lensed && lensOpen.value
-  const roomy = canRoom && expanded
+  const roomy = canRoom && isRoomAsked
   const panel = useRef<HTMLElement>(null)
   useEffect(() => {
     if (!roomy) return
@@ -74,7 +76,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
 
   const onEscape = () => {
     if (overlay) { setOverlay(false); return }
-    if (roomy) { setExpanded(false); return }
+    if (roomy) { setRoomAsked(false); return }
     setSelected(undefined)
     pickView(locked ? 'follow' : 'whole')
   }
@@ -90,15 +92,15 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
 
   const sheetHead = isTablet && (
     <div class="sheet-head">
-      <button type="button" class="sheet-handle" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
-        <span class="grabber" aria-hidden="true" />{expanded ? 'Collapse' : 'Expand'}<span class="visually-hidden"> step panel</span>
+      <button type="button" class="sheet-handle" aria-expanded={isSheetExpanded} onClick={() => setSheetExpanded(!isSheetExpanded)}>
+        <span class="grabber" aria-hidden="true" />{isSheetExpanded ? 'Collapse' : 'Expand'}<span class="visually-hidden"> step panel</span>
       </button>
       <Minimap onManual={onManual} docked />
     </div>
   )
   const roomHead = canRoom && (
     <div class="sheet-head is-room">
-      <button type="button" class="sheet-handle" aria-expanded={roomy} onClick={() => setExpanded(!roomy)}>
+      <button type="button" class="sheet-handle" aria-expanded={roomy} onClick={() => setRoomAsked(!roomy)}>
         <span class="grabber" aria-hidden="true" />{roomy ? 'More room for the map' : 'More room for code'}
       </button>
     </div>
@@ -114,7 +116,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
         <Legend />
         {selected && <Inspector id={selected} onClose={() => setSelected(undefined)} />}
       </div>
-      <StepPanel journey={journey} world={world} showText={showText} header={sheetHead || roomHead} expanded={isTablet && expanded} panelRef={panel}
+      <StepPanel journey={journey} world={world} showText={showText} header={sheetHead || roomHead} expanded={isTablet && isSheetExpanded} panelRef={panel}
         lens={lensed && <CodeLens key={journey.slug} slug={journey.slug} stepId={world.step.id} selected={selected} />} />
       <Transport steps={journey.steps} step={step} playing={playing} view={shown} showText={showText} onStep={stepTo} onPlay={setPlaying} onView={pickView}
         onShowText={setShowText} whole={isTablet ? 'none' : isPhone ? 'overlay' : 'toggle'} onWhole={() => { setPlaying(false); setOverlay(true) }} />
