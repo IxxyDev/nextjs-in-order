@@ -3,6 +3,9 @@ import { ENTITIES } from './entities'
 import { describeState } from './textEquivalent'
 import { clampIndex } from './route'
 
+/** an entity takes part in the scene: it has a state that is neither the dimmed backdrop nor unavailable in this mode */
+export const isLit = (state?: EntityState) => state !== undefined && state !== 'dimmed' && state !== 'na'
+
 export function deriveWorldState(journey: Journey, stepIndex: number): WorldState {
   const index = clampIndex(stepIndex, journey.steps.length)
   const step = journey.steps[index]

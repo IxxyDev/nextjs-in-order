@@ -4,6 +4,7 @@ import type { Band, EntityState, PickMark, RegionId, TokenState } from '../domai
 import { REGIONS, BANDS, BAND_TITLES, CUSTOM_SERVER_RING as RING, bandRect } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
+import { isLit } from '../domain/worldState'
 import { MAIN_RIG, transformFor, type CameraRig } from './camera'
 import { Glyph } from './Glyph'
 import { reducedMotion } from './layout'
@@ -80,8 +81,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
           {EDGES.map((e) => {
             const active = activeEdges.has(e.id)
             const sa = entityStates[e.from], sb = entityStates[e.to]
-            const lit = (st?: EntityState) => st !== undefined && st !== 'dimmed'
-            const visible = active || !focused || (lit(sa) && lit(sb))
+            const visible = active || !focused || (isLit(sa) && isLit(sb))
             if (!visible) return null
             const a = entityById(e.from), b = entityById(e.to)
             return <path key={e.id} class={`edge edge-${e.kind} ${active ? 'is-active' : ''}`} d={edgePath(a, b)} marker-end={active ? 'url(#arrow)' : undefined} />

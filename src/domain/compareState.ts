@@ -2,8 +2,7 @@ import type { CompareWorld, EntityState, LaneWorld, ResolvedPair } from './types
 import { ENTITIES, shortNameById } from './entities'
 import { describeScene } from './textEquivalent'
 import { clampIndex } from './route'
-
-const lit = (s?: EntityState) => s !== undefined && s !== 'dimmed' && s !== 'na'
+import { isLit } from './worldState'
 
 /** the same step index drives every lane; each lane is derived like a journey step */
 export function deriveCompareState(pair: ResolvedPair, stepIndex: number): CompareWorld {
@@ -16,7 +15,7 @@ export function deriveCompareState(pair: ResolvedPair, stepIndex: number): Compa
   })
   const lanes: LaneWorld[] = scenes.map((s, i) => ({
     ...s,
-    differs: new Set(Object.keys(s.entityStates).filter((id) => lit(s.entityStates[id]) && scenes.some((o, j) => j !== i && !lit(o.entityStates[id]))))
+    differs: new Set(Object.keys(s.entityStates).filter((id) => isLit(s.entityStates[id]) && scenes.some((o, j) => j !== i && !isLit(o.entityStates[id]))))
   }))
   const at = pair.steps.length > 1 ? index / (pair.steps.length - 1) : 0
   const ruler = step.ruler ?? lanes.map(() => at)
