@@ -146,6 +146,14 @@ for (const at of ['whole-lifecycle/3', 'dev-mode/2']) {
   })
 }
 
+test('an expanded tablet sheet does not open the phone code room after a resize', async ({ page }, info) => {
+  test.skip(info.project.name !== 'tablet-768', 'starts in the 768–1023px layout')
+  await page.goto('/#/journey/whole-lifecycle/3')
+  await page.getByRole('button', { name: 'Expand step panel' }).click()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.getByRole('button', { name: 'More room for code' })).toHaveAttribute('aria-expanded', 'false')
+})
+
 test.describe('phone', () => {
   test.use({ hasTouch: true })
   test.beforeEach(({}, info) => test.skip(info.project.name !== 'phone-390', 'the ≤767px layout'))
