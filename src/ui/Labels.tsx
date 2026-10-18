@@ -6,6 +6,7 @@ import { REGIONS, CUSTOM_SERVER_RING as RING } from '../domain/regions'
 import { MAIN_RIG, reservedFor, worldToScreen, type CameraRig } from './camera'
 import { intersects, placeLabels, type LabelCandidate, type ScreenRect } from './labelLayout'
 import { lensLit, mapHover } from './lensLink'
+import { isFirstClick } from './useCameraGestures'
 import { STATE_LABEL } from '../domain/stateLabel'
 import { MARK_CHIP } from '../domain/predict'
 import { isRingOn } from '../domain/worldState'
@@ -100,7 +101,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
         const p = { x: Math.max(at.x, INSET), y: at.y }
         if (onRegion) {
           const m = regionMarks?.[r.id]
-          return <button key={r.id} type="button" class={`region-label is-pickable ${m ? `mark-${m}` : ''}`} style={{ left: `${p.x}px`, top: `${p.y}px` }} aria-pressed={PRESSED.has(m)} aria-label={`${r.title}${m && MARK_CHIP[m] ? `, ${MARK_CHIP[m]}` : ''}. ${verb}`} onClick={(e) => { if (e.detail < 2) onRegion(r.id) }}>{r.title}</button>
+          return <button key={r.id} type="button" class={`region-label is-pickable ${m ? `mark-${m}` : ''}`} style={{ left: `${p.x}px`, top: `${p.y}px` }} aria-pressed={PRESSED.has(m)} aria-label={`${r.title}${m && MARK_CHIP[m] ? `, ${MARK_CHIP[m]}` : ''}. ${verb}`} onClick={(e) => { if (isFirstClick(e)) onRegion(r.id) }}>{r.title}</button>
         }
         if (p.x + w > vp.w - INSET || right < p.x + 40 || !clearOf(p.x, p.y, r.title)) return null
         return <div key={r.id} class="region-label" style={{ left: `${p.x}px`, top: `${p.y}px` }} aria-hidden="true">{r.title}</div>

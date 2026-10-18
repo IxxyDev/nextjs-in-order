@@ -12,6 +12,9 @@ const SLOP = 4
 const OWN = '.inspector, .minimap, .legend'
 const KEY_ZOOM = 1.25
 
+/** a region pick takes the first click only: the second click of a double-click belongs to the region fit; a key press counts as a first click */
+export const isFirstClick = (e: MouseEvent) => e.detail < 2
+
 type Point = { x: number; y: number }
 
 /** per group of sibling stages (compare lanes), the one the pointer or focus last touched; keys go there only */
