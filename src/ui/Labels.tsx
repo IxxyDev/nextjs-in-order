@@ -8,6 +8,7 @@ import { intersects, placeLabels, type LabelCandidate, type ScreenRect } from '.
 import { lensLit, mapHover } from './lensLink'
 import { STATE_LABEL } from '../domain/stateLabel'
 import { MARK_CHIP } from '../domain/predict'
+import { isRingOn } from '../domain/worldState'
 
 /** below this zoom, only emphasized entities keep their label (emphasized ones always try for one) */
 const LABEL_ZOOM = 0.7
@@ -42,8 +43,7 @@ const PRESSED = new Set<PickMark | undefined>(['picked', 'correct', 'extra'])
 export function Labels({ entityStates, activeEdges, token, selected, onSelect, rig = MAIN_RIG, differs, marks, regionMarks, onRegion, verb = 'Inspect' }: LabelsProps) {
   const cam = rig.camera.value, vp = rig.viewport.value
   const dense = cam.zoom < LABEL_ZOOM
-  const ring = entityStates['custom-server']
-  const ringAt = ring !== undefined && ring !== 'dimmed' && ring !== 'na' ? worldToScreen({ x: RING.x + RING.w - 10, y: RING.y + RING.h - 6 }, cam, vp) : undefined
+  const ringAt = isRingOn(entityStates) ? worldToScreen({ x: RING.x + RING.w - 10, y: RING.y + RING.h - 6 }, cam, vp) : undefined
   const reserved = reservedFor(rig)
 
   const candidates: LabelCandidate[] = []

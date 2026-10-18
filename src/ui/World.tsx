@@ -4,7 +4,7 @@ import type { Band, EntityState, PickMark, RegionId, TokenState } from '../domai
 import { REGIONS, BANDS, BAND_TITLES, CUSTOM_SERVER_RING as RING, bandRect } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
-import { isLit } from '../domain/worldState'
+import { isLit, isRingOn } from '../domain/worldState'
 import { MAIN_RIG, transformFor, type CameraRig } from './camera'
 import { Glyph } from './Glyph'
 import { reducedMotion } from './layout'
@@ -51,8 +51,6 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
   const tokenEntity = token ? entityById(token.at) : undefined
   /** a step that lists states focuses the scene: unrelated edges are hidden */
   const focused = Object.keys(entityStates).length > 0
-  const ring = entityStates['custom-server']
-  const ringOn = ring !== undefined && ring !== 'dimmed' && ring !== 'na'
   const lit = lensLit.value
   return (
     <div class="canvas-wrap" ref={ref}>
@@ -77,7 +75,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
               <rect class={`region ${r.id.endsWith('-runtime') ? 'region-runtime' : ''} ${onRegion ? 'is-pickable' : ''} ${regionMarks?.[r.id] ? `mark-${regionMarks[r.id]}` : ''}`} x={r.x} y={r.y} width={r.w} height={r.h} onClick={onRegion && ((e) => { if (e.detail < 2) onRegion(r.id) })} />
             </g>
           ))}
-          <rect class={`ring ${ringOn ? 'is-on' : ''}`} x={RING.x} y={RING.y} width={RING.w} height={RING.h} rx={18} />
+          <rect class={`ring ${isRingOn(entityStates) ? 'is-on' : ''}`} x={RING.x} y={RING.y} width={RING.w} height={RING.h} rx={18} />
           {EDGES.map((e) => {
             const active = activeEdges.has(e.id)
             const sa = entityStates[e.from], sb = entityStates[e.to]
