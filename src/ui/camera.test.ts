@@ -5,7 +5,7 @@ import { WORLD } from '../domain/regions'
 
 describe('camera math', () => {
   it('fits the whole world into a 1200x800 viewport', () => {
-    const cam = fitRect(WORLD, { w: 1200, h: 800 }, 0)
+    const cam = fitRect(WORLD, { w: 1200, h: 800 }, { left: 0, bottom: 0 }, 0)
     expect(cam.x).toBe(1200)
     expect(cam.y).toBe(1040)
     expect(cam.zoom).toBeCloseTo(800 / 2080)
@@ -36,7 +36,7 @@ describe('camera math', () => {
   })
   it('fits into the viewport minus an inset, centered in what is left', () => {
     const vp = { w: 1000, h: 600 }
-    const cam = fitRect({ x: 0, y: 0, w: 400, h: 400 }, vp, 0, { left: 0, bottom: 100 })
+    const cam = fitRect({ x: 0, y: 0, w: 400, h: 400 }, vp, { left: 0, bottom: 100 }, 0)
     expect(cam.zoom).toBeCloseTo(500 / 400)
     expect(worldToScreen({ x: 200, y: 200 }, cam, vp)).toEqual({ x: 500, y: 250 })
   })

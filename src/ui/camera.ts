@@ -41,7 +41,7 @@ export interface Inset { left: number; bottom: number }
 const NO_INSET: Inset = { left: 0, bottom: 0 }
 
 /** fits the rect into the viewport minus the inset, centered in what is left */
-export function fitRect(rect: Rect, vp: Viewport, pad = 0.12, inset: Inset = NO_INSET): Camera {
+export function fitRect(rect: Rect, vp: Viewport, inset: Inset = NO_INSET, pad = 0.12): Camera {
   const fit = Math.min((vp.w - inset.left) / (rect.w * (1 + pad)), (vp.h - inset.bottom) / (rect.h * (1 + pad)))
   const zoom = clampZoom(fit)
   return { x: rect.x + rect.w / 2 - inset.left / 2 / zoom, y: rect.y + rect.h / 2 + inset.bottom / 2 / zoom, zoom }
@@ -113,7 +113,7 @@ function rectOnScreen(r: Rect, cam: Camera, vp: Viewport): ScreenRect {
  */
 export function fitTarget(target: CameraTarget, vp: Viewport, reserved: ScreenRect[] = [], inset: Inset = NO_INSET): Camera {
   const rect = targetToRect(target)
-  const plain = clampToWorld(fitRect(rect, vp, 0.12, inset), vp)
+  const plain = clampToWorld(fitRect(rect, vp, inset), vp)
   const points = targetEntities(target, rect)
   const covered = (cam: Camera) => reserved.some((r) => points.some((p) => intersects(footprint(p, cam, vp), r)))
   if (!covered(plain)) return plain
@@ -128,7 +128,7 @@ export function fitTarget(target: CameraTarget, vp: Viewport, reserved: ScreenRe
     return [{ x: -dx / plain.zoom, y: 0 }, { x: 0, y: dy / plain.zoom }]
   }).map((d) => clampToWorld({ ...plain, x: plain.x + d.x, y: plain.y + d.y }, vp)).filter(inView)
   const fits = reserved.flatMap((r) => [{ left: 0, bottom: r.h }, { left: r.x + r.w, bottom: 0 }])
-    .map((inset) => clampToWorld(fitRect(rect, vp, 0.12, inset), vp))
+    .map((inset) => clampToWorld(fitRect(rect, vp, inset), vp))
   const tries = [...pans, ...fits].sort((a, b) => Number(covered(a)) - Number(covered(b)) || b.zoom - a.zoom)
   return tries[0] && !covered(tries[0]) ? tries[0] : plain
 }
