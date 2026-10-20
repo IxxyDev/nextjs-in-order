@@ -44,6 +44,8 @@ a { color: var(--accent); }
 .menu-option { display: flex; align-items: baseline; gap: 10px; padding: 8px 12px; border-left: 2px solid transparent; font-family: var(--font-serif); font-size: 14px; letter-spacing: 0; text-transform: none; line-height: 1.35; color: var(--fg); cursor: pointer; }
 .menu-option.is-active { background: var(--surface-2); }
 .menu-option[aria-selected="true"] { border-left-color: var(--accent); }
+/* the journeys menu keeps each option on one line: the title gives way to the step count and progress mark */
+.menu-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .menu-option[aria-selected="true"] .menu-title { color: var(--accent); }
 .menu-meta { margin-left: auto; flex: none; font-family: var(--font-mono); font-size: 11px; color: var(--hi); }
 .menu-code { flex: none; min-width: 2.6em; font-family: var(--font-mono); font-size: 12px; color: var(--hi); }
@@ -147,8 +149,9 @@ a { color: var(--accent); }
 .panel dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 14px 0; font-family: var(--font-mono); font-size: 12px; }
 .panel dt { color: var(--hi); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; padding-top: 2px; }
 .panel dd { margin: 0; color: var(--fg); }
-.panel details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 10px; }
-.panel summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); }
+/* the inspector's Internals is the same disclosure as the step panel's */
+.panel details, .inspector details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 10px; }
+.panel summary, .inspector summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); }
 .panel ul { padding-left: 18px; color: var(--hi); font-size: 14px; }
 .panel ul.plain { list-style: none; padding: 0; margin: 8px 0; }
 .panel ul.plain li { margin: 6px 0; }
@@ -282,7 +285,6 @@ a { color: var(--accent); }
 .minimap rect.cam { fill: var(--accent); fill-opacity: 0.12; stroke: var(--accent); stroke-width: 24; }
 
 /* legend: a disclosure in the stage's top-right corner; the open list scrolls inside the stage */
-.compare-stage { position: relative; }
 .legend { position: absolute; /* place and toggle size: LEGEND in camera.ts, which labels and framing keep clear */ z-index: 4; max-height: calc(100% - 24px); overflow: auto; }
 .legend summary { position: sticky; top: 0; z-index: 1; margin-left: auto; display: flex; align-items: center; justify-content: center; list-style: none; cursor: pointer; border: 1px solid var(--line); background: var(--bg); font: 500 11px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--hi); }
 .legend summary::-webkit-details-marker { display: none; }
@@ -333,7 +335,7 @@ a { color: var(--accent); }
 
 /* compare */
 .compare { display: grid; grid-template-columns: minmax(0, 74fr) minmax(280px, 26fr); grid-template-rows: minmax(0, 1fr) auto; height: 100%; min-height: 0; }
-.compare-stage { grid-column: 1; grid-row: 1; display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr); min-height: 0; }
+.compare-stage { position: relative; grid-column: 1; grid-row: 1; display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr); min-height: 0; }
 .lanes-3 .compare-stage { grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr) minmax(0, 1fr); }
 .lanes-3 .lane + .lane { border-left: 1px solid var(--line); }
 .lane { position: relative; min-width: 0; min-height: 0; height: 100%; }
@@ -395,7 +397,8 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
 .replay-title { color: var(--hi); font-size: 14px; }
 .quiz-counter { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; color: var(--hi); min-width: 5em; text-align: center; }
 .quiz-progress { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--hi); }
-.quiz-reset { font-size: 11px; }
+/* Reset progress erases every saved answer, so it sits under the question, away from the question controls */
+.quiz .quiz-reset { display: block; margin-top: 28px; color: var(--hi); }
 .quiz-earlier { margin: 0 0 8px; font-family: var(--font-mono); font-size: 12px; } .quiz-earlier .ok { color: var(--ok); } .quiz-earlier .bad { color: var(--bad); }
 
 /* responsive: the 767px and 1023px breakpoints are phone and tablet in src/ui/layout.ts, written again here because CSS cannot import them */
@@ -481,13 +484,3 @@ button.region-label.is-pickable:hover { color: var(--fg); border-color: var(--mi
   .compare-panel { max-height: none; overflow: visible; border-top: 1px solid var(--line); }
   .compare .transport { position: sticky; bottom: 0; z-index: 6; }
 }
-
-/* predict: Reset progress erases every saved answer, so it sits under the question, away from the question controls */
-.quiz .quiz-reset { display: block; margin-top: 28px; color: var(--hi); }
-
-/* the inspector's Internals is the same disclosure as the step panel's (.panel details) */
-.inspector details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 10px; }
-.inspector summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); }
-
-/* the journeys menu keeps each option on one line: the title gives way to the step count and progress mark */
-.menu-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
