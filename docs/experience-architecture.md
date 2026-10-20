@@ -541,7 +541,7 @@ What should click: *each optimization moves work earlier (build) or narrower (fe
 |---|---|
 | ≥ 1200 px | canvas left (≈ 62 %), step panel right (≈ 38 %), transport bar below the canvas, minimap bottom-left, inspector docks over the panel |
 | 1024–1199 px | same, panel 40 %, internals collapsed by default |
-| 768–1023 px | canvas full width, camera locked to **Follow** (Region level), step panel as a bottom sheet (peek 30 %, expanded 70 %), minimap in the sheet header |
+| 768–1023 px | canvas full width, camera locked to **Follow** at Region level: the smallest region around the target that is under half the world wide and tall, so a band, the shelf or the dev column never frames like the whole system; step panel as a bottom sheet (peek 30 %, expanded 70 %), minimap in the sheet header |
 | ≤ 767 px | focused scene: camera at Focus level only, whole-system available as a full-screen overlay; transport as a fixed bottom bar with ≥ 44 px targets; swipe left/right changes step; compare mode stacks lanes |
 
 Touch: pinch-zoom and drag-pan on the canvas; tap to inspect. Keyboard: `Tab` cycles focusable
