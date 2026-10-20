@@ -36,6 +36,8 @@ const PAD = 16
 const GAP = 4
 const EDGE_CHAR_W = 7.5
 const EDGE_PAD = 18
+/** the edge label's 8px gap before its crossing chip, with 2px to spare */
+const EDGE_CHIP_GAP = 10
 const EDGE_H = 20
 const INSET = 4
 export const LABEL_H = 20
@@ -76,7 +78,7 @@ export function inlineLabelWidth(text: string, chips: string[]): number {
 
 /** uppercase edge chip, optional crossing chip inline */
 export function edgeLabelWidth(text: string, chips: string[]): number {
-  return text.length * EDGE_CHAR_W + EDGE_PAD + chips.reduce((sum, c) => sum + c.length * 7 + 26, 0)
+  return text.length * EDGE_CHAR_W + EDGE_PAD + chips.reduce((sum, c) => sum + c.length * CHIP_CHAR_W + PAD + EDGE_CHIP_GAP, 0)
 }
 
 export function intersects(a: ScreenRect, b: ScreenRect): boolean {
