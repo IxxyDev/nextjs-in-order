@@ -94,6 +94,7 @@ a { color: var(--accent); }
 .edge { fill: none; stroke: var(--mid); stroke-width: 1.2; opacity: 0.35; }
 .edge-transform { stroke-width: 1.6; } .edge-lookup { stroke-dasharray: 2 6; } .edge-control, .edge-dev, .edge-supervision { stroke-dasharray: 8 6; } .edge-dev { stroke: var(--accent-dim); }
 .edge.is-active { opacity: 1; stroke: var(--accent); stroke-width: 2.5; }
+.edge-arrow { fill: var(--accent); }
 .glyph { cursor: pointer; color: var(--hi); }
 .glyph .shape { fill: var(--surface); stroke: var(--hi); stroke-width: 1.5; }
 .glyph.state-dimmed { opacity: 0.45; }

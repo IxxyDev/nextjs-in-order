@@ -58,7 +58,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
       <svg class="world" role="img" aria-label="System map of Next.js" viewBox={`0 0 ${vp.w} ${vp.h}`}>
         <defs>
           <pattern id="hatch" width={6} height={6} patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1={0} y1={0} x2={0} y2={6} stroke="currentColor" stroke-width={2} opacity={0.5} /></pattern>
-          <marker id="arrow" markerWidth={10} markerHeight={10} refX={8} refY={5} orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="var(--ink-muted)" /></marker>
+          <marker id="arrow" markerWidth={10} markerHeight={10} refX={8} refY={5} orient="auto"><path class="edge-arrow" d="M0 0 L10 5 L0 10 Z" /></marker>
         </defs>
         <g transform={transformFor(cam, vp)}>
           {(Object.keys(BAND_TITLES) as Band[]).map((band) => {
