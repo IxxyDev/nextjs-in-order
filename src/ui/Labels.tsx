@@ -3,7 +3,7 @@ import type { EntityState, PickMark, RegionId, TokenState } from '../domain/type
 import { ENTITIES, entityById, shortNameById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
 import { REGIONS, CUSTOM_SERVER_RING as RING } from '../domain/regions'
-import { MAIN_RIG, reservedFor, worldToScreen, type CameraRig } from './camera'
+import { MAIN_RIG, reservedFor, worldToScreen, type CameraRig, type Point } from './camera'
 import { LABEL_DROP, glyphBox, intersects, placeLabels, type LabelCandidate, type ScreenRect } from './labelLayout'
 import { lensLit, mapHover } from './lensLink'
 import { isFirstClick } from './useCameraGestures'
@@ -17,6 +17,8 @@ const LABEL_ZOOM = 0.7
 const REGION_CHAR_W = 8.2
 const REGION_H = 16
 const INSET = 6
+/** entities and edge midpoints this far past the canvas edge are skipped; a glyph just past it still keeps labels off its visible part */
+const CULL = { x: 200, y: 100 }
 /** below this zoom, dimmed entities lose their label even in a focused scene */
 const DIMMED_LABEL_ZOOM = 1.0
 /** badges (runtime, directive) appear only from this zoom */
@@ -46,13 +48,14 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
   const dense = cam.zoom < LABEL_ZOOM
   const ringAt = isRingOn(entityStates) ? worldToScreen({ x: RING.x + RING.w - 10, y: RING.y + RING.h - 6 }, cam, vp) : undefined
   const reserved = reservedFor(rig)
+  const isCulled = (p: Point) => p.x < -CULL.x || vp.w + CULL.x < p.x || p.y < -CULL.y || vp.h + CULL.y < p.y
 
   const candidates: LabelCandidate[] = []
   const glyphBoxes = new Map<string, ScreenRect>()
   const soft = new Set<string>()
   for (const e of ENTITIES) {
     const g = worldToScreen({ x: e.x, y: e.y }, cam, vp)
-    if (g.x < -200 || g.x > vp.w + 200 || g.y < -100 || g.y > vp.h + 100) continue
+    if (isCulled(g)) continue
     const state = entityStates[e.id]
     const hiddenGlyph = state === 'dimmed' && cam.zoom < DIMMED_LABEL_ZOOM
     glyphBoxes.set(e.id, glyphBox(g, cam.zoom))
@@ -74,7 +77,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     if (!activeEdges.has(e.id) || !e.label) continue
     const a = entityById(e.from), b = entityById(e.to)
     const p = worldToScreen({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, cam, vp)
-    if (p.x < -200 || p.x > vp.w + 200 || p.y < -50 || p.y > vp.h + 50) continue
+    if (isCulled(p)) continue
     candidates.push({ id: `edge:${e.id}`, x: p.x, y: p.y - 10, text: e.label, chips: e.crossing ? [e.crossing] : [], isToken: false, isSelected: false, isEdge: true })
   }
   const shown = placeLabels(candidates, glyphBoxes, { reserved, bounds: vp, soft })
