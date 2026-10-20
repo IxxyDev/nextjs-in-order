@@ -7,6 +7,9 @@ import { createRig, setCamera } from './camera'
 
 const FOCUSABLE = 'button, a[href], [tabindex]:not([tabindex="-1"])'
 
+/** the share of the overlay the world fills, leaving a thin margin around it */
+const FILL = 0.96
+
 /** phones: the whole system on its own rig, fitted to the world, over the page; the main canvas stays at Focus level */
 export function WholeOverlay({ world, onSelect, onClose }: { world: WorldState; onSelect: (id: string) => void; onClose: () => void }) {
   const rig = useMemo(createRig, [])
@@ -26,7 +29,7 @@ export function WholeOverlay({ world, onSelect, onClose }: { world: WorldState; 
   }
   const vp = rig.viewport.value
   /** a phone is narrower than the world at MIN_ZOOM, so this fit skips the clamp the main canvas uses */
-  useEffect(() => { setCamera({ x: WORLD.x + WORLD.w / 2, y: WORLD.y + WORLD.h / 2, zoom: 0.96 * Math.min(vp.w / WORLD.w, vp.h / WORLD.h) }, rig) }, [vp.w, vp.h])
+  useEffect(() => { setCamera({ x: WORLD.x + WORLD.w / 2, y: WORLD.y + WORLD.h / 2, zoom: FILL * Math.min(vp.w / WORLD.w, vp.h / WORLD.h) }, rig) }, [vp.w, vp.h])
   return (
     <div class="whole-overlay" role="dialog" aria-modal="true" aria-label="Whole system" onKeyDown={onKeyDown}>
       <div class="whole-head">
