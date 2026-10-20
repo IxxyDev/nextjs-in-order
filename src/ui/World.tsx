@@ -1,4 +1,3 @@
-// src/ui/World.tsx
 import { useEffect, useRef } from 'preact/hooks'
 import type { Band, EntityState, PickMark, RegionId, TokenState } from '../domain/types'
 import { REGIONS, ROWS, BAND_TITLES, CUSTOM_SERVER_RING as RING, bandRect } from '../domain/regions'

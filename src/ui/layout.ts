@@ -1,4 +1,3 @@
-// src/ui/layout.ts
 import { signal } from '@preact/signals'
 
 function media(q: string) {

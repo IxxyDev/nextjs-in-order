@@ -1,4 +1,3 @@
-// src/ui/camera.test.ts
 import { describe, it, expect } from 'vitest'
 import { fitRect, targetToRect, transformFor, worldToScreen, screenToWorld, clampToWorld, fitTarget, zoomAt, pinchCamera, OVERSCROLL, MIN_ZOOM, MAX_ZOOM } from './camera'
 import { WORLD } from '../domain/regions'

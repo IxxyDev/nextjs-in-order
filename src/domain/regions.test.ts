@@ -1,4 +1,3 @@
-// src/domain/regions.test.ts
 import { describe, it, expect } from 'vitest'
 import { CUSTOM_SERVER_RING, REGIONS, WORLD, regionById } from './regions'
 

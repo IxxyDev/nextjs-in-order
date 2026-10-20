@@ -1,4 +1,3 @@
-// src/ui/camera.ts
 import { signal, type Signal } from '@preact/signals'
 import type { Camera, CameraTarget, Rect } from '../domain/types'
 import { WORLD, bandRect, regionById } from '../domain/regions'

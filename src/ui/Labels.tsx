@@ -1,4 +1,3 @@
-// src/ui/Labels.tsx
 import type { EntityState, PickMark, RegionId, TokenState } from '../domain/types'
 import { ENTITIES, entityById, shortNameById } from '../domain/entities'
 import { EDGES } from '../domain/edges'

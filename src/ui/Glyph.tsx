@@ -1,4 +1,3 @@
-// src/ui/Glyph.tsx
 import type { ComponentChildren } from 'preact'
 import type { EntityState, GlyphKind, HueFate } from '../domain/types'
 

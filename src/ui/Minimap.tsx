@@ -1,4 +1,3 @@
-// src/ui/Minimap.tsx
 import { REGIONS, WORLD } from '../domain/regions'
 import type { Camera } from '../domain/types'
 import { MINIMAP, camera, viewport, setCamera } from './camera'

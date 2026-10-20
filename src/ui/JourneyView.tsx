@@ -1,4 +1,3 @@
-// src/ui/JourneyView.tsx
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { Camera, Journey } from '../domain/types'
 import { deriveWorldState } from '../domain/worldState'

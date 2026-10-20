@@ -1,4 +1,3 @@
-// src/domain/regions.ts
 import type { Band, Rect, Region, RegionId } from './types'
 
 export const WORLD: Rect = { x: 0, y: 0, w: 2400, h: 2080 }
