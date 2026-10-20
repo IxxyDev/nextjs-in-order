@@ -142,7 +142,7 @@ for (const at of ['whole-lifecycle/3', 'dev-mode/2']) {
     await page.goto(`/#/journey/${at}`)
     await settle(page)
     const token = (await page.locator('.token .shape').first().boundingBox())!
-    expect(token.width, 'the token is drawn 40–64 world units wide, so this is a zoom of at least 0.5').toBeGreaterThanOrEqual(24)
+    expect(token.width, 'the token glyph is 40–64 world units wide; 13px was the whole-band framing').toBeGreaterThanOrEqual(24)
   })
 }
 
