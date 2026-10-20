@@ -37,7 +37,7 @@ export const viewport = MAIN_RIG.viewport
 export const camera = MAIN_RIG.camera
 
 /** screen-px margins of the viewport that a fit keeps clear */
-export interface Inset { left: number; bottom: number }
+interface Inset { left: number; bottom: number }
 const NO_INSET: Inset = { left: 0, bottom: 0 }
 
 /** fits the rect into the viewport minus the inset, centered in what is left */
@@ -51,7 +51,7 @@ export function fitRect(rect: Rect, vp: Viewport, inset: Inset = NO_INSET, pad =
 export const MINIMAP = { left: 12, bottom: 12, w: 132, h: 82 }
 const MINIMAP_GAP = 8
 
-export function minimapRect(vp: Viewport): ScreenRect | undefined {
+function minimapRect(vp: Viewport): ScreenRect | undefined {
   if (phone.value) return undefined
   return { x: 0, y: vp.h - MINIMAP.bottom - MINIMAP.h - MINIMAP_GAP, w: MINIMAP.left + MINIMAP.w + MINIMAP_GAP, h: MINIMAP.bottom + MINIMAP.h + MINIMAP_GAP }
 }
@@ -192,7 +192,7 @@ export function writeCamToUrl(cam: Camera | undefined, delay = 300): void {
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
 
-export function animateTo(cam: Camera, rig = MAIN_RIG): void {
+function animateTo(cam: Camera, rig = MAIN_RIG): void {
   cancelCameraAnimation(rig)
   const from = rig.camera.value
   const start = performance.now()
@@ -228,7 +228,7 @@ export function clampToWorld(cam: Camera, vp: Viewport): Camera {
 }
 
 /** the rig's framing of a target: reserved zones kept clear, and the fit inset by a sheet's peek */
-export function fitTargetFor(target: CameraTarget, rig = MAIN_RIG): Camera {
+function fitTargetFor(target: CameraTarget, rig = MAIN_RIG): Camera {
   const vp = rig.viewport.value
   return fitTarget(target, vp, reservedFor(rig), { left: 0, bottom: vp.h * rig.sheet.value })
 }

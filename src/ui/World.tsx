@@ -11,7 +11,7 @@ import { reducedMotion } from './layout'
 import { lensLit, mapHover } from './lensLink'
 import { isFirstClick } from './useCameraGestures'
 
-export interface WorldProps {
+interface WorldProps {
   entityStates: Record<string, EntityState>
   activeEdges: ReadonlySet<string>
   token?: TokenState

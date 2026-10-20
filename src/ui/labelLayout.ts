@@ -18,9 +18,9 @@ export interface LabelCandidate {
 }
 
 export interface ScreenRect { x: number; y: number; w: number; h: number }
-export interface Placed { x: number; y: number; box: ScreenRect }
+interface Placed { x: number; y: number; box: ScreenRect }
 
-export interface LayoutOptions {
+interface LayoutOptions {
   /** screen zones no label may cover (the minimap) */
   reserved?: ScreenRect[]
   /** the overlay size; labels of on-screen glyphs are kept inside it */
@@ -40,7 +40,7 @@ const EDGE_PAD = 18
 const EDGE_CHIP_GAP = 10
 const EDGE_H = 20
 const INSET = 4
-export const LABEL_H = 20
+const LABEL_H = 20
 const TWO_ROWS_H = LABEL_H * 2 + 2
 /** framing reserves this width for a label: most names and their chips fit in it */
 const TYPICAL_LABEL_W = 120
@@ -57,7 +57,7 @@ export function labelWidth(text: string, chips: string[]): number {
   return Math.max(name, chipW)
 }
 
-export function labelHeight(chips: string[]): number {
+function labelHeight(chips: string[]): number {
   return chips.length ? TWO_ROWS_H : LABEL_H
 }
 
@@ -72,12 +72,12 @@ export function glyphFootprint(center: Point, zoom: number): ScreenRect {
   return { x: center.x - TYPICAL_LABEL_W / 2, y: glyph.y, w: TYPICAL_LABEL_W, h: center.y + LABEL_DROP * zoom + TWO_ROWS_H - glyph.y }
 }
 
-export function inlineLabelWidth(text: string, chips: string[]): number {
+function inlineLabelWidth(text: string, chips: string[]): number {
   return text.length * CHAR_W + PAD + chips.reduce((sum, c) => sum + c.length * CHIP_CHAR_W + PAD + GAP, 0)
 }
 
 /** uppercase edge chip, optional crossing chip inline */
-export function edgeLabelWidth(text: string, chips: string[]): number {
+function edgeLabelWidth(text: string, chips: string[]): number {
   return text.length * EDGE_CHAR_W + EDGE_PAD + chips.reduce((sum, c) => sum + c.length * CHIP_CHAR_W + PAD + EDGE_CHIP_GAP, 0)
 }
 

@@ -24,7 +24,7 @@ const DIMMED_LABEL_ZOOM = 1.0
 /** badges (runtime, directive) appear only from this zoom */
 const BADGE_ZOOM = 1.0
 
-export interface LabelsProps {
+interface LabelsProps {
   entityStates: Record<string, EntityState>
   activeEdges?: ReadonlySet<string>
   token?: TokenState

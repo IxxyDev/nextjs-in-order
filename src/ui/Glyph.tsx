@@ -3,7 +3,7 @@ import type { ComponentChildren } from 'preact'
 import type { EntityState, GlyphKind, HueFate } from '../domain/types'
 
 /** linked: a code lens line points here, drawn in that line's hue (true when the line has only a timing mark) */
-export interface GlyphProps { kind: GlyphKind; state?: EntityState; selected?: boolean; linked?: HueFate | true; children?: ComponentChildren }
+interface GlyphProps { kind: GlyphKind; state?: EntityState; selected?: boolean; linked?: HueFate | true; children?: ComponentChildren }
 
 function Doc({ fold, hatched }: { fold: boolean; hatched: boolean }) {
   return (
@@ -27,7 +27,7 @@ function Stack({ dashed }: { dashed: boolean }) {
   )
 }
 
-export function GlyphShape({ kind }: { kind: GlyphKind }) {
+function GlyphShape({ kind }: { kind: GlyphKind }) {
   switch (kind) {
     case 'source-module': return <Doc fold hatched={false} />
     case 'transformed-module': return <Doc fold={false} hatched />
