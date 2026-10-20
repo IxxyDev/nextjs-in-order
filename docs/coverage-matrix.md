@@ -261,8 +261,8 @@ list is in §Sources at the end.
 | Runtime layers as depth (RSC over SSR) | J5 step 1 cutaway | implemented (J5) |
 | Caches at different layers | J8 step 1 cache map | implemented (J8) |
 | Version/scope note visible in product | header chip "Articles: Next.js 15→16 (2025) · verified against Next.js <version> (2026-09)" | implemented (header chip, `VERSION_NOTE` in `src/ui/App.tsx`: "Articles: Next.js 15→16 era (2025) · verified against Next.js 16.3 (Sept 2026)"; hidden at ≤767px) |
-| Source panel with doc links | inspector L3 and step Internals | implemented (inspector sources behind Show internals; step Internals disclosure) |
-| Reduced-motion static path | every motion verb has a static equivalent (`visual-language.md` §8) | implemented (`useReducedMotion`: camera jump-cut, token without transition; sheet and ruler transitions off in `src/styles.css`) |
+| Source panel with doc links | inspector L3 and step Internals | implemented (the Internals disclosure, the same in the inspector and the step panel, collapsed by default) |
+| Reduced-motion static path | every motion verb has a static equivalent (`visual-language.md` §8) | implemented (the `reducedMotion` signal in `src/ui/layout.ts`: camera jump-cut, token without transition; sheet and ruler transitions off in `src/styles.css`) |
 | Text equivalent per scene | step `text` + generated `stateDescription` | implemented (`describeState` in `src/domain/textEquivalent.ts`; visually hidden live region in StepPanel and CompareView, "Read as text" toggle) |
 | Predict-the-machine mode | §3.4 | implemented (Predict view, 22 questions in `src/domain/quiz.ts`) |
 | Code lens: one specimen app's code changing form, linked to the map | all 12 journeys: 197 steps, 52 open, 75 peek, 70 off (J0 steps 3, 4, 7, 8, 9, 10 open; per journey in `code-lens.md` §10.3, designs in `code-lens/<slug>.md`); `experience-architecture.md` §3.1 Code lens | implemented (all journeys; `src/domain/codeLens/` one lazy chunk per journey + `specimen`, `src/ui/CodeLens.tsx`, checked by `validateCodeLens` for every journey) |
