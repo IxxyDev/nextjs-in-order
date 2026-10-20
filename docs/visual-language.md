@@ -143,7 +143,8 @@ meaning that shape and label do not also carry.
 | `--band-browser` | browser band fill | `#eefaf1` | `#12201a` |
 | `--band-dev` | dev column fill | `#f5eefb` | `#1b1420` |
 | `--ink` | strokes, labels | `#1f2328` | `#e6edf3` |
-| `--ink-muted` | dimmed strokes, secondary labels | `#6e7781` | `#8b949e` |
+| `--mid` | dimmed strokes: edges, rings, kept outlines | `#8a8d95` | `#565a64` |
+| `--hi` | secondary labels | `#5b5f69` | `#9ba0ab` |
 | `--accent-now` | followed object, current step | `#d4610b` | `#f0883e` |
 | `--accent-code` | Client Component / browser code crossing | `#0969da` | `#58a6ff` |
 | `--accent-data` | Flight / data crossing | `#8250df` | `#a371f7` |
