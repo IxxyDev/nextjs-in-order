@@ -33,7 +33,7 @@ function Lane({ meta, world, rig, framing, selected, onSelect }: { meta: Compare
 
 function Ruler({ lanes, times }: { lanes: CompareLane[]; times: number[] }) {
   const first = Math.min(...times)
-  const ahead = times.filter((t) => t - first <= TIE).length === times.length ? undefined : lanes[times.indexOf(first)]
+  const ahead = times.every((t) => t - first <= TIE) ? undefined : lanes[times.indexOf(first)]
   return (
     <div class="ruler" role="img" aria-label={ahead ? `${ahead.short} is ahead` : 'Lanes in step'}>
       <div class="ruler-track" aria-hidden="true">
