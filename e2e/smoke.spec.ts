@@ -80,9 +80,9 @@ test('predict: Clear picks empties the picks', async ({ page }) => {
 
 test('journey: the canvas label and Read as text call a state by the same word', async ({ page }) => {
   await page.goto('/#/journey/whole-lifecycle/2')
-  await expect(page.getByRole('button', { name: 'components/DashboardNav.tsx, current. Inspect' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'components/DashboardNav.tsx, now. Inspect' })).toBeVisible()
   await page.getByRole('button', { name: 'Read as text' }).click()
-  await expect(page.locator('.text-equivalent')).toContainText('Current: DashboardNav.tsx.')
+  await expect(page.locator('.text-equivalent')).toContainText('Now: DashboardNav.tsx.')
 })
 
 test('journeys menu: each journey shows its step count on one line with its progress mark', async ({ page }) => {
