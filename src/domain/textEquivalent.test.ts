@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { describeState } from './textEquivalent'
+import { describeScene, describeState } from './textEquivalent'
 import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'
 
 describe('describeState', () => {
@@ -15,5 +15,15 @@ describe('describeState', () => {
     expect(text).toContain('New: browser chunks.')
     expect(text).toContain('Kept: SWC.')
     expect(text).toContain('SWC → Bundler')
+  })
+})
+
+describe('describeScene', () => {
+  it('names the states by the chip words of the visual language', () => {
+    const scene = { entityStates: { 'segment-cache': 'current', 'src-dashboard-nav': 'invalid', 'src-billing-page': 'na' }, activeEdges: new Set<string>() } as const
+
+    const text = describeScene(scene, 'The dynamic part of billing is not prefetched.')
+
+    expect(text).toBe('The dynamic part of billing is not prefetched. Now: Segment cache. Invalid: DashboardNav.tsx. n/a: billing/page.tsx.')
   })
 })
