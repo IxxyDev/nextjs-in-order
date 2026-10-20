@@ -8,12 +8,14 @@ import { Labels } from './Labels'
 import { Transport } from './Transport'
 import { Inspector } from './Inspector'
 import { Legend } from './Legend'
-import { createRig, goTo, type CameraRig, type Framing } from './camera'
+import { createRig, goTo, LEGEND, type CameraRig, type Framing } from './camera'
 import { reducedMotion } from './layout'
 import { useStepControls } from './useStepControls'
 import { useCameraGestures } from './useCameraGestures'
 
 /** ruler times closer than this count as in step */
+/** the room between the last lane's title and the legend, in px */
+const LANE_TITLE_GAP = 8
 const TIE = 0.02
 
 function Lane({ meta, world, rig, framing, selected, onSelect }: { meta: CompareLane; world: LaneWorld; rig: CameraRig; framing: Framing; selected?: string; onSelect: (id?: string) => void }) {
@@ -83,11 +85,11 @@ export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: 
 
   return (
     <div class={`compare lanes-${pair.lanes.length}`}>
-      <div class="compare-stage">
+      <div class="compare-stage" style={{ '--legend-room': `${LEGEND.right + LEGEND.w + LANE_TITLE_GAP}px` }}>
+        <Legend />
         {lane(0)}
         <Ruler lanes={pair.lanes} times={world.ruler} />
         {pair.lanes.slice(1).map((_, i) => lane(i + 1))}
-        <Legend />
       </div>
       <ComparePanel pair={pair} world={world} showText={showText} />
       <Transport steps={pair.steps} step={world.stepIndex} playing={playing} view={framing} showText={showText} onStep={stepTo} onPlay={setPlaying} onView={setFraming} onShowText={setShowText} />
