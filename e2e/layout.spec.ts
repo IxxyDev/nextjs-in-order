@@ -269,6 +269,15 @@ test('legend: the canvas disclosure opens from the keyboard and names every glyp
   errors.assertClean()
 })
 
+test('compare: the last lane title leaves the legend its corner rather than running under it', async ({ page }) => {
+  await page.goto('/#/compare/client-navigation/3')
+  await settle(page)
+  const title = (await page.locator('.lane').last().locator('.lane-title').boundingBox())!
+  const legend = (await page.locator('.legend summary').boundingBox())!
+
+  expect(title.x + title.width).toBeLessThanOrEqual(legend.x)
+})
+
 test('compare: every label stays inside its lane, the long token label of the segment-cache step included', async ({ page }) => {
   await page.goto('/#/compare/client-navigation/3')
   await settle(page)
