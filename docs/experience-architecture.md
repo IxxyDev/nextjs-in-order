@@ -115,6 +115,8 @@ A journey is an ordered list of steps over the world. The UI is the same for eve
 - **Inspect** (Level 2): click any entity on the canvas → inspector drawer (see 3.2 fields).
 - **Internals** (Level 3): one "Internals" disclosure, the same in the inspector and per step,
   with file names, manifest shapes, header values and source links.
+- **Legend**: a collapsed disclosure at the canvas's top-right corner listing the glyph shapes,
+  code-lens fate marks and state chips (`visual-language.md` §11).
 - **Prediction** step: a step of kind `predict` shows a question with 2–4 options *before* the
   critical transition; the next step reveals and explains. Answering is optional.
 - **Check** steps: 2–3 misconception statements at the end (true/false with a one-line why).

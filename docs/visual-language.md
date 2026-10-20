@@ -213,3 +213,12 @@ capsule → matched-route chip → loader tree → Flight ribbon → HTML page �
 
 Each token state has a name shown in the step header, e.g. "Following: Flight row 3 (segment
 `settings`)".
+
+## 11. Legend
+
+Every canvas (journey, atlas, compare, predict) carries a **Legend** disclosure in its top-right
+corner, collapsed by default at every width; labels and camera framing keep clear of its toggle.
+Opened, it lists the canvas vocabulary in three groups: **Shapes** (each glyph of §3 with its
+name), **Code marks** (the code-lens fate marks with their labels) and **States** (the chips of §5;
+dimmed has none). It is read from the tables the canvas draws with (`GLYPH_NAME`, `FATES`,
+`STATE_LABEL`), so it cannot name a shape, mark or chip the canvas does not draw.
