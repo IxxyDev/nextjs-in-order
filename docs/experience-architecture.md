@@ -106,12 +106,14 @@ A journey is an ordered list of steps over the world. The UI is the same for eve
   `Whole system` toggle; `Fit region` on double-click.
 - **Step panel**: journey title, step `n / N`, **Following:** token name, **Story** (Level 1,
   ≤ 60 words), **Changed / kept** list (when relevant), **What should click** (one sentence,
-  persistent per journey, highlighted when the step is the one that delivers it).
+  persistent per journey, highlighted when the step is the one that delivers it). On a predict
+  step What should click appears only after a pick, since it spells out the answer; on a check
+  step the statements and What should click come right after the story, before the code lens.
 - **Transport**: Previous / Next, Play / Pause (autoplay advances every 6 s, pauses on any
   interaction), a scrubber with step ticks, keyboard `←/→`, `space`, `Home/End`, `Esc` (whole
   system). Deterministic: step *n* always produces the same world state regardless of path.
 - **Inspect** (Level 2): click any entity on the canvas → inspector drawer (see 3.2 fields).
-- **Internals** (Level 3): toggle inside the inspector; also a per-step "Internals" disclosure
+- **Internals** (Level 3): one "Internals" disclosure, the same in the inspector and per step,
   with file names, manifest shapes, header values and source links.
 - **Prediction** step: a step of kind `predict` shows a question with 2–4 options *before* the
   critical transition; the next step reveals and explains. Answering is optional.
@@ -218,7 +220,7 @@ touch?", "which segments are re-rendered?"). Feedback replays the relevant journ
 |---|---|---|---|
 | 1 Story | step panel, atlas tooltip-free chips | one causal sentence | never contains file paths or internal class names |
 | 2 Inspect | inspector drawer | structured fields (3.2) | opened by click or `Enter` on a focused entity |
-| 3 Internals | inspector toggle, step "Internals" disclosure, source panel | function/class/file names, manifest excerpts, headers, protocol rows, historical vs current notes, doc links | collapsed by default; state remembered per session |
+| 3 Internals | the "Internals" disclosure in the inspector and in the step panel, source panel | function/class/file names, manifest excerpts, headers, protocol rows, historical vs current notes, doc links | collapsed by default; state remembered per session |
 
 ## 5. Returning from detail to context
 
@@ -533,7 +535,8 @@ What should click: *each optimization moves work earlier (build) or narrower (fe
   link to the step that shows it.
 - **Predict the machine** (mode 3.4) holds 22 questions: the brief's ten reviewer questions
   (r1–r10) plus one scenario question per journey (s0–s11), answered on the map.
-- Progress (answered, correct) is stored in `localStorage` only; it never gates content.
+- Progress (answered, correct) is stored in `localStorage` only; it never gates content. The first
+  answer to a question is the one recorded: a later answer still gets feedback but does not rewrite it.
 
 ## 9. Desktop and mobile behavior
 
