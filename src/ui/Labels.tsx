@@ -4,7 +4,7 @@ import { ENTITIES, entityById, shortNameById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
 import { REGIONS, CUSTOM_SERVER_RING as RING } from '../domain/regions'
 import { MAIN_RIG, reservedFor, worldToScreen, type CameraRig } from './camera'
-import { intersects, placeLabels, type LabelCandidate, type ScreenRect } from './labelLayout'
+import { LABEL_DROP, glyphBox, intersects, placeLabels, type LabelCandidate, type ScreenRect } from './labelLayout'
 import { lensLit, mapHover } from './lensLink'
 import { isFirstClick } from './useCameraGestures'
 import { STATE_LABEL } from '../domain/stateLabel'
@@ -55,7 +55,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     if (g.x < -200 || g.x > vp.w + 200 || g.y < -100 || g.y > vp.h + 100) continue
     const state = entityStates[e.id]
     const hiddenGlyph = state === 'dimmed' && cam.zoom < DIMMED_LABEL_ZOOM
-    glyphBoxes.set(e.id, { x: g.x - 30 * cam.zoom, y: g.y - 28 * cam.zoom, w: 60 * cam.zoom, h: 56 * cam.zoom })
+    glyphBoxes.set(e.id, glyphBox(g, cam.zoom))
     const mark = marks?.[e.id]
     const emphasized = (state && state !== 'dimmed') || selected === e.id || token?.at === e.id || mark !== undefined
     if (!emphasized) soft.add(e.id)
@@ -66,7 +66,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     if (e.badge && cam.zoom >= BADGE_ZOOM) chips.push(e.badge)
     if (differs?.has(e.id)) chips.push('differs')
     if (mark && MARK_CHIP[mark]) chips.push(MARK_CHIP[mark]!)
-    const p = worldToScreen({ x: e.x, y: e.y + 30 }, cam, vp)
+    const p = worldToScreen({ x: e.x, y: e.y + LABEL_DROP }, cam, vp)
     candidates.push({ id: e.id, x: p.x, y: p.y, inline: dense, text: token?.at === e.id ? token.label : shortNameById(e.id), chips, state, isToken: token?.at === e.id, isSelected: selected === e.id || PRESSED.has(mark) })
   }
   /** edge chips take part in the same layout, so they slide off entity labels instead of covering them */

@@ -3,7 +3,7 @@ import { signal, type Signal } from '@preact/signals'
 import type { Camera, CameraTarget, Rect } from '../domain/types'
 import { WORLD, bandRect, regionById } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
-import { intersects, type ScreenRect } from './labelLayout'
+import { glyphFootprint, intersects, type ScreenRect } from './labelLayout'
 import { withCam } from '../domain/route'
 import { phone } from './layout'
 
@@ -94,10 +94,9 @@ function targetEntities(target: CameraTarget, rect: Rect): Point[] {
   return ENTITIES.filter((e) => e.x >= rect.x && e.x <= rect.x + rect.w && e.y >= rect.y && e.y <= rect.y + rect.h)
 }
 
-/** glyph plus a typical two-row label under it, in screen px */
+/** an entity's glyph and label on screen at this camera */
 function footprint(p: Point, cam: Camera, vp: Viewport): ScreenRect {
-  const s = worldToScreen(p, cam, vp)
-  return { x: s.x - 60, y: s.y - 28 * cam.zoom, w: 120, h: 58 * cam.zoom + 44 }
+  return glyphFootprint(worldToScreen(p, cam, vp), cam.zoom)
 }
 
 function rectOnScreen(r: Rect, cam: Camera, vp: Viewport): ScreenRect {

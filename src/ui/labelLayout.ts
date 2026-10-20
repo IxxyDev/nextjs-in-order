@@ -1,4 +1,5 @@
 import type { EntityState } from '../domain/types'
+import type { Point } from './camera'
 
 export interface LabelCandidate {
   id: string
@@ -38,6 +39,14 @@ const EDGE_PAD = 18
 const EDGE_H = 20
 const INSET = 4
 export const LABEL_H = 20
+const TWO_ROWS_H = LABEL_H * 2 + 2
+/** framing reserves this width for a label: most names and their chips fit in it */
+const TYPICAL_LABEL_W = 120
+
+/** the box a glyph takes around its entity's center, in world units (most shapes; the runtime is 72 wide) */
+const GLYPH = { w: 60, h: 56 }
+/** an entity label hangs this many world units below the entity's center, just under its glyph */
+export const LABEL_DROP = 30
 
 /** name on the first row, chips on a second row */
 export function labelWidth(text: string, chips: string[]): number {
@@ -47,7 +56,18 @@ export function labelWidth(text: string, chips: string[]): number {
 }
 
 export function labelHeight(chips: string[]): number {
-  return chips.length ? LABEL_H * 2 + 2 : LABEL_H
+  return chips.length ? TWO_ROWS_H : LABEL_H
+}
+
+/** a glyph's box on screen around its entity's center: GLYPH world units at this zoom */
+export function glyphBox(center: Point, zoom: number): ScreenRect {
+  return { x: center.x - GLYPH.w / 2 * zoom, y: center.y - GLYPH.h / 2 * zoom, w: GLYPH.w * zoom, h: GLYPH.h * zoom }
+}
+
+/** a glyph with a typical two-row label hanging LABEL_DROP below its center: what framing keeps clear of reserved zones */
+export function glyphFootprint(center: Point, zoom: number): ScreenRect {
+  const glyph = glyphBox(center, zoom)
+  return { x: center.x - TYPICAL_LABEL_W / 2, y: glyph.y, w: TYPICAL_LABEL_W, h: center.y + LABEL_DROP * zoom + TWO_ROWS_H - glyph.y }
 }
 
 export function inlineLabelWidth(text: string, chips: string[]): number {
