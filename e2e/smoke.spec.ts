@@ -104,3 +104,26 @@ test('deep link: reloading #/journey/app-initial/12 keeps showing step 12', asyn
   await expect(page).toHaveURL(/#\/journey\/app-initial\/12$/)
   errors.assertClean()
 })
+
+test('journey: a journey that failed to load shows Loading when opened again, not the old failure', async ({ page }) => {
+  const appInitial = /\/journeys\/app-initial\.ts/
+  await page.goto('/#/journey/whole-lifecycle/1')
+  await expect(eyebrow(page)).toContainText('step 1 of')
+  await page.route(appInitial, (r) => r.abort())
+  await page.evaluate(() => { location.hash = '#/journey/app-initial/1' })
+  await expect(page.getByRole('alert')).toContainText("Couldn't load this journey.")
+  await page.unroute(appInitial)
+  await page.evaluate(() => { location.hash = '#/journey/whole-lifecycle/1' })
+  await expect(eyebrow(page)).toContainText('step 1 of')
+
+  const firstStatus = await page.evaluate(() => new Promise<string | null>((resolve) => {
+    const app = document.getElementById('app')!
+    new MutationObserver((_, observer) => {
+      const status = app.querySelector('.loading')
+      if (status) { observer.disconnect(); resolve(status.textContent) }
+    }).observe(app, { childList: true, subtree: true })
+    location.hash = '#/journey/app-initial/1'
+  }))
+
+  expect(firstStatus).toBe('Loading journey…')
+})
