@@ -9,7 +9,7 @@ export interface LensBundle { lens: CodeLens; specimen: SpecimenFile[]; fates: F
  * one lazy chunk per journey, keyed by slug: ./<slug>.ts exports STEPS.
  * Literal import() paths so the bundler splits each one out of the index chunk.
  */
-const STEPS: Record<string, () => Promise<{ STEPS: LensStep[] }>> = {
+const stepLoaderBySlug: Record<string, () => Promise<{ STEPS: LensStep[] }>> = {
   'whole-lifecycle': () => import('./whole-lifecycle'),
   'production-build': () => import('./production-build'),
   'request-routing': () => import('./request-routing'),
@@ -26,7 +26,7 @@ const STEPS: Record<string, () => Promise<{ STEPS: LensStep[] }>> = {
 
 const entries = JOURNEY_CATALOG.map((j) => ({
   slug: j.slug,
-  load: () => Promise.all([STEPS[j.slug](), import('./specimen')])
+  load: () => Promise.all([stepLoaderBySlug[j.slug](), import('./specimen')])
     .then(([m, s]): LensBundle => ({ lens: { journey: j.id, steps: m.STEPS }, specimen: s.SPECIMEN, fates: s.FATES }))
 }))
 const catalog = createLazyCatalog<LensBundle>(entries)
