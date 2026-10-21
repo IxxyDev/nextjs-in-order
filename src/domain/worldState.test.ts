@@ -19,8 +19,10 @@ describe('deriveWorldState', () => {
     expect(w.token?.at).toBe('src-dashboard-nav')
     expect(w.cameraTarget).toEqual({ kind: 'region', id: 'source' })
   })
-  it('clamps step indexes', () => {
+  it('clamps a step index before the first step to the first', () => {
     expect(deriveWorldState(WHOLE_LIFECYCLE, -1).stepIndex).toBe(0)
+  })
+  it('clamps a step index past the last step to the last', () => {
     expect(deriveWorldState(WHOLE_LIFECYCLE, 99).stepIndex).toBe(9)
   })
 })
