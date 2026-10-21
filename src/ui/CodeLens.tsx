@@ -177,8 +177,7 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
     const isBefore = i < before.length
     const chips = chipRows(p.rows)
     const all = uniform(p.rows)
-    /** the side label is left out only when the title already opens with it ('server · rsc layer'), not for a path such as server/pages/… */
-    const side = isBefore ? 'before' : p.side && !p.title.startsWith(`${p.side} ·`) ? p.side : undefined
+    const side = sideLabel(p, isBefore)
     return (
       <section key={`${step.step}:${i}`} class={`lens-pane ${p.side ? `side-${p.side}` : ''} ${isBefore ? 'is-before' : ''} ${all === 'gone' ? 'is-all-gone' : ''} ${isBefore && step.reduced === 'three-pane' ? 'is-wide' : ''}`} aria-label={`${isBefore ? 'Before: ' : ''}${p.title}`}>
         <header class="lens-pane-head">
@@ -244,4 +243,11 @@ function PaneTitle({ title }: { title: string }) {
 function writtenIn(file: SpecimenFile | undefined): string {
   if (!file) return 'the source'
   return file.variant ? `${file.path} (what if)` : file.path
+}
+
+/** before on the before pane; otherwise the pane's side, left out only when the title already opens with it ('server · rsc layer'), not for a path such as server/pages/… */
+function sideLabel(pane: LensPane, isBefore: boolean): string | undefined {
+  if (isBefore) return 'before'
+  if (pane.side && !pane.title.startsWith(`${pane.side} ·`)) return pane.side
+  return undefined
 }
