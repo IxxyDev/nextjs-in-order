@@ -1,9 +1,8 @@
 import type { ComponentChildren } from 'preact'
 import { entityById, shortNameById } from '../domain/entities'
 import { regionById } from '../domain/regions'
-import { JOURNEY_CATALOG, loadAllJourneys, peekJourney } from '../domain/journeys'
+import { loadAllJourneys, peekAllJourneys } from '../domain/journeys'
 import { appearancesOf } from '../domain/appearances'
-import type { Journey } from '../domain/types'
 import { formatRoute } from '../domain/route'
 import { INSPECTOR_INTERNALS_KEY } from '../domain/sessionFlags'
 import { Internals } from './Internals'
@@ -41,9 +40,4 @@ export function Inspector({ id, onClose }: { id: string; onClose: () => void }) 
       <Internals flagKey={INSPECTOR_INTERNALS_KEY} internals={e.internals} sources={e.sources} />
     </aside>
   )
-}
-
-function peekAllJourneys(): Journey[] | undefined {
-  const journeys = JOURNEY_CATALOG.map((e) => peekJourney(e.slug))
-  return journeys.every(Boolean) ? journeys as Journey[] : undefined
 }

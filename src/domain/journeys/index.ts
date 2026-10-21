@@ -29,3 +29,9 @@ export function entryBySlug(slug: string): JourneyEntry | undefined {
 export const peekJourney = catalog.peek
 export const loadJourney = catalog.load
 export const loadAllJourneys = catalog.loadAll
+
+/** every journey once all have loaded, else none */
+export function peekAllJourneys(): Journey[] | undefined {
+  const journeys = JOURNEY_CATALOG.map((e) => peekJourney(e.slug))
+  return journeys.every(Boolean) ? journeys as Journey[] : undefined
+}
