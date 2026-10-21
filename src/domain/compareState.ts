@@ -1,18 +1,14 @@
-import type { CompareWorld, EntityState, LaneWorld, ResolvedPair } from './types'
-import { ENTITIES, shortNameById } from './entities'
+import type { CompareWorld, LaneWorld, ResolvedPair } from './types'
+import { shortNameById } from './entities'
 import { describeScene } from './textEquivalent'
 import { clampIndex } from './route'
-import { isLit } from './worldState'
+import { isLit, sceneStates } from './worldState'
 
 /** the same step index drives every lane; each lane is derived like a journey step */
 export function deriveCompareState(pair: ResolvedPair, stepIndex: number): CompareWorld {
   const index = clampIndex(stepIndex, pair.steps.length)
   const step = pair.steps[index]
-  const scenes = step.lanes.map((lane) => {
-    const entityStates: Record<string, EntityState> = {}
-    if (Object.keys(lane.states).length > 0) for (const e of ENTITIES) entityStates[e.id] = lane.states[e.id] ?? 'dimmed'
-    return { lane, entityStates, activeEdges: new Set(lane.edges), token: lane.token, cameraTarget: lane.camera }
-  })
+  const scenes = step.lanes.map((lane) => ({ lane, entityStates: sceneStates(lane.states), activeEdges: new Set(lane.edges), token: lane.token, cameraTarget: lane.camera }))
   const lanes: LaneWorld[] = scenes.map((s, i) => ({
     ...s,
     differs: new Set(Object.keys(s.entityStates).filter((id) => isLit(s.entityStates[id]) && scenes.some((o, j) => j !== i && !isLit(o.entityStates[id]))))

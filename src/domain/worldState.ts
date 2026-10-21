@@ -12,19 +12,20 @@ export const isRingOn = (entityStates: Record<string, EntityState>) => isLit(ent
 export function deriveWorldState(journey: Journey, stepIndex: number): WorldState {
   const index = clampIndex(stepIndex, journey.steps.length)
   const step = journey.steps[index]
-  const listed = Object.keys(step.states)
-  const entityStates: Record<string, EntityState> = {}
-  if (listed.length > 0) {
-    for (const e of ENTITIES) entityStates[e.id] = step.states[e.id] ?? 'dimmed'
-  }
   const partial: Omit<WorldState, 'text'> = {
     journeyId: journey.id,
     stepIndex: index,
     step,
-    entityStates,
+    entityStates: sceneStates(step.states),
     activeEdges: new Set(step.edges),
     token: step.token,
     cameraTarget: step.camera
   }
   return { ...partial, text: describeState(partial, journey) }
+}
+
+/** every entity's state in a scene, the unlisted ones dimmed; none at all when the scene lists none */
+export function sceneStates(states: Record<string, EntityState>): Record<string, EntityState> {
+  if (Object.keys(states).length === 0) return {}
+  return Object.fromEntries(ENTITIES.map((e) => [e.id, states[e.id] || 'dimmed']))
 }
