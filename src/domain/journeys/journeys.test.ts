@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { JOURNEY_CATALOG, loadAllJourneys, loadJourney } from './index'
+import { JOURNEY_CATALOG, lazyAllJourneys, loadJourney } from './index'
 
 const EXPECTED: { slug: string; id: string; steps: number; predictAt?: number[] }[] = [
   { slug: 'whole-lifecycle', id: 'j0', steps: 10 },
@@ -19,7 +19,7 @@ const EXPECTED: { slug: string; id: string; steps: number; predictAt?: number[] 
 describe('journeys', () => {
   it('registers every authored journey in spec order', async () => {
     expect(JOURNEY_CATALOG.map((e) => e.id)).toEqual(EXPECTED.map((e) => e.id))
-    expect((await loadAllJourneys()).map((j) => j.id)).toEqual(EXPECTED.map((e) => e.id))
+    expect((await lazyAllJourneys.load()).map((j) => j.id)).toEqual(EXPECTED.map((e) => e.id))
   })
   it('unknown slugs load nothing', async () => {
     expect(await loadJourney('nope')).toBeUndefined()

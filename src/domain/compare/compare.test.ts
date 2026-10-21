@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { COMPARE_CATALOG, loadCompare, resolvePair } from './index'
 import { validateCompare } from '../validate'
 import { deriveCompareState } from '../compareState'
-import { loadAllJourneys, peekJourney } from '../journeys'
+import { lazyAllJourneys, peekJourney } from '../journeys'
 import type { ComparePair } from '../types'
 
 const LANES: Record<string, number> = { c1: 2, c2: 2, c3: 2, c4: 2, c5: 2, c6: 2, c7: 2, c8: 3, c9: 2 }
@@ -17,7 +17,7 @@ describe('compare pairs', () => {
   })
   for (const e of COMPARE_CATALOG) {
     it(`${e.slug}: 5–9 steps, lane count and valid references`, async () => {
-      await loadAllJourneys()
+      await lazyAllJourneys.load()
       const pair = await e.load()
       expect(pair.steps.length).toBeGreaterThanOrEqual(5)
       expect(pair.steps.length).toBeLessThanOrEqual(9)
@@ -54,7 +54,7 @@ describe('compare pairs', () => {
     expect(deriveCompareState(r, 99).stepIndex).toBe(r.steps.length - 1)
   })
   it('reports broken references, ids and rulers', async () => {
-    await loadAllJourneys()
+    await lazyAllJourneys.load()
     const pair: ComparePair = {
       id: 'cx', slug: 'broken', title: 'Broken', synchronized: '', lanes: [{ title: 'A', short: 'A' }, { title: 'B', short: 'B' }],
       steps: [

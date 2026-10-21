@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { QUIZ } from './quiz'
-import { loadQuiz, markFor, peekQuiz, scoreQuestion } from './predict'
+import { lazyQuiz, markFor, scoreQuestion } from './predict'
 
 const byId = (id: string) => QUIZ.find((q) => q.id === id)!
 
@@ -28,14 +28,14 @@ describe('scoreQuestion', () => {
   })
 })
 
-describe('loadQuiz', () => {
-  it('resolves to the question bank', async () => {
-    expect(await loadQuiz()).toBe(QUIZ)
+describe('lazyQuiz', () => {
+  it('loads the question bank', async () => {
+    expect(await lazyQuiz.load()).toBe(QUIZ)
   })
-  it('lets peekQuiz return the question bank once it has loaded', async () => {
-    await loadQuiz()
+  it('peeks the question bank once it has loaded', async () => {
+    await lazyQuiz.load()
 
-    expect(peekQuiz()).toBe(QUIZ)
+    expect(lazyQuiz.peek()).toBe(QUIZ)
   })
 })
 

@@ -18,10 +18,6 @@ export const COMPARE_CATALOG: CompareEntry[] = [
   { ...COMPARE_META.caches, load: () => import('./caches').then((m) => m.CACHES) }
 ]
 
-export function compareBySlug(slug: string): CompareEntry | undefined {
-  return COMPARE_CATALOG.find((e) => e.slug === slug)
-}
-
 function referencedJourneys(pair: ComparePair): string[] {
   return [...new Set(pair.steps.flatMap((s) => s.lanes.flatMap((l) => 'ref' in l ? [l.ref.journey] : [])))]
 }
@@ -60,5 +56,5 @@ async function loadResolved(e: CompareEntry): Promise<ResolvedPair> {
 
 const catalog = createLazyCatalog(COMPARE_CATALOG.map((e) => ({ slug: e.slug, load: () => loadResolved(e) })))
 
-export const peekCompare = catalog.peek
+export const lazyCompare = catalog.lazy
 export const loadCompare = catalog.load

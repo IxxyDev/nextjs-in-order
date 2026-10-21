@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { ComponentChildren } from 'preact'
 import type { ArtifactForm, CodeLine, Fate, FateId, LensPane, LensRow, LensStep, LineChange, SpecimenFile } from '../domain/types'
-import { loadLens, peekLens } from '../domain/codeLens'
+import { lazyLens } from '../domain/codeLens'
 import { beforePanes, chipRows, entitiesForRow, isFold, rowsForEntities, stripLines } from '../domain/codeLens/view'
 import { LENS_KEY } from '../domain/sessionFlags'
 import { reducedMotion } from './layout'
@@ -89,7 +89,7 @@ function Line({ step, row, rowKey, index, chip, fate, lit, roving, quiet, contex
 
 /** the code lens (docs/code-lens.md): one specimen app's code changing form along the journey, linked both ways to the map */
 export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: string; selected?: string }) {
-  const { value: bundle, isFailed, retry } = useLazy(slug, peekLens, loadLens)
+  const { value: bundle, isFailed, retry } = useLazy(lazyLens(slug))
   useEffect(() => () => clearLensLit(), [])
   /** unset: each step's mode decides; an explicit expand or collapse holds for the session (expand pins it open, collapse keeps open steps to the strip) */
   const [choice, choose] = useSessionFlag(LENS_KEY)

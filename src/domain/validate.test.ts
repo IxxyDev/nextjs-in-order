@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { validateCodeLens, validateEntities, validateJourney, validateSpecimen } from './validate'
 import { ENTITIES, entityById } from './entities'
-import { loadAllJourneys } from './journeys'
+import { lazyAllJourneys } from './journeys'
 import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'
 import { APP_INITIAL } from './journeys/app-initial'
 import { STEPS } from './codeLens/whole-lifecycle'
@@ -13,7 +13,7 @@ const WHOLE_LIFECYCLE_LENS: CodeLens = { journey: 'j0', steps: STEPS }
 
 describe('validateJourney', () => {
   it('accepts every registered journey', async () => {
-    for (const j of await loadAllJourneys()) expect(validateJourney(j), j.slug).toEqual([])
+    for (const j of await lazyAllJourneys.load()) expect(validateJourney(j), j.slug).toEqual([])
   })
   it('reports unknown ids, missing questions and a step that both asks and checks', () => {
     const j = WHOLE_LIFECYCLE
@@ -90,7 +90,7 @@ describe('validateCodeLens', () => {
     expect(validateCodeLens(WHOLE_LIFECYCLE_LENS, WHOLE_LIFECYCLE, SPECIMEN, FATES)).toEqual([])
   })
   it('accepts every journey\'s lens', async () => {
-    for (const j of await loadAllJourneys()) {
+    for (const j of await lazyAllJourneys.load()) {
       const b = await loadLens(j.slug)
       expect(b, j.slug).toBeDefined()
       expect(validateCodeLens(b!.lens, j, b!.specimen, b!.fates), j.slug).toEqual([])

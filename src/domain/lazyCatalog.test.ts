@@ -44,8 +44,25 @@ describe('lazy catalog', () => {
     const c = createLazyCatalog([{ slug: 'a', load: async () => 'A' }], [['a', 'A0']])
     expect(c.peek('a')).toBe('A0')
   })
-  it('loads every entry in catalog order with loadAll', async () => {
+  it('gives the same lazy for a slug on every call', () => {
+    const c = createLazyCatalog([{ slug: 'a', load: async () => 'A' }])
+    expect(c.lazy('a')).toBe(c.lazy('a'))
+  })
+  it('loads every entry in catalog order with all', async () => {
     const c = createLazyCatalog([{ slug: 'a', load: async () => 'A' }, { slug: 'b', load: async () => 'B' }])
-    expect(await c.loadAll()).toEqual(['A', 'B'])
+    expect(await c.all.load()).toEqual(['A', 'B'])
+  })
+  it('peeks nothing from all while an entry has not loaded', async () => {
+    const c = createLazyCatalog([{ slug: 'a', load: async () => 'A' }, { slug: 'b', load: async () => 'B' }])
+    await c.load('a')
+
+    expect(c.all.peek()).toBeUndefined()
+  })
+  it('peeks every entry from all once each has loaded', async () => {
+    const c = createLazyCatalog([{ slug: 'a', load: async () => 'A' }, { slug: 'b', load: async () => 'B' }])
+    await c.load('a')
+    await c.load('b')
+
+    expect(c.all.peek()).toEqual(['A', 'B'])
   })
 })

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { loadAllJourneys } from './index'
+import { lazyAllJourneys } from './index'
 import { COMPARE_CATALOG } from '../compare'
 
 /** spec §3.1: the Level 1 story is at most 60 words */
@@ -10,7 +10,7 @@ const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length
 describe('Level 1 story length', () => {
   it(`every journey step story has at most ${MAX_WORDS} words`, async () => {
     const over: string[] = []
-    for (const j of await loadAllJourneys()) {
+    for (const j of await lazyAllJourneys.load()) {
       for (const s of j.steps) if (words(s.story) > MAX_WORDS) over.push(`${s.id}: ${words(s.story)}`)
     }
     expect(over).toEqual([])

@@ -3,14 +3,10 @@
  * quiz.ts. A journey step of kind 'predict' is another thing: its one question lives on the step (Step.question).
  */
 import type { PickMark, QuizQuestion, QuizResult } from './types'
-import { createLazyCatalog } from './lazyCatalog'
+import { createLazy } from './lazyCatalog'
 
-/** the question bank lives in its own chunk, loaded on the first visit to #/predict; it is the catalog's one entry */
-const QUIZ_SLUG = 'quiz'
-const catalog = createLazyCatalog([{ slug: QUIZ_SLUG, load: () => import('./quiz').then((m) => m.QUIZ) }])
-
-export const peekQuiz = () => catalog.peek(QUIZ_SLUG)
-export const loadQuiz = () => catalog.load(QUIZ_SLUG)
+/** the question bank lives in its own chunk, loaded on the first visit to #/predict */
+export const lazyQuiz = createLazy(() => import('./quiz').then((m) => m.QUIZ))
 
 /** what a pick list is compared against; a choice is the index of its option */
 export function answerIds(q: QuizQuestion): string[] {

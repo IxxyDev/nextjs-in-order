@@ -1,7 +1,7 @@
 import type { ComponentChildren } from 'preact'
 import { entityById, shortNameById } from '../domain/entities'
 import { regionById } from '../domain/regions'
-import { loadAllJourneys, peekAllJourneys } from '../domain/journeys'
+import { lazyAllJourneys } from '../domain/journeys'
 import { appearancesOf } from '../domain/appearances'
 import { formatRoute } from '../domain/route'
 import { INSPECTOR_INTERNALS_KEY } from '../domain/sessionFlags'
@@ -11,7 +11,7 @@ import { useLazy } from './useLazy'
 export function Inspector({ id, onClose }: { id: string; onClose: () => void }) {
   const e = entityById(id)
   /** journeys already loaded are used at once; otherwise the catalog loads each chunk once and keeps it */
-  const { value: journeys, isFailed, retry } = useLazy('all', peekAllJourneys, loadAllJourneys)
+  const { value: journeys, isFailed, retry } = useLazy(lazyAllJourneys)
   const appearances = journeys ? appearancesOf(journeys, id) : []
   return (
     <aside class="inspector" aria-label={`Inspector: ${e.name}`}>

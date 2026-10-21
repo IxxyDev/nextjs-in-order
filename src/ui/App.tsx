@@ -2,9 +2,9 @@ import { useEffect, useState } from 'preact/hooks'
 import type { FunctionComponent } from 'preact'
 import { DEFAULT_COMPARE, DEFAULT_JOURNEY, clampIndex, parseRoute, formatRoute } from '../domain/route'
 import type { Route } from '../domain/types'
-import { entryBySlug, JOURNEY_CATALOG, loadAllJourneys, loadJourney, peekAllJourneys, peekJourney } from '../domain/journeys'
-import { COMPARE_CATALOG, compareBySlug, loadCompare, peekCompare } from '../domain/compare'
-import { loadQuiz, peekQuiz } from '../domain/predict'
+import { JOURNEY_CATALOG, lazyAllJourneys, lazyJourney, peekJourney } from '../domain/journeys'
+import { COMPARE_CATALOG, lazyCompare } from '../domain/compare'
+import { lazyQuiz } from '../domain/predict'
 import { progress, quizId } from '../domain/progress'
 import { catalogCode } from '../domain/catalogCode'
 import { JourneyView } from './JourneyView'
@@ -20,7 +20,7 @@ export function App() {
   const [route, go] = useRoute()
   /** progress meta needs every journey; their chunks load on the first menu open, not on mount */
   const [wantAll, setWantAll] = useState(false)
-  const allJourneys = useLazy(wantAll ? 'all' : undefined, peekAllJourneys, loadAllJourneys)
+  const allJourneys = useLazy(wantAll ? lazyAllJourneys : undefined)
   /** a failed chunk here only leaves some progress meta blank; the menu retries on its next open */
   const openJourneys = () => { setWantAll(true); if (allJourneys.isFailed) allJourneys.retry() }
   const Page = pageMap[route.mode] as FunctionComponent<PageProps<Route['mode']>>
@@ -42,7 +42,7 @@ export function App() {
 }
 
 function JourneyPage({ route, go }: PageProps<'journey'>) {
-  const load = useLazy(entryBySlug(route.slug)?.slug ?? DEFAULT_JOURNEY, peekJourney, loadJourney)
+  const load = useLazy(lazyJourney(route.slug) ?? lazyJourney(DEFAULT_JOURNEY))
   const journey = load.value
   const step = journey ? clampIndex(route.step, journey.steps.length) : 0
   useCanonicalRoute(route, journey && { ...route, slug: journey.slug, step }, go)
@@ -51,7 +51,7 @@ function JourneyPage({ route, go }: PageProps<'journey'>) {
 }
 
 function ComparePage({ route, go }: PageProps<'compare'>) {
-  const load = useLazy(compareBySlug(route.slug)?.slug ?? DEFAULT_COMPARE, peekCompare, loadCompare)
+  const load = useLazy(lazyCompare(route.slug) ?? lazyCompare(DEFAULT_COMPARE))
   const pair = load.value
   const step = pair ? clampIndex(route.step, pair.steps.length) : 0
   useCanonicalRoute(route, pair && { ...route, slug: pair.slug, step }, go)
@@ -60,7 +60,7 @@ function ComparePage({ route, go }: PageProps<'compare'>) {
 }
 
 function PredictPage({ route, go }: PageProps<'predict'>) {
-  const load = useLazy('quiz', peekQuiz, loadQuiz)
+  const load = useLazy(lazyQuiz)
   const quiz = load.value
   const n = quiz ? clampIndex(route.n, quiz.length) : 0
   useCanonicalRoute(route, quiz && { ...route, n }, go)

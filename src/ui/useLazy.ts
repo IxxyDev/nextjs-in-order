@@ -1,23 +1,24 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
+import type { Lazy } from '../domain/lazyCatalog'
 
 /**
- * A value from a lazy catalog (createLazyCatalog): peeked at once when it has loaded, otherwise loaded when the key
- * changes; retry loads it again after a failure (the catalog retries a failed load on the next call). A failure
- * belongs to the visit it happened on: a load that settles for a key no longer shown, or after unmount, changes
- * nothing, and coming back to a key that failed starts from loading. No key, no value.
+ * A lazy value (createLazy): peeked at once when it has loaded, otherwise loaded when the lazy changes; retry loads it
+ * again after a failure (a lazy retries a failed load on the next call). A failure belongs to the visit it happened
+ * on: a load that settles for a lazy no longer shown, or after unmount, changes nothing, and coming back to a lazy
+ * that failed starts from loading. No lazy, no value.
  */
-export function useLazy<T>(key: string | undefined, peek: (key: string) => T | undefined, load: (key: string) => Promise<T | undefined>) {
+export function useLazy<T>(lazy: Lazy<T> | undefined) {
   const [, setLoads] = useState(0)
-  const [failedKey, setFailedKey] = useState<string>()
-  const shownKey = useRef(key)
-  shownKey.current = key
-  useEffect(() => () => { shownKey.current = undefined }, [])
-  const value = key === undefined ? undefined : peek(key)
+  const [failed, setFailed] = useState<Lazy<T>>()
+  const shown = useRef(lazy)
+  shown.current = lazy
+  useEffect(() => () => { shown.current = undefined }, [])
+  const value = lazy?.peek()
   const retry = () => {
-    if (key === undefined) return
-    setFailedKey(undefined)
-    load(key).then(() => { if (shownKey.current === key) setLoads((n) => n + 1) }, () => { if (shownKey.current === key) setFailedKey(key) })
+    if (!lazy) return
+    setFailed(undefined)
+    lazy.load().then(() => { if (shown.current === lazy) setLoads((n) => n + 1) }, () => { if (shown.current === lazy) setFailed(lazy) })
   }
-  useEffect(() => { setFailedKey(undefined); if (value === undefined) retry() }, [key])
-  return { value, isFailed: key !== undefined && failedKey === key, retry }
+  useEffect(() => { setFailed(undefined); if (value === undefined) retry() }, [lazy])
+  return { value, isFailed: lazy !== undefined && failed === lazy, retry }
 }

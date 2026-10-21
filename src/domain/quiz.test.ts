@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { QUIZ } from './quiz'
 import { validateQuiz } from './validate'
-import { JOURNEY_CATALOG, loadAllJourneys, peekJourney } from './journeys'
+import { JOURNEY_CATALOG, lazyAllJourneys, peekJourney } from './journeys'
 import type { QuizQuestion } from './types'
 
 describe('QUIZ', () => {
@@ -14,7 +14,7 @@ describe('QUIZ', () => {
     expect(new Set(QUIZ.map((q) => q.type))).toEqual(new Set(['entities', 'regions', 'choice']))
   })
   it('every reference exists and every replay resolves to a journey step', async () => {
-    await loadAllJourneys()
+    await lazyAllJourneys.load()
     expect(validateQuiz(QUIZ, peekJourney)).toEqual([])
     for (const q of QUIZ) expect(q.replays.length, q.id).toBeGreaterThan(0)
   })
@@ -23,7 +23,7 @@ describe('QUIZ', () => {
     for (const bad of ['Full Route Cache', 'Router Cache', 'binary format', 'Edge Runtime', 'experimental.ppr']) expect(text, bad).not.toContain(bad)
   })
   it('reports broken questions', async () => {
-    await loadAllJourneys()
+    await lazyAllJourneys.load()
     const broken: QuizQuestion[] = [
       { id: 'x', source: 'scenario', journey: 'ghost', type: 'entities', title: 't', prompt: 'p', why: 'w', candidates: ['nope', 'swc'], answer: [], replays: [] },
       { id: 'x', source: 'reviewer', type: 'regions', title: 't', prompt: 'p', why: 'w', candidates: ['build'], answer: ['source'], replays: [{ journey: 'app-initial', step: 99 }] },

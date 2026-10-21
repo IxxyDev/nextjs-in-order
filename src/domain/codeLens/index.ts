@@ -33,5 +33,6 @@ const catalog = createLazyCatalog<LensBundle>(entries)
 
 /** every journey has a lens: false only for an unknown slug */
 export const hasLens = (slug: string) => entries.some((e) => e.slug === slug)
+export const lazyLens = catalog.lazy
 export const peekLens = catalog.peek
 export const loadLens = catalog.load

@@ -26,12 +26,8 @@ export function entryBySlug(slug: string): JourneyEntry | undefined {
   return JOURNEY_CATALOG.find((e) => e.slug === slug)
 }
 
+export const lazyJourney = catalog.lazy
 export const peekJourney = catalog.peek
 export const loadJourney = catalog.load
-export const loadAllJourneys = catalog.loadAll
-
-/** every journey once all have loaded, else none */
-export function peekAllJourneys(): Journey[] | undefined {
-  const journeys = JOURNEY_CATALOG.map((e) => peekJourney(e.slug))
-  return journeys.every(Boolean) ? journeys as Journey[] : undefined
-}
+/** every journey, peeked once all have loaded */
+export const lazyAllJourneys = catalog.all

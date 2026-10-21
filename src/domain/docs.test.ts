@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import MATRIX from '../../docs/coverage-matrix.md?raw'
 import ARCHITECTURE from '../../docs/experience-architecture.md?raw'
-import { JOURNEY_CATALOG, loadAllJourneys } from './journeys'
+import { JOURNEY_CATALOG, lazyAllJourneys } from './journeys'
 import { COMPARE_CATALOG } from './compare'
 import { loadLens } from './codeLens'
 
 describe('coverage-matrix.md', () => {
   it('names only journey steps and compare pairs that exist', async () => {
-    const stepCounts = new Map((await loadAllJourneys()).map((j) => [j.id, j.steps.length]))
+    const stepCounts = new Map((await lazyAllJourneys.load()).map((j) => [j.id, j.steps.length]))
     const pairStepCounts = new Map(await Promise.all(COMPARE_CATALOG.map(async (e) => [e.id, (await e.load()).steps.length] as const)))
 
     expect(unresolvedRefs(MATRIX, stepCounts, pairStepCounts)).toEqual([])
