@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks'
 import type { Band, EntityState, PickMark, RegionId, TokenState } from '../domain/types'
-import { REGIONS, ROWS, BAND_TITLES, CUSTOM_SERVER_RING as RING, bandRect } from '../domain/regions'
+import { REGIONS, ROWS, BAND_TITLES, CUSTOM_SERVER_RING as RING, DEV_X, bandRect } from '../domain/regions'
 import { ENTITIES, entityById } from '../domain/entities'
 import { EDGES } from '../domain/edges'
 import { isLit, isRingOn } from '../domain/worldState'
@@ -22,9 +22,6 @@ interface WorldProps {
   regionMarks?: Partial<Record<RegionId, PickMark>>
   onRegion?: (id: RegionId) => void
 }
-
-/** the build and network boundaries run across the time bands, up to the dev column */
-const timeBandsW = bandRect('server').w
 
 function edgePath(from: Point, to: Point): string {
   const dx = to.x - from.x, dy = to.y - from.y
@@ -67,9 +64,9 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
           {([['build time · once per deploy', ROWS.build.y, ROWS.build.h + ROWS.artifacts.h], ['server · request time', ROWS.server.y, ROWS.server.h], ['browser · per tab', ROWS.browser.y, ROWS.browser.h]] as const).map(([t, y, h]) => (
             <text key={t} class="band-title" transform={`translate(12 ${y + h / 2}) rotate(-90)`} text-anchor="middle">{t}</text>
           ))}
-          <line class="boundary-build" x1={0} y1={ROWS.server.y} x2={timeBandsW} y2={ROWS.server.y} />
-          <line class="boundary-network" x1={0} y1={ROWS.network.y + 24} x2={timeBandsW} y2={ROWS.network.y + 24} />
-          <line class="boundary-network" x1={0} y1={ROWS.network.y + 42} x2={timeBandsW} y2={ROWS.network.y + 42} />
+          <line class="boundary-build" x1={0} y1={ROWS.server.y} x2={DEV_X} y2={ROWS.server.y} />
+          <line class="boundary-network" x1={0} y1={ROWS.network.y + 24} x2={DEV_X} y2={ROWS.network.y + 24} />
+          <line class="boundary-network" x1={0} y1={ROWS.network.y + 42} x2={DEV_X} y2={ROWS.network.y + 42} />
           {REGIONS.map((r) => (
             <g key={r.id}>
               <rect class={`region ${r.id.endsWith('-runtime') ? 'region-runtime' : ''} ${onRegion ? 'is-pickable' : ''} ${regionMarks?.[r.id] ? `mark-${regionMarks[r.id]}` : ''}`} x={r.x} y={r.y} width={r.w} height={r.h} onClick={onRegion && ((e) => { if (isFirstClick(e)) onRegion(r.id) })} />

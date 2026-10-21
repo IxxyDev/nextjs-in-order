@@ -50,7 +50,7 @@ function around(rects: Rect[], margin: number): Rect {
 export const BAND_TITLES: Record<Band, string> = { build: 'Build', server: 'Server', browser: 'Browser', dev: 'Dev column' }
 
 /** the time bands run from the world's left edge to here; the dev column takes the rest */
-const DEV_X = 2020
+export const DEV_X = 2020
 
 /** the band backgrounds as World draws them: build takes in the shelf, server the network */
 const BAND_RECTS: Record<Band, Rect> = {
