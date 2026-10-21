@@ -1,10 +1,19 @@
-import { expect, test, type Page } from './fixtures'
+import { expect, test, type Locator, type Page } from './fixtures'
 import { eyebrow, expectNoHorizontalScroll, settle, watchErrors } from './helpers'
 import { GLYPH_NAME } from '../src/domain/glyphName'
 
 const transform = (page: Page) => page.locator('svg.world > g').first().getAttribute('transform')
 const crumbs = (page: Page) => page.getByRole('navigation', { name: 'Camera breadcrumb' })
 const follow = (page: Page) => page.getByRole('button', { name: 'Follow', exact: true })
+
+/** the names of a lane's labels whose box meets the legend toggle's */
+async function labelsUnderLegend(page: Page, lane: Locator): Promise<string[]> {
+  const legend = (await page.locator('.legend summary').boundingBox())!
+  return lane.locator('.label').evaluateAll((els, l) => els.filter((el) => {
+    const r = el.getBoundingClientRect()
+    return r.x < l.x + l.width && l.x < r.right && r.y < l.y + l.height && l.y < r.bottom
+  }).map((el) => el.getAttribute('aria-label') || ''), legend)
+}
 
 test('breadcrumb: a crumb moves the camera and counts as a manual move', async ({ page }, info) => {
   const errors = watchErrors(page)
@@ -276,6 +285,26 @@ test('compare: the last lane title leaves the legend its corner rather than runn
   const legend = (await page.locator('.legend summary').boundingBox())!
 
   expect(title.x + title.width).toBeLessThanOrEqual(legend.x)
+})
+
+test('compare: no label of the last lane runs under the legend toggle beside it', async ({ page }, info) => {
+  test.skip(info.project.name === 'phone-390', 'phones stack the lanes, so the legend sits on the first')
+  await page.goto('/#/compare/initial-load/2')
+  await settle(page)
+
+  const covered = await labelsUnderLegend(page, page.locator('.lane').last())
+
+  expect(covered).toEqual([])
+})
+
+test('compare on a phone: no label of the first lane runs under the legend toggle above it', async ({ page }, info) => {
+  test.skip(info.project.name !== 'phone-390', 'the ≤767px layout stacks the lanes')
+  await page.goto('/#/compare/client-navigation/1')
+  await settle(page)
+
+  const covered = await labelsUnderLegend(page, page.locator('.lane').first())
+
+  expect(covered).toEqual([])
 })
 
 test('compare: every label stays inside its lane, the long token label of the segment-cache step included', async ({ page }) => {

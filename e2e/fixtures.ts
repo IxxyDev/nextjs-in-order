@@ -1,6 +1,6 @@
 import { test as base } from '@playwright/test'
 
-export { expect, type Page } from '@playwright/test'
+export { expect, type Locator, type Page } from '@playwright/test'
 
 /** Google Fonts is the only network dependency; stub it so runs never depend on the network */
 export const test = base.extend({
