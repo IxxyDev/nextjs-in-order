@@ -9,7 +9,7 @@ import { Transport } from './Transport'
 import { Inspector } from './Inspector'
 import { Legend } from './Legend'
 import { createRig, goTo, LEGEND, type CameraRig, type Framing } from './camera'
-import { reducedMotion } from './layout'
+import { phone, reducedMotion } from './layout'
 import { useStepControls } from './useStepControls'
 import { useCameraGestures } from './useCameraGestures'
 
@@ -18,11 +18,13 @@ const LANE_TITLE_GAP = 8
 /** ruler times closer than this count as in step */
 const TIE = 0.02
 
-function Lane({ meta, world, rig, framing, selected, onSelect }: { meta: CompareLane; world: LaneWorld; rig: CameraRig; framing: Framing; selected?: string; onSelect: (id?: string) => void }) {
+/** hasLegend: the stage's legend sits over this lane's top-right corner, so its labels and framing keep clear of it */
+function Lane({ meta, world, rig, framing, hasLegend, selected, onSelect }: { meta: CompareLane; world: LaneWorld; rig: CameraRig; framing: Framing; hasLegend: boolean; selected?: string; onSelect: (id?: string) => void }) {
   const vp = rig.viewport.value
   const stage = useRef<HTMLElement>(null)
   useCameraGestures(rig, stage)
-  useEffect(() => { goTo(framing === 'follow' ? world.cameraTarget : { kind: 'world' }, reducedMotion.value, rig) }, [world, framing, vp.w, vp.h])
+  useEffect(() => { rig.hasLegend.value = hasLegend }, [hasLegend])
+  useEffect(() => { goTo(framing === 'follow' ? world.cameraTarget : { kind: 'world' }, reducedMotion.value, rig) }, [world, framing, vp.w, vp.h, hasLegend])
   return (
     <section class="lane" ref={stage} aria-label={meta.title}>
       <World rig={rig} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
@@ -77,8 +79,10 @@ export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: 
   const [selected, setSelected] = useState<{ lane: number; id: string } | undefined>()
 
   const { playing, setPlaying, stepTo } = useStepControls({ count: pair.steps.length, step, onStep, onEscape: () => { setSelected(undefined); setFraming('whole') } })
+  /** the legend takes the stage's top-right corner: the last lane's side by side, the first lane's once phones stack them */
+  const legendLane = phone.value ? 0 : pair.lanes.length - 1
   const lane = (i: number) => (
-    <Lane key={pair.lanes[i].title} meta={pair.lanes[i]} world={world.lanes[i]} rig={rigs[i]} framing={framing}
+    <Lane key={pair.lanes[i].title} meta={pair.lanes[i]} world={world.lanes[i]} rig={rigs[i]} framing={framing} hasLegend={i === legendLane}
       selected={selected?.lane === i ? selected.id : undefined}
       onSelect={(id) => { setPlaying(false); setSelected(id ? { lane: i, id } : undefined) }} />
   )

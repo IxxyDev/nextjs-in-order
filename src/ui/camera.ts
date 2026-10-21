@@ -19,19 +19,20 @@ const DURATION = 500
 /**
  * One camera with its viewport; journey and atlas share MAIN_RIG, each compare lane owns one.
  * sheet: the share of the viewport height a bottom sheet keeps covered at peek (the tablet journey), 0 for none.
+ * hasLegend: the legend's toggle sits in the rig's top-right corner.
  */
-export interface CameraRig { camera: Signal<Camera>; viewport: Signal<Viewport>; frame: number; sheet: Signal<number> }
+export interface CameraRig { camera: Signal<Camera>; viewport: Signal<Viewport>; frame: number; sheet: Signal<number>; hasLegend: Signal<boolean> }
 
 /** what a view frames: the step's target or the whole system */
 export type Framing = 'follow' | 'whole'
 /** a framing, or a camera the user left (a URL cam) held until they step or pick a framing */
 export type View = Framing | 'manual'
 
-export function createRig(): CameraRig {
-  return { camera: signal<Camera>({ x: WORLD.w / 2, y: WORLD.h / 2, zoom: 0.5 }), viewport: signal<Viewport>({ w: 1200, h: 800 }), frame: 0, sheet: signal(0) }
+export function createRig(hasLegend = false): CameraRig {
+  return { camera: signal<Camera>({ x: WORLD.w / 2, y: WORLD.h / 2, zoom: 0.5 }), viewport: signal<Viewport>({ w: 1200, h: 800 }), frame: 0, sheet: signal(0), hasLegend: signal(hasLegend) }
 }
 
-export const MAIN_RIG = createRig()
+export const MAIN_RIG = createRig(true)
 export const viewport = MAIN_RIG.viewport
 export const camera = MAIN_RIG.camera
 
@@ -55,7 +56,7 @@ function minimapRect(vp: Viewport): ScreenRect | undefined {
   return { x: 0, y: vp.h - MINIMAP.bottom - MINIMAP.h - MINIMAP_GAP, w: MINIMAP.left + MINIMAP.w + MINIMAP_GAP, h: MINIMAP.bottom + MINIMAP.h + MINIMAP_GAP }
 }
 
-/** the legend's toggle on the stage (top-right); it is drawn on every MAIN_RIG view, phones included */
+/** the legend's toggle in the stage's top-right corner, phones included: over every MAIN_RIG view, and over the compare lane whose rig hasLegend */
 export const LEGEND = { top: 12, right: 12, w: 84, h: 32 }
 
 function legendRect(vp: Viewport): ScreenRect {
@@ -65,7 +66,7 @@ function legendRect(vp: Viewport): ScreenRect {
 /** screen zones a rig's labels and framing keep clear: the legend's toggle, and the sheet's peek when there is one (the minimap sits in it), else the minimap */
 export function reservedFor(rig: CameraRig): ScreenRect[] {
   const vp = rig.viewport.value, sheet = rig.sheet.value
-  const legend = rig === MAIN_RIG ? [legendRect(vp)] : []
+  const legend = rig.hasLegend.value ? [legendRect(vp)] : []
   if (sheet) return [{ x: 0, y: vp.h * (1 - sheet), w: vp.w, h: vp.h * sheet }, ...legend]
   const r = rig === MAIN_RIG ? minimapRect(vp) : undefined
   return r ? [r, ...legend] : legend
