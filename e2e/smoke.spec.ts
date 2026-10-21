@@ -1,5 +1,23 @@
-import { expect, test } from './fixtures'
+import { expect, test, type Page } from './fixtures'
 import { eyebrow, expectNoHorizontalScroll, watchErrors } from './helpers'
+
+/** the first question answered, so progress has an answer to erase */
+async function answerFirstQuestion(page: Page) {
+  await page.goto('/#/predict/1')
+  await page.getByRole('list', { name: 'Picks' }).getByRole('button').first().click()
+  await page.getByRole('button', { name: 'Check', exact: true }).click()
+  await page.getByText(/^answered 1\//).waitFor()
+}
+
+/** the journeys menu's App Router option once its predict step is answered and its progress mark shows */
+async function openAnsweredJourneyOption(page: Page) {
+  await page.goto('/#/journey/app-initial/7')
+  await page.locator('.predict button').first().click()
+  await page.getByRole('button', { name: /^Journey:/ }).click()
+  const option = page.getByRole('option', { name: /App Router: the initial request/ })
+  await option.getByText(/22 steps · 1\//).waitFor()
+  return option
+}
 
 test('atlas: clicking an entity opens its inspector and Close dismisses it', async ({ page }) => {
   const errors = watchErrors(page)
@@ -55,18 +73,27 @@ test('predict: choosing an answer and pressing Check shows feedback', async ({ p
   errors.assertClean()
 })
 
-test('predict: Reset progress sits outside the question controls and erases only after confirming', async ({ page }) => {
+test('predict: Reset progress sits outside the question controls', async ({ page }) => {
   await page.goto('/#/predict/1')
+
   await expect(page.getByRole('toolbar', { name: 'Question controls' }).getByRole('button', { name: 'Reset progress' })).toHaveCount(0)
-  await page.getByRole('list', { name: 'Picks' }).getByRole('button').first().click()
-  await page.getByRole('button', { name: 'Check', exact: true }).click()
-  await expect(page.getByText(/^answered 1\//)).toBeVisible()
+})
+
+test('predict: dismissing the Reset progress confirmation keeps the answers', async ({ page }) => {
+  await answerFirstQuestion(page)
 
   page.once('dialog', (d) => d.dismiss())
   await page.getByRole('button', { name: 'Reset progress' }).click()
+
   await expect(page.getByText(/^answered 1\//)).toBeVisible()
+})
+
+test('predict: accepting the Reset progress confirmation erases the answers', async ({ page }) => {
+  await answerFirstQuestion(page)
+
   page.once('dialog', (d) => d.accept())
   await page.getByRole('button', { name: 'Reset progress' }).click()
+
   await expect(page.getByText(/^answered 0\//)).toBeVisible()
 })
 
@@ -85,13 +112,20 @@ test('journey: the canvas label and Read as text call a state by the same word',
   await expect(page.locator('.text-equivalent')).toContainText('Now: DashboardNav.tsx.')
 })
 
-test('journeys menu: each journey shows its step count on one line with its progress mark', async ({ page }) => {
+test('journeys menu: a journey shows its step count with its progress mark', async ({ page }) => {
   await page.goto('/#/journey/app-initial/7')
   await page.locator('.predict button').first().click()
+
   await page.getByRole('button', { name: /^Journey:/ }).click()
-  const option = page.getByRole('option', { name: /App Router: the initial request/ })
-  await expect(option).toContainText('22 steps · 1/')
+
+  await expect(page.getByRole('option', { name: /App Router: the initial request/ })).toContainText('22 steps · 1/')
+})
+
+test('journeys menu: a journey with its progress mark fits on one line', async ({ page }) => {
+  const option = await openAnsweredJourneyOption(page)
+
   const box = (await option.boundingBox())!
+
   expect(box.height, 'one line').toBeLessThan(48)
 })
 
