@@ -13,9 +13,9 @@ import { reducedMotion } from './layout'
 import { useStepControls } from './useStepControls'
 import { useCameraGestures } from './useCameraGestures'
 
-/** ruler times closer than this count as in step */
 /** the room between the last lane's title and the legend, in px */
 const LANE_TITLE_GAP = 8
+/** ruler times closer than this count as in step */
 const TIE = 0.02
 
 function Lane({ meta, world, rig, framing, selected, onSelect }: { meta: CompareLane; world: LaneWorld; rig: CameraRig; framing: Framing; selected?: string; onSelect: (id?: string) => void }) {
