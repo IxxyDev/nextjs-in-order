@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { fitRect, targetToRect, transformFor, worldToScreen, screenToWorld, clampToWorld, fitTarget, zoomAt, pinchCamera, OVERSCROLL, MIN_ZOOM, MAX_ZOOM } from './camera'
+import { glyphFootprint, intersects } from './labelLayout'
 import { WORLD } from '../domain/regions'
 
 describe('camera math', () => {
@@ -44,10 +45,8 @@ describe('camera math', () => {
     const corner = { x: 0, y: 500, w: 150, h: 100 }
     const target = { kind: 'region', id: 'browser' } as const
     const plain = fitTarget(target, vp), kept = fitTarget(target, vp, [corner])
-    const clear = (cam: typeof plain) => {
-      const p = worldToScreen({ x: 200, y: 1990 }, cam, vp)
-      return p.x - 60 >= corner.x + corner.w || p.y + 30 * cam.zoom + 44 <= corner.y
-    }
+    const nextData = { x: 200, y: 1990 }
+    const clear = (cam: typeof plain) => !intersects(glyphFootprint(worldToScreen(nextData, cam, vp), cam.zoom), corner)
     expect(clear(plain)).toBe(false)
     expect(clear(kept)).toBe(true)
     expect(kept.zoom).toBeGreaterThan(plain.zoom * 0.7)
