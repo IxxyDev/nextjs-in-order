@@ -2,7 +2,7 @@ import { useEffect, useState } from 'preact/hooks'
 import type { FunctionComponent } from 'preact'
 import { DEFAULT_COMPARE, DEFAULT_JOURNEY, clampIndex, parseRoute, formatRoute } from '../domain/route'
 import type { Route } from '../domain/types'
-import { entryBySlug, JOURNEY_CATALOG, loadAllJourneys, loadJourney, peekJourney } from '../domain/journeys'
+import { entryBySlug, JOURNEY_CATALOG, loadAllJourneys, loadJourney, peekAllJourneys, peekJourney } from '../domain/journeys'
 import { COMPARE_CATALOG, compareBySlug, loadCompare, peekCompare } from '../domain/compare'
 import { loadQuiz, peekQuiz } from '../domain/predict'
 import { progress, quizId } from '../domain/progress'
@@ -18,18 +18,18 @@ const VERSION_NOTE = 'Articles: Next.js 15→16 era (2025) · verified against N
 
 export function App() {
   const [route, go] = useRoute()
-  const [, setLoaded] = useState(0)
   /** progress meta needs every journey; their chunks load on the first menu open, not on mount */
   const [wantAll, setWantAll] = useState(false)
+  const allJourneys = useLazy(wantAll ? 'all' : undefined, peekAllJourneys, loadAllJourneys)
   /** a failed chunk here only leaves some progress meta blank; the menu retries on its next open */
-  useEffect(() => { if (wantAll) loadAllJourneys().then(() => setLoaded((n) => n + 1), () => setWantAll(false)) }, [wantAll])
+  const openJourneys = () => { setWantAll(true); if (allJourneys.isFailed) allJourneys.retry() }
   const Page = pageMap[route.mode] as FunctionComponent<PageProps<Route['mode']>>
   return (
     <div class="app">
       <header class="app-header">
         <h1>Next.js <em>Under the Hood</em></h1>
         <nav aria-label="Modes">
-          <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={route.mode === 'journey' ? route.slug : undefined} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: catalogCode(j.id), title: j.title, meta: journeyMeta(j.slug) }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} onOpen={() => setWantAll(true)} />
+          <MenuSelect id="journey-select" label="Journey" placeholder="Journeys…" value={route.mode === 'journey' ? route.slug : undefined} options={JOURNEY_CATALOG.map((j) => ({ value: j.slug, code: catalogCode(j.id), title: j.title, meta: journeyMeta(j.slug) }))} onChange={(slug) => go({ mode: 'journey', slug, step: 0 })} onOpen={openJourneys} />
           <MenuSelect id="compare-select" label="Compare" placeholder="Compare…" value={route.mode === 'compare' ? route.slug : undefined} options={COMPARE_CATALOG.map((c) => ({ value: c.slug, code: catalogCode(c.id), title: c.title }))} onChange={(slug) => go({ mode: 'compare', slug, step: 0 })} />
           <a href={formatRoute({ mode: 'atlas' })} aria-current={route.mode === 'atlas' ? 'page' : undefined}>System Atlas</a>
           <a href={formatRoute({ mode: 'predict', n: 0 })} aria-current={route.mode === 'predict' ? 'page' : undefined}>Predict</a>
