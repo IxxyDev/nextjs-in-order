@@ -32,7 +32,7 @@ import { FILE as customServerRender } from './custom-server-render'
 import { FILE as nextConfigFileRoutes } from './next-config-file-routes'
 
 export { FATES } from './fates'
-export { ACTION_ID, PRODUCT_CHUNK, REF_FORM, REF_NAV, ROOT_ROW } from './artifacts'
+export { ACTION_ID, NAV_CHUNK, NAV_CHUNK_NAME, PRODUCT_CHUNK, REF_FORM, REF_NAV, REF_NAV_SCRIPT, ROOT_ROW } from './artifacts'
 
 /** docs/code-lens.md §4: the sample app, every line colored once; the App Router files J0 uses first, then the rest of the app, then the what-if variants */
 export const SPECIMEN: SpecimenFile[] = [

@@ -1,11 +1,11 @@
 import type { LensStep } from '../types'
-import { ACTION_ID, DN_NAV, off, PF_FORM, REF_FORM, REF_NAV, ROOT_ROW, source } from './specimen'
+import { ACTION_ID, DN_NAV, NAV_CHUNK, off, PF_FORM, REF_FORM, REF_NAV, REF_NAV_SCRIPT, ROOT_ROW, source } from './specimen'
 
 const DN_SPLIT = ['DN2', 'DN3', 'DN4', 'DN5', 'DN6', 'DN7', 'DN9', 'DN10', 'DN11', 'DN12']
 
 /** the shelf ledger: j0-5 shows it, j0-6 keeps it dimmed */
 const SHELF_LEDGER = [
-  '⚡ "…/components/DashboardNav.tsx" → chunks ["static/chunks/app/dashboard/layout-3c4d.js"] · client-reference-manifest',
+  `⚡ "…/components/DashboardNav.tsx" → chunks ["${NAV_CHUNK}"] · client-reference-manifest`,
   '⚡ "…/components/ProfileForm.tsx" → chunks ["static/chunks/app/dashboard/settings/page-5e6f.js"] · client-reference-manifest',
   `⇄ "${ACTION_ID}" → updateProfile · app/actions.ts · worker app/dashboard/settings/page · server-reference-manifest`,
   '⊘ server/app/layout.js · server/app/dashboard/layout.js · server/app/dashboard/settings/page.js · server-chunks only',
@@ -66,7 +66,7 @@ export const STEPS: LensStep[] = [
         ]
       },
       {
-        side: 'browser', title: 'static/chunks/app/dashboard/layout-3c4d.js', entity: 'browser-chunks',
+        side: 'browser', title: NAV_CHUNK, entity: 'browser-chunks',
         badge: '×2', hint: 'a second copy in the ssr layer stays on the server and renders HTML in step 7', abridged: true,
         rows: [
           { text: 'function DashboardNav() {', from: ['DN5'], fate: 'split', change: 'same' },
@@ -90,7 +90,7 @@ export const STEPS: LensStep[] = [
         rows: [
           { text: 'globalThis.__RSC_MANIFEST["/dashboard/settings/page"] = {' },
           { text: '  clientModules: {' },
-          { text: '    "…/components/DashboardNav.tsx": { id: …, name: "*", chunks: ["static/chunks/app/dashboard/layout-3c4d.js"], async: false },', from: ['DN1'], fate: 'client-boundary', change: 'new' },
+          { text: `    "…/components/DashboardNav.tsx": { id: …, name: "*", chunks: ["${NAV_CHUNK}"], async: false },`, from: ['DN1'], fate: 'client-boundary', change: 'new' },
           { text: '    "…/components/ProfileForm.tsx":  { id: …, name: "*", chunks: ["static/chunks/app/dashboard/settings/page-5e6f.js"], async: false }', from: ['PF1'], fate: 'client-boundary', change: 'new' },
           { text: '  }, ssrModuleMapping: {…}, …' },
           { text: '}' }
@@ -153,9 +153,9 @@ export const STEPS: LensStep[] = [
         { text: '<nav data-open="false"><button>Menu</button><a href="/dashboard/settings" aria-current="true">Settings</a>…</nav>', from: DN_NAV, fate: 'split', note: "ssr copy's HTML" },
         { text: '<dl><dt>Email</dt><dd>ada@example.com</dd>…</dl>', from: ['AS2'], fate: 'server-only', note: 'output only' },
         { text: '<form …><input name="name" value="Ada"/><button>Save</button></form>', from: PF_FORM, fate: 'split', note: 'action fields folded (J7)' },
-        { text: '<script src="/_next/static/chunks/app/dashboard/layout-3c4d.js" async=""></script>', fate: 'split', change: 'new', note: 'code crosses' },
+        { text: `<script src="/_next/${NAV_CHUNK}" async=""></script>`, fate: 'split', change: 'new', note: 'code crosses' },
         { text: '<script>(self.__next_f=self.__next_f||[]).push([0])</script>', change: 'new', note: 'bootstrap' },
-        { text: '<script>self.__next_f.push([1,"1:I[…,[\\"static/chunks/app/dashboard/layout-3c4d.js\\"],\\"default\\"]\\n…"])</script>', from: ['DL5'], fate: 'client-boundary', change: 'same', morph: '1:I', note: 'row → inline chunk' }
+        { text: REF_NAV_SCRIPT, from: ['DL5'], fate: 'client-boundary', change: 'same', morph: '1:I', note: 'row → inline chunk' }
       ]
     }],
     links: [

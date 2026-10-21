@@ -1,5 +1,5 @@
 import type { LensStep } from '../types'
-import { DN_NAV, off, PF_FORM, REF_FORM, REF_NAV, ROOT_ROW, source } from './specimen'
+import { DN_NAV, NAV_CHUNK, NAV_CHUNK_NAME, off, PF_FORM, REF_FORM, REF_NAV, REF_NAV_SCRIPT, ROOT_ROW, source } from './specimen'
 
 const ROUTE_STATE = '["",{"children":["dashboard",{"children":["settings",{"children":["__PAGE__",{}]}]}]},…]'
 const PRERENDERED = '○ route: this render ran at build; a production GET is served its stored result (settings.html + settings.rsc)'
@@ -91,7 +91,7 @@ export const STEPS: LensStep[] = [
           { text: '<DashboardNav />', from: ['DL5'], fate: 'client-boundary', note: 'reached: in the rsc layer DL1 is the proxy, carrying its path' },
           { text: 'globalThis.__RSC_MANIFEST["/dashboard/settings/page"] = {' },
           { text: '  clientModules: {' },
-          { text: '    "…/components/DashboardNav.tsx": { id: …, name: "*", chunks: ["static/chunks/app/dashboard/layout-3c4d.js"], async: false },', from: ['DL5'], fate: 'client-boundary', change: 'same', morph: '"…/components/DashboardNav.tsx"', note: 'keyed by path' },
+          { text: `    "…/components/DashboardNav.tsx": { id: …, name: "*", chunks: ["${NAV_CHUNK}"], async: false },`, from: ['DL5'], fate: 'client-boundary', change: 'same', morph: '"…/components/DashboardNav.tsx"', note: 'keyed by path' },
           { fold: 1, label: '1 more row: ProfileForm, read when SP9 renders', from: ['PF1'], change: 'same' },
           { text: '  }, ssrModuleMapping: {…}, …' }
         ]
@@ -180,7 +180,7 @@ export const STEPS: LensStep[] = [
       title: 'copy 2 · <script> tags in the HTML stream', entity: 'next-f', abridged: true,
       rows: [
         { text: '<script>(self.__next_f=self.__next_f||[]).push([0])</script>', note: 'bootstrap' },
-        { text: '<script>self.__next_f.push([1,"1:I[…,[\\"static/chunks/app/dashboard/layout-3c4d.js\\"],\\"default\\"]\\n…"])</script>', from: ['DL5'], fate: 'client-boundary', morph: '1:I', note: 'rows as text' },
+        { text: REF_NAV_SCRIPT, from: ['DL5'], fate: 'client-boundary', morph: '1:I', note: 'rows as text' },
         { text: ';self.__next_f.push([2,…])', note: 'form state: only after a no-JS action submit' },
         { text: '<script>self.__next_f.push([3,"…base64…"])</script>', note: 'binary rows: none on this page' }
       ]
@@ -211,14 +211,14 @@ export const STEPS: LensStep[] = [
     step: 'j5-15', mode: 'peek', form: 'files',
     summary: [
       '0 B of JS in the browser · ⊘ RootLayout · DashboardLayout · SettingsPage · AccountSummary · getProfile',
-      'code · ⚡ framework · main-app · app/dashboard/layout-3c4d.js (DashboardNav) · app/dashboard/settings/page-5e6f.js (ProfileForm)'
+      `code · ⚡ framework · main-app · ${NAV_CHUNK_NAME} (DashboardNav) · app/dashboard/settings/page-5e6f.js (ProfileForm)`
     ],
     panes: [{
       title: 'what the browser fetches after the document', entity: 'browser-chunks', abridged: true,
       rows: [
         { text: '/_next/static/chunks/framework-….js', note: 'React itself' },
         { text: '/_next/static/chunks/main-app-….js', note: 'the App Router runtime' },
-        { text: '/_next/static/chunks/app/dashboard/layout-3c4d.js', from: ['DN5'], fate: 'split', note: 'named by 1:I' },
+        { text: `/_next/${NAV_CHUNK}`, from: ['DN5'], fate: 'split', note: 'named by 1:I' },
         { text: '/_next/static/chunks/app/dashboard/settings/page-5e6f.js', from: ['PF4'], fate: 'split', note: 'named by 2:I' }
       ]
     }],
@@ -247,11 +247,11 @@ export const STEPS: LensStep[] = [
   },
   {
     step: 'j5-18', mode: 'peek', form: 'files',
-    summary: ['1:I → static/chunks/app/dashboard/layout-3c4d.js (DashboardNav) · 2:I → static/chunks/app/dashboard/settings/page-5e6f.js (ProfileForm) · hydration waits only for these'],
+    summary: [`1:I → ${NAV_CHUNK} (DashboardNav) · 2:I → static/chunks/app/dashboard/settings/page-5e6f.js (ProfileForm) · hydration waits only for these`],
     panes: [{
       title: 'the two referenced chunks', entity: 'browser-chunks', abridged: true,
       rows: [
-        { text: 'static/chunks/app/dashboard/layout-3c4d.js', from: ['DN5', 'DN6', ...DN_NAV], fate: 'split', note: '← 1:I · DashboardNav' },
+        { text: NAV_CHUNK, from: ['DN5', 'DN6', ...DN_NAV], fate: 'split', note: '← 1:I · DashboardNav' },
         { text: 'static/chunks/app/dashboard/settings/page-5e6f.js', from: ['PF4', ...PF_FORM], fate: 'split', note: '← 2:I · ProfileForm' }
       ]
     }],

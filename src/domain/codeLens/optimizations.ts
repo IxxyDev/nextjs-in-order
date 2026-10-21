@@ -1,5 +1,5 @@
 import type { LensStep } from '../types'
-import { off, source } from './specimen'
+import { NAV_CHUNK_NAME, off, source } from './specimen'
 
 /**
  * the lens along J11: one entry per journey step, in order (docs/code-lens.md §10, details in docs/code-lens/optimizations.md).
@@ -34,7 +34,7 @@ export const STEPS: LensStep[] = [
   },
   {
     step: 'j11-4', mode: 'peek', form: 'files',
-    summary: ['static/chunks/ · framework-a1b2c3.js (react, react-dom, next) · webpack-9c0d.js (runtime) · app/dashboard/layout-3c4d.js · app/dashboard/billing/page-7a8b.js (one per route)'],
+    summary: [`static/chunks/ · framework-a1b2c3.js (react, react-dom, next) · webpack-9c0d.js (runtime) · ${NAV_CHUNK_NAME} · app/dashboard/billing/page-7a8b.js (one per route)`],
     panes: [], links: [], motion: []
   },
   {

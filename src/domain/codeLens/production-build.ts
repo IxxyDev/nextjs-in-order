@@ -1,5 +1,5 @@
 import type { LensStep } from '../types'
-import { ACTION_ID, off, source } from './specimen'
+import { ACTION_ID, NAV_CHUNK_NAME, off, source } from './specimen'
 
 const ENTRY = `/* __next_internal_action_entry… {…} */`
 
@@ -172,7 +172,7 @@ export const STEPS: LensStep[] = [
         { text: 'framework-a1b2c3.js', change: 'new', note: 'React, ReactDOM, Next' },
         { text: 'main-app-d4e5f6.js', change: 'new', note: 'App Router bootstrap' },
         { text: 'webpack-9c0d.js', change: 'new', note: 'runtime' },
-        { text: 'app/dashboard/layout-3c4d.js', from: ['DN5'], fate: 'split', change: 'new', note: 'DashboardNav (J0)' }
+        { text: NAV_CHUNK_NAME, from: ['DN5'], fate: 'split', change: 'new', note: 'DashboardNav (J0)' }
       ]
     }],
     links: [
