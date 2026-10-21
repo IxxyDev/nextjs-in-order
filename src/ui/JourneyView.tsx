@@ -40,7 +40,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   const isTablet = tablet.value, isPhone = phone.value
   /** tablets lock the camera to Follow at Region level and phones keep it at Focus level: neither shows the whole system on this canvas */
   const locked = isTablet || isPhone
-  const shown: View = isHeld ? 'manual' : locked && framing === 'whole' ? 'follow' : framing
+  const shown = shownView(isHeld, locked, framing)
   const target = isTablet ? regionLevel(world.cameraTarget) : world.cameraTarget
 
   const vp = viewport.value
@@ -122,4 +122,11 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
       {overlay && <WholeOverlay world={world} onSelect={(id) => { setOverlay(false); select(id) }} onClose={() => setOverlay(false)} />}
     </div>
   )
+}
+
+/** the view the transport shows: a held camera is manual, and a locked canvas shows Whole system as Follow */
+function shownView(isHeld: boolean, isLocked: boolean, framing: Framing): View {
+  if (isHeld) return 'manual'
+  if (isLocked && framing === 'whole') return 'follow'
+  return framing
 }
