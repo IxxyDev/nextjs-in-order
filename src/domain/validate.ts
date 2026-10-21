@@ -55,6 +55,7 @@ export function validateJourney(journey: Journey): string[] {
     sceneErrors(where, step, errors)
     if (step.kind === 'predict' && !step.question) errors.push(`${where}: predict step without a question`)
     if (step.kind === 'check' && !(step.checks && step.checks.length)) errors.push(`${where}: check step without checks`)
+    if (step.question && step.checks) errors.push(`${where}: step with both a question and checks`)
     if (step.story.trim().length === 0) errors.push(`${where}: empty story`)
   })
   return errors
