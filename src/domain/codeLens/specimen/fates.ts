@@ -12,7 +12,7 @@ export const FATES: Fate[] = [
   { id: 'shared-layout', channel: 'mark', label: 'shared layout', glyph: '🔒', chip: 'kept on navigation' }
 ]
 
-/** shorthands for the specimen files: one hue per line */
-export const S: HueFate = 'server-only', B: HueFate = 'client-boundary', X: HueFate = 'split', A: HueFate = 'action-id'
+/** the hue fates the specimen files give their lines, one per line */
+export const SERVER_ONLY: HueFate = 'server-only', CLIENT_BOUNDARY: HueFate = 'client-boundary', SPLIT: HueFate = 'split', ACTION: HueFate = 'action-id'
 /** `return (`, `)`, `}`: inherits its block's fate, never carries a chip */
 export const frame = (id: string, text: string): SpecimenLine => ({ id, text, frame: true })
