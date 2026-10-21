@@ -35,7 +35,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   const [selected, setSelected] = useState<string | undefined>()
   /** the tablet sheet and the phone code room are two panels: a resize from one layout to the other opens neither */
   const [isSheetExpanded, setSheetExpanded] = useState(false)
-  const [isRoomAsked, setRoomAsked] = useState(false)
+  const [isRoomRequested, setRoomRequested] = useState(false)
   const [overlay, setOverlay] = useState(false)
   const isTablet = tablet.value, isPhone = phone.value
   /** tablets lock the camera to Follow at Region level and phones keep it at Focus level: neither shows the whole system on this canvas */
@@ -52,7 +52,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   /** every registered lens has open steps (codeLens.test.ts), so the wide panel is set at once, never after the chunk loads */
   const lensed = hasLens(journey.slug)
   const canRoom = isPhone && lensed && lensOpen.value
-  const roomy = canRoom && isRoomAsked
+  const roomy = canRoom && isRoomRequested
   const panel = useRef<HTMLElement>(null)
   useEffect(() => {
     if (!roomy) return
@@ -75,7 +75,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
 
   const onEscape = () => {
     if (overlay) { setOverlay(false); return }
-    if (roomy) { setRoomAsked(false); return }
+    if (roomy) { setRoomRequested(false); return }
     setSelected(undefined)
     pickView(locked ? 'follow' : 'whole')
   }
@@ -99,7 +99,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   )
   const roomHead = canRoom && (
     <div class="sheet-head is-room">
-      <button type="button" class="sheet-handle" aria-expanded={roomy} onClick={() => setRoomAsked(!roomy)}>
+      <button type="button" class="sheet-handle" aria-expanded={roomy} onClick={() => setRoomRequested(!roomy)}>
         <span class="grabber" aria-hidden="true" />{roomy ? 'More room for the map' : 'More room for code'}
       </button>
     </div>
