@@ -20,9 +20,9 @@ import { TEXT } from './useStepControls'
 export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Camera; onSelect: (id?: string) => void }) {
   const [filter, setFilter] = useState<AtlasFilter>({})
   const vp = viewport.value
-  const { isHeld, hold: onManual, release } = useUrlCamera(cam, entity ?? '')
+  const { isHeld, hold, release } = useUrlCamera(cam, entity ?? '')
   const stage = useRef<HTMLDivElement>(null)
-  useCameraGestures(MAIN_RIG, stage, onManual)
+  useCameraGestures(MAIN_RIG, stage, hold)
   const target: CameraTarget = entity ? { kind: 'entities', ids: [entity] } : { kind: 'world' }
   useEffect(() => { if (!isHeld) goTo(target, reducedMotion.value) }, [entity, isHeld, vp.w, vp.h])
   /** Escape closes the inspector; with none open it releases the camera, and the framing effect above returns it to the whole system */
@@ -56,11 +56,11 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
         <button type="button" onClick={() => onSelect('next-build')} aria-label="Next.js history. Inspect next build">Next.js history</button>
         <ol tabIndex={0} aria-label="Next.js releases, oldest first">{entityById('next-build').history!.map((h) => <li key={h.version}><strong>{h.version}</strong> {h.text}</li>)}</ol>
       </div>
-      <Breadcrumb crumbs={breadcrumbFor({ target, entity })} onGo={(t) => onManual(goTo(t, reducedMotion.value))} />
+      <Breadcrumb crumbs={breadcrumbFor({ target, entity })} onGo={(t) => hold(goTo(t, reducedMotion.value))} />
       <div class="stage" ref={stage}>
         <World entityStates={states} activeEdges={new Set()} selected={entity} onSelect={(id) => onSelect(id)} />
         <Labels entityStates={states} selected={entity} onSelect={(id) => onSelect(id)} />
-        <Minimap onManual={onManual} />
+        <Minimap onManual={hold} />
         <Legend />
         {entity && <Inspector id={entity} onClose={() => onSelect(undefined)} />}
       </div>

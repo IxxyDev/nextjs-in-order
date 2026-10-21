@@ -36,9 +36,9 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
   const result = checked ? scoreQuestion(q, picks) : undefined
 
   const vp = viewport.value
-  const { isHeld, hold: onManual } = useUrlCamera(cam, q.id)
+  const { isHeld, hold } = useUrlCamera(cam, q.id)
   const stage = useRef<HTMLDivElement>(null)
-  useCameraGestures(MAIN_RIG, stage, onManual)
+  useCameraGestures(MAIN_RIG, stage, hold)
   useEffect(() => { if (!isHeld) goTo(cameraFor(q), reducedMotion.value) }, [q.id, isHeld, vp.w, vp.h])
 
   const toggle = (id: string) => {
@@ -89,11 +89,11 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
 
   return (
     <div class="journey predict-mode">
-      <Breadcrumb crumbs={breadcrumbFor({ target: cameraFor(q) })} onGo={(t) => onManual(goTo(t, reducedMotion.value))} />
+      <Breadcrumb crumbs={breadcrumbFor({ target: cameraFor(q) })} onGo={(t) => hold(goTo(t, reducedMotion.value))} />
       <div class="stage" ref={stage}>
         <World entityStates={entityStates} activeEdges={new Set()} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} />
         <Labels entityStates={entityStates} marks={marks} regionMarks={regionMarks} onSelect={onSelect} onRegion={q.type === 'regions' ? toggle : undefined} verb={q.type === 'choice' ? 'No pick in this question' : 'Toggle pick'} />
-        <Minimap onManual={onManual} />
+        <Minimap onManual={hold} />
         <Legend />
       </div>
       <section class="panel quiz" aria-labelledby="quiz-title">
