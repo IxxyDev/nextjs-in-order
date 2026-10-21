@@ -25,15 +25,14 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
   useCameraGestures(MAIN_RIG, stage, onManual)
   const target: CameraTarget = entity ? { kind: 'entities', ids: [entity] } : { kind: 'world' }
   useEffect(() => { if (!isHeld) goTo(target, reducedMotion.value) }, [entity, isHeld, vp.w, vp.h])
-  /** Escape closes the inspector; with none open it returns the camera to the whole system */
+  /** Escape closes the inspector; with none open it releases the camera, and the framing effect above returns it to the whole system */
   const latest = useRef({ entity, onSelect })
   latest.current = { entity, onSelect }
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || (e.target as HTMLElement).closest?.(TEXT)) return
-      if (latest.current.entity) { latest.current.onSelect(undefined); return }
-      release()
-      goTo({ kind: 'world' }, reducedMotion.value)
+      if (latest.current.entity) latest.current.onSelect(undefined)
+      else release()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
