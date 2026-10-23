@@ -10,7 +10,7 @@ interface InternalsProps {
 
 /** Level 3 (§4): collapsed by default at every width (so also at 1024–1199px, §9), the open state holds for the session; renders nothing without internals or sources */
 export function Internals({ flagKey, internals, sources }: InternalsProps) {
-  const [isOpen = false, setOpen] = useSessionFlag(flagKey)
+  const [isOpen, setOpen] = useSessionFlag(flagKey, false)
   /** the summary toggles through state at once (the toggle event comes a task later, after a quick reload could already have run); onToggle catches any other opening */
   const onSummary = (e: Event) => { e.preventDefault(); setOpen(!isOpen) }
   const onToggle = (e: Event) => { const isDetailsOpen = (e.currentTarget as HTMLDetailsElement).open; if (isDetailsOpen !== isOpen) setOpen(isDetailsOpen) }
