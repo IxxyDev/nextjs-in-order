@@ -22,9 +22,6 @@ export function scoreQuestion(q: QuizQuestion, picks: string[]): QuizResult {
   return { correct: missed.length === 0 && extra.length === 0, hits, missed, extra }
 }
 
-/** the chip text of each mark; a candidate is only drawn, never named */
-export const MARK_CHIP: Partial<Record<PickMark, string>> = { picked: 'picked', correct: 'correct', missed: 'missed', extra: 'extra', answer: 'answer' }
-
 /** pick marks before Check, result marks after it; a choice option is marked like an entity or a region */
 export function markFor(id: string, isPicked: boolean, isChecked: boolean, answer: ReadonlySet<string>, isCandidate = false): PickMark | undefined {
   if (!isChecked) return isPicked ? 'picked' : isCandidate ? 'candidate' : undefined

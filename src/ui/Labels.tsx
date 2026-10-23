@@ -7,7 +7,6 @@ import { LABEL_DROP, glyphBox, intersects, placeLabels, type LabelCandidate, typ
 import { lensLit, mapHover } from './lensLink'
 import { isFirstClick } from './useCameraGestures'
 import { STATE_LABEL } from '../domain/stateLabel'
-import { MARK_CHIP } from '../domain/predict'
 import { isRingOn } from '../domain/worldState'
 
 /** below this zoom, only emphasized entities keep their label (emphasized ones always try for one) */
@@ -67,7 +66,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     if (state && state !== 'dimmed') chips.push(STATE_LABEL[state])
     if (e.badge && cam.zoom >= BADGE_ZOOM) chips.push(e.badge)
     if (differs?.has(e.id)) chips.push('differs')
-    if (mark && MARK_CHIP[mark]) chips.push(MARK_CHIP[mark]!)
+    if (mark && mark !== 'candidate') chips.push(mark)
     const p = worldToScreen({ x: e.x, y: e.y + LABEL_DROP }, cam, vp)
     candidates.push({ id: e.id, x: p.x, y: p.y, inline: dense, text: token?.at === e.id ? token.label : shortNameById(e.id), chips, state, isToken: token?.at === e.id, isSelected: selected === e.id || PRESSED.has(mark) })
   }
@@ -103,7 +102,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
         const p = { x: Math.max(at.x, INSET), y: at.y }
         if (onRegion) {
           const m = regionMarks?.[r.id]
-          return <button key={r.id} type="button" class={`region-label is-pickable ${m ? `mark-${m}` : ''}`} style={{ left: `${p.x}px`, top: `${p.y}px` }} aria-pressed={PRESSED.has(m)} aria-label={`${r.title}${m && MARK_CHIP[m] ? `, ${MARK_CHIP[m]}` : ''}. ${verb}`} onClick={(e) => { if (isFirstClick(e)) onRegion(r.id) }}>{r.title}</button>
+          return <button key={r.id} type="button" class={`region-label is-pickable ${m ? `mark-${m}` : ''}`} style={{ left: `${p.x}px`, top: `${p.y}px` }} aria-pressed={PRESSED.has(m)} aria-label={`${r.title}${m && m !== 'candidate' ? `, ${m}` : ''}. ${verb}`} onClick={(e) => { if (isFirstClick(e)) onRegion(r.id) }}>{r.title}</button>
         }
         if (p.x + w > vp.w - INSET || right < p.x + 40 || !clearOf(p.x, p.y, r.title)) return null
         return <div key={r.id} class="region-label" style={{ left: `${p.x}px`, top: `${p.y}px` }} aria-hidden="true">{r.title}</div>
@@ -125,7 +124,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
             data-entity={c.id}
             onMouseEnter={hover(c.id)} onMouseLeave={hover(undefined)} onFocus={hover(c.id)} onBlur={hover(undefined)}
             aria-pressed={selected === c.id || PRESSED.has(m)}
-            aria-label={`${e.name}${c.state && c.state !== 'dimmed' ? `, ${STATE_LABEL[c.state]}` : ''}${differs?.has(c.id) ? ', differs' : ''}${m && MARK_CHIP[m] ? `, ${MARK_CHIP[m]}` : ''}. ${verb}`}
+            aria-label={`${e.name}${c.state && c.state !== 'dimmed' ? `, ${STATE_LABEL[c.state]}` : ''}${differs?.has(c.id) ? ', differs' : ''}${m && m !== 'candidate' ? `, ${m}` : ''}. ${verb}`}
             onClick={() => onSelect(c.id)}
           >
             <span class="label-name">{c.text}</span>
@@ -134,7 +133,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
                 {c.state && c.state !== 'dimmed' && <span class={`chip chip-${c.state}`}>{STATE_LABEL[c.state]}</span>}
                 {e.badge && cam.zoom >= BADGE_ZOOM && <span class="chip chip-badge">{e.badge}</span>}
                 {differs?.has(c.id) && <span class="chip chip-differs">differs</span>}
-                {m && MARK_CHIP[m] && <span class={`chip chip-mark-${m}`}>{MARK_CHIP[m]}</span>}
+                {m && m !== 'candidate' && <span class={`chip chip-mark-${m}`}>{m}</span>}
               </span>
             )}
           </button>

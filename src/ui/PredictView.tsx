@@ -3,7 +3,7 @@ import type { Camera, CameraTarget, EntityState, PickMark, QuizQuestion, RegionI
 import { ENTITIES, entityById, shortNameById } from '../domain/entities'
 import { regionById } from '../domain/regions'
 import { entryBySlug } from '../domain/journeys'
-import { MARK_CHIP, answerIds, markFor, scoreQuestion } from '../domain/predict'
+import { answerIds, markFor, scoreQuestion } from '../domain/predict'
 import { formatRoute } from '../domain/route'
 import { progress, quizId } from '../domain/progress'
 import { breadcrumbFor } from '../domain/breadcrumb'
@@ -107,11 +107,11 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
             ? q.options.map((o, i) => {
               const id = String(i), mine = picked.has(id)
               const m = markFor(id, mine, checked, answer)
-              return <li key={o}><button aria-pressed={mine} onClick={() => toggle(id)}>{o}{m && checked && <span class={`chip chip-mark-${m}`}>{MARK_CHIP[m]}</span>}</button></li>
+              return <li key={o}><button aria-pressed={mine} onClick={() => toggle(id)}>{o}{m && checked && <span class={`chip chip-mark-${m}`}>{m}</span>}</button></li>
             })
             : listed.map((id) => {
               const m = listMark(id)
-              return <li key={id}><button aria-pressed={picked.has(id)} onClick={() => toggle(id)}>{name(id)}{m && MARK_CHIP[m] && <span class={`chip chip-mark-${m}`}>{MARK_CHIP[m]}</span>}</button></li>
+              return <li key={id}><button aria-pressed={picked.has(id)} onClick={() => toggle(id)}>{name(id)}{m && m !== 'candidate' && <span class={`chip chip-mark-${m}`}>{m}</span>}</button></li>
             })}
         </ul>
         <div class="quiz-actions">

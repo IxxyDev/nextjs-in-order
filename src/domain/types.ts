@@ -210,7 +210,7 @@ export interface CompareWorld {
   text: string
 }
 
-/** how an entity or region is marked on the map in predict mode */
+/** how an entity or region is marked on the map in predict mode; a chip names a mark by its own word, a candidate is only drawn */
 export type PickMark = 'candidate' | 'picked' | 'correct' | 'missed' | 'extra' | 'answer'
 
 interface QuizBase {
