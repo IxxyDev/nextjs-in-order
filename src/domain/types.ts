@@ -75,6 +75,8 @@ export interface Edge {
 
 export type EntityState =
   | 'current' | 'active' | 'kept' | 'replaced' | 'new' | 'invalid' | 'stale' | 'fresh' | 'dimmed' | 'na'
+/** a state with a word on its chip: every state but dimmed, the backdrop */
+export type ChipState = Exclude<EntityState, 'dimmed'>
 
 export interface TokenState {
   /** entity whose position the token takes */

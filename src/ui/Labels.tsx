@@ -64,7 +64,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     if (dense && !emphasized) continue
     if (hiddenGlyph && !emphasized) continue
     const chips: string[] = []
-    if (state && STATE_LABEL[state]) chips.push(STATE_LABEL[state])
+    if (state && state !== 'dimmed') chips.push(STATE_LABEL[state])
     if (e.badge && cam.zoom >= BADGE_ZOOM) chips.push(e.badge)
     if (differs?.has(e.id)) chips.push('differs')
     if (mark && MARK_CHIP[mark]) chips.push(MARK_CHIP[mark]!)
@@ -131,7 +131,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
             <span class="label-name">{c.text}</span>
             {c.chips.length > 0 && (
               <span class="label-row">
-                {c.state && STATE_LABEL[c.state] && <span class={`chip chip-${c.state}`}>{STATE_LABEL[c.state]}</span>}
+                {c.state && c.state !== 'dimmed' && <span class={`chip chip-${c.state}`}>{STATE_LABEL[c.state]}</span>}
                 {e.badge && cam.zoom >= BADGE_ZOOM && <span class="chip chip-badge">{e.badge}</span>}
                 {differs?.has(c.id) && <span class="chip chip-differs">differs</span>}
                 {m && MARK_CHIP[m] && <span class={`chip chip-mark-${m}`}>{MARK_CHIP[m]}</span>}

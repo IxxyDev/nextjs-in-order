@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks'
 import type { ComponentChildren, RefObject } from 'preact'
-import type { Journey, WorldState, EntityState, MisconceptionCheck, PredictQuestion } from '../domain/types'
+import type { Journey, WorldState, ChipState, MisconceptionCheck, PredictQuestion } from '../domain/types'
 import { shortNameById } from '../domain/entities'
 import { checkId, journeyId, progress } from '../domain/progress'
 import { STATE_LABEL } from '../domain/stateLabel'
@@ -8,7 +8,7 @@ import { STEP_INTERNALS_KEY } from '../domain/sessionFlags'
 import { Internals } from './Internals'
 
 /** the changed / kept list (§3.1) */
-const GROUPED: EntityState[] = ['new', 'replaced', 'kept', 'invalid', 'stale']
+const GROUPED: ChipState[] = ['new', 'replaced', 'kept', 'invalid', 'stale']
 
 /** header and expanded: the tablet bottom sheet's handle row and state (on phones, the room toggle of an open code lens); lens: the code lens, on journeys that have one */
 export function StepPanel({ journey, world, showText, header, expanded, lens, panelRef }: { journey: Journey; world: WorldState; showText: boolean; header?: ComponentChildren; expanded?: boolean; lens?: ComponentChildren; panelRef?: RefObject<HTMLElement> }) {

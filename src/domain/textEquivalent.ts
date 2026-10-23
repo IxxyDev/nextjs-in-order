@@ -1,9 +1,9 @@
-import type { EntityState, Journey, WorldState } from './types'
+import type { ChipState, Journey, WorldState } from './types'
 import { shortNameById } from './entities'
 import { edgeById } from './edges'
 import { STATE_LABEL } from './stateLabel'
 
-const ORDER: EntityState[] = ['current', 'active', 'new', 'replaced', 'kept', 'invalid', 'stale', 'fresh', 'na']
+const ORDER: ChipState[] = ['current', 'active', 'new', 'replaced', 'kept', 'invalid', 'stale', 'fresh', 'na']
 
 export function describeState(world: Omit<WorldState, 'text'>, journey: Journey): string {
   return [`Step ${world.stepIndex + 1} of ${journey.steps.length}: ${world.step.title}.`, describeScene(world, world.step.story)].join(' ')

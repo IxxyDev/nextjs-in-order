@@ -1,4 +1,4 @@
-import type { EntityState, GlyphKind } from '../domain/types'
+import type { ChipState, GlyphKind } from '../domain/types'
 import { GLYPH_NAME } from '../domain/glyphName'
 import { STATE_LABEL } from '../domain/stateLabel'
 import { FATES } from '../domain/codeLens/specimen/fates'
@@ -6,8 +6,7 @@ import { LEGEND } from './camera'
 import { Glyph } from './Glyph'
 
 const KINDS = Object.keys(GLYPH_NAME) as GlyphKind[]
-/** dimmed is the backdrop and has no chip */
-const STATES = (Object.keys(STATE_LABEL) as EntityState[]).filter((s) => STATE_LABEL[s])
+const STATES = Object.keys(STATE_LABEL) as ChipState[]
 
 /** the canvas vocabulary, read from the tables the canvas draws with: glyph shapes, code-lens fate marks, state chips; collapsed at every width */
 export function Legend() {
