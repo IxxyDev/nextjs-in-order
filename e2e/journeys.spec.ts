@@ -54,3 +54,12 @@ for (const { slug, steps } of JOURNEYS) {
     errors.assertClean()
   })
 }
+
+test('a predict step answered on an earlier visit shows What should click at once', async ({ page }) => {
+  await page.goto('/#/journey/app-initial/7')
+  await page.locator('.predict').getByRole('button').first().click()
+  await page.reload()
+  await expect(eyebrow(page)).toContainText('step 7 of 22')
+
+  await expect(page.getByLabel('What should click')).toBeVisible()
+})
