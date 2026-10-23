@@ -39,7 +39,7 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
 interface PredictProps {
   progressId: string
   question: PredictQuestion
-  /** What should click: it spells out the answer, so it waits for a pick */
+  /** What should click: it spells out the answer, so it waits for a pick, on this visit or an earlier one */
   takeaway: ComponentChildren
 }
 
@@ -56,7 +56,7 @@ function Predict({ progressId, question, takeaway }: PredictProps) {
         ))}</ul>
         {isPicked && <p class="why">{picked === question.answer ? 'Right. ' : 'Not quite. '}{question.why}</p>}
       </div>
-      {isPicked && takeaway}
+      {(isPicked || progress.get(progressId)) && takeaway}
     </>
   )
 }
