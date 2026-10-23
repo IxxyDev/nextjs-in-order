@@ -23,8 +23,14 @@ export function scoreQuestion(q: QuizQuestion, picks: string[]): QuizResult {
 }
 
 /** pick marks before Check, result marks after it; a choice option is marked like an entity or a region */
-export function markFor(id: string, isPicked: boolean, isChecked: boolean, answer: ReadonlySet<string>, isCandidate = false): PickMark | undefined {
+export function markFor(id: string, answer: ReadonlySet<string>, { isPicked, isChecked, isCandidate = false }: MarkOptions): PickMark | undefined {
   if (!isChecked) return isPicked ? 'picked' : isCandidate ? 'candidate' : undefined
   if (answer.has(id)) return isPicked ? 'correct' : 'missed'
   return isPicked ? 'extra' : undefined
+}
+
+interface MarkOptions {
+  isPicked: boolean
+  isChecked: boolean
+  isCandidate?: boolean
 }

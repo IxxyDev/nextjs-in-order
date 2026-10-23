@@ -65,14 +65,14 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
   const regionMarks: Partial<Record<RegionId, PickMark>> = {}
   if (q.type === 'entities') {
     for (const e of ENTITIES) {
-      const m = markFor(e.id, picked.has(e.id), checked, answer, candidates.includes(e.id))
+      const m = markFor(e.id, answer, { isPicked: picked.has(e.id), isChecked: checked, isCandidate: candidates.includes(e.id) })
       if (m) marks[e.id] = m
       else entityStates[e.id] = 'dimmed'
     }
   } else if (q.type === 'regions') {
     for (const e of ENTITIES) entityStates[e.id] = 'dimmed'
     for (const id of new Set([...candidates, ...picks]) as Set<RegionId>) {
-      const m = markFor(id, picked.has(id), checked, answer)
+      const m = markFor(id, answer, { isPicked: picked.has(id), isChecked: checked })
       if (m) regionMarks[id] = m
     }
   } else if (checked) {
@@ -106,7 +106,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
           {q.type === 'choice'
             ? q.options.map((o, i) => {
               const id = String(i), mine = picked.has(id)
-              const m = markFor(id, mine, checked, answer)
+              const m = markFor(id, answer, { isPicked: mine, isChecked: checked })
               return <li key={o}><button aria-pressed={mine} onClick={() => toggle(id)}>{o}{m && checked && <span class={`chip chip-mark-${m}`}>{m}</span>}</button></li>
             })
             : listed.map((id) => {

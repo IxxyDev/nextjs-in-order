@@ -43,21 +43,21 @@ describe('markFor', () => {
   const answer = new Set(['browser-chunks', 'client-reference-manifest'])
 
   it('marks a pick before Check', () => {
-    expect(markFor('server-chunks', true, false, answer)).toBe('picked')
+    expect(markFor('server-chunks', answer, { isPicked: true, isChecked: false })).toBe('picked')
   })
   it('marks an unpicked candidate before Check', () => {
-    expect(markFor('server-chunks', false, false, answer, true)).toBe('candidate')
+    expect(markFor('server-chunks', answer, { isPicked: false, isChecked: false, isCandidate: true })).toBe('candidate')
   })
   it('marks a picked answer correct after Check', () => {
-    expect(markFor('browser-chunks', true, true, answer)).toBe('correct')
+    expect(markFor('browser-chunks', answer, { isPicked: true, isChecked: true })).toBe('correct')
   })
   it('marks an unpicked answer missed after Check', () => {
-    expect(markFor('client-reference-manifest', false, true, answer)).toBe('missed')
+    expect(markFor('client-reference-manifest', answer, { isPicked: false, isChecked: true })).toBe('missed')
   })
   it('marks a pick outside the answer extra after Check', () => {
-    expect(markFor('server-chunks', true, true, answer)).toBe('extra')
+    expect(markFor('server-chunks', answer, { isPicked: true, isChecked: true })).toBe('extra')
   })
   it('leaves an unpicked non-answer unmarked after Check', () => {
-    expect(markFor('server-chunks', false, true, answer, true)).toBeUndefined()
+    expect(markFor('server-chunks', answer, { isPicked: false, isChecked: true, isCandidate: true })).toBeUndefined()
   })
 })
