@@ -27,7 +27,7 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
         <dl>{groups.map((g) => <><dt key={`t-${g.state}`}>{STATE_LABEL[g.state]}</dt><dd key={`d-${g.state}`}>{g.ids.map(shortNameById).join(', ')}</dd></>)}</dl>
       )}
       {lens}
-      {step.question && <Predict key={step.id} progressId={journeyId(journey.slug, step.id)} question={step.question} whatShouldClick={whatShouldClick} />}
+      {step.question && <StepQuestion key={step.id} progressId={journeyId(journey.slug, step.id)} question={step.question} whatShouldClick={whatShouldClick} />}
       {!step.checks && !step.question && whatShouldClick}
       <Internals flagKey={STEP_INTERNALS_KEY} internals={step.internals} sources={step.sources} />
       {showText && <p class="text-equivalent">{world.text}</p>}
@@ -36,14 +36,14 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
   )
 }
 
-interface PredictProps {
+interface StepQuestionProps {
   progressId: string
   question: PredictQuestion
   /** What should click: it spells out the answer, so it waits for a pick, on this visit or an earlier one */
   whatShouldClick: ComponentChildren
 }
 
-function Predict({ progressId, question, whatShouldClick }: PredictProps) {
+function StepQuestion({ progressId, question, whatShouldClick }: StepQuestionProps) {
   const [picked, setPicked] = useState<number>()
   const pick = (i: number) => { setPicked(i); progress.record(progressId, i === question.answer) }
   const isPicked = picked !== undefined
