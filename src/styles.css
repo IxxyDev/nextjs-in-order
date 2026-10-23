@@ -150,8 +150,8 @@ a { color: var(--accent); }
 .panel dt { color: var(--hi); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; padding-top: 2px; }
 .panel dd { margin: 0; color: var(--fg); }
 /* the inspector's Internals is the same disclosure as the step panel's */
-.panel details, .inspector details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 10px; }
-.panel summary, .inspector summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); }
+.internals { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 10px; }
+.internals summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hi); }
 .panel ul { padding-left: 18px; color: var(--hi); font-size: 14px; }
 .panel ul.plain { list-style: none; padding: 0; margin: 8px 0; }
 .panel ul.plain li { margin: 6px 0; }

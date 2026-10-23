@@ -16,7 +16,7 @@ export function Internals({ flagKey, internals, sources }: InternalsProps) {
   const onToggle = (e: Event) => { const isDetailsOpen = (e.currentTarget as HTMLDetailsElement).open; if (isDetailsOpen !== isOpen) setOpen(isDetailsOpen) }
   if (!internals?.length && !sources?.length) return null
   return (
-    <details open={isOpen} onToggle={onToggle}>
+    <details class="internals" open={isOpen} onToggle={onToggle}>
       <summary onClick={onSummary}>Internals</summary>
       {internals && <ul>{internals.map((l) => <li key={l}><code>{l}</code></li>)}</ul>}
       {sources && <ul>{sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.label}</a></li>)}</ul>}
