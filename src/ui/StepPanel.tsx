@@ -13,7 +13,7 @@ const GROUPED: ChipState[] = ['new', 'replaced', 'kept', 'invalid', 'stale']
 /** header and expanded: the tablet bottom sheet's handle row and state (on phones, the room toggle of an open code lens); lens: the code lens, on journeys that have one */
 export function StepPanel({ journey, world, showText, header, expanded, lens, panelRef }: { journey: Journey; world: WorldState; showText: boolean; header?: ComponentChildren; expanded?: boolean; lens?: ComponentChildren; panelRef?: RefObject<HTMLElement> }) {
   const { step } = world
-  const click = <div class="click" aria-label="What should click">{journey.whatShouldClick}</div>
+  const whatShouldClick = <div class="click" aria-label="What should click">{journey.whatShouldClick}</div>
   const groups = GROUPED.map((state) => ({ state, ids: Object.entries(world.entityStates).filter(([, s]) => s === state).map(([id]) => id) })).filter((g) => g.ids.length)
   return (
     <section class={`panel ${expanded ? 'is-expanded' : ''}`} aria-labelledby="step-title" ref={panelRef}>
@@ -22,13 +22,13 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
       <h2 id="step-title">{step.title}</h2>
       {world.token && <div class="following">Following: {world.token.label}</div>}
       <p class="story">{step.story}</p>
-      {step.checks && <><Checks key={step.id} stepId={step.id} checks={step.checks} />{click}</>}
+      {step.checks && <><Checks key={step.id} stepId={step.id} checks={step.checks} />{whatShouldClick}</>}
       {groups.length > 0 && (
         <dl>{groups.map((g) => <><dt key={`t-${g.state}`}>{STATE_LABEL[g.state]}</dt><dd key={`d-${g.state}`}>{g.ids.map(shortNameById).join(', ')}</dd></>)}</dl>
       )}
       {lens}
-      {step.question && <Predict key={step.id} progressId={journeyId(journey.slug, step.id)} question={step.question} takeaway={click} />}
-      {!step.checks && !step.question && click}
+      {step.question && <Predict key={step.id} progressId={journeyId(journey.slug, step.id)} question={step.question} whatShouldClick={whatShouldClick} />}
+      {!step.checks && !step.question && whatShouldClick}
       <Internals flagKey={STEP_INTERNALS_KEY} internals={step.internals} sources={step.sources} />
       {showText && <p class="text-equivalent">{world.text}</p>}
       <p class="visually-hidden" aria-live="polite">{world.text}</p>
@@ -40,10 +40,10 @@ interface PredictProps {
   progressId: string
   question: PredictQuestion
   /** What should click: it spells out the answer, so it waits for a pick, on this visit or an earlier one */
-  takeaway: ComponentChildren
+  whatShouldClick: ComponentChildren
 }
 
-function Predict({ progressId, question, takeaway }: PredictProps) {
+function Predict({ progressId, question, whatShouldClick }: PredictProps) {
   const [picked, setPicked] = useState<number>()
   const pick = (i: number) => { setPicked(i); progress.record(progressId, i === question.answer) }
   const isPicked = picked !== undefined
@@ -56,7 +56,7 @@ function Predict({ progressId, question, takeaway }: PredictProps) {
         ))}</ul>
         {isPicked && <p class="why">{picked === question.answer ? 'Right. ' : 'Not quite. '}{question.why}</p>}
       </div>
-      {(isPicked || progress.get(progressId)) && takeaway}
+      {(isPicked || progress.get(progressId)) && whatShouldClick}
     </>
   )
 }
@@ -66,7 +66,7 @@ interface ChecksProps {
   checks: MisconceptionCheck[]
 }
 
-/** a check step shows these and the takeaway right after the story, before the code lens: j0-10's lens is open (code-lens.md rule 7) and would push them a screen down */
+/** a check step shows these and What should click right after the story, before the code lens: j0-10's lens is open (code-lens.md rule 7) and would push them a screen down */
 function Checks({ stepId, checks }: ChecksProps) {
   const [answers, setAnswers] = useState<Record<number, boolean>>({})
   const answer = (i: number, value: boolean) => { setAnswers({ ...answers, [i]: value }); progress.record(checkId(stepId, i), value === checks[i].isTrue) }
