@@ -1,7 +1,7 @@
 import type { SourceLink } from '../domain/types'
 import { useSessionFlag } from './useSessionFlag'
 
-interface Props {
+interface InternalsProps {
   /** the session flag that keeps this disclosure open or closed across reloads */
   flagKey: string
   internals?: string[]
@@ -9,7 +9,7 @@ interface Props {
 }
 
 /** Level 3 (§4): collapsed by default at every width (so also at 1024–1199px, §9), the open state holds for the session; renders nothing without internals or sources */
-export function Internals({ flagKey, internals, sources }: Props) {
+export function Internals({ flagKey, internals, sources }: InternalsProps) {
   const [isOpen = false, setOpen] = useSessionFlag(flagKey)
   /** the summary toggles through state at once (the toggle event comes a task later, after a quick reload could already have run); onToggle catches any other opening */
   const onSummary = (e: Event) => { e.preventDefault(); setOpen(!isOpen) }

@@ -102,8 +102,15 @@ function journeyMeta(slug: string): string | undefined {
   return `${steps} · ${answered === total && correct === total ? '✓' : `${answered}/${total}`}`
 }
 
+interface LoadStatusProps {
+  isFailed: boolean
+  retry: () => void
+  what: string
+  message: string
+}
+
 /** the loading message, or once the chunk fails the failure with Retry; the catalogs retry a failed load on the next call */
-function LoadStatus({ isFailed, retry, what, message }: { isFailed: boolean; retry: () => void; what: string; message: string }) {
+function LoadStatus({ isFailed, retry, what, message }: LoadStatusProps) {
   if (isFailed) return <div class="loading" role="alert"><p>Couldn't load {what}.</p><button onClick={retry}>Retry</button></div>
   return <p class="loading" role="status">{message}</p>
 }

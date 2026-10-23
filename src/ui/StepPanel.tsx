@@ -85,8 +85,12 @@ function Checks({ stepId, checks }: ChecksProps) {
   )
 }
 
+interface EarlierProps {
+  progressId: string
+}
+
 /** the answer kept from an earlier visit, shown until this visit answers */
-function Earlier({ progressId }: { progressId: string }) {
+function Earlier({ progressId }: EarlierProps) {
   const a = progress.get(progressId)
   return a ? <span class={a.correct ? 'ok' : 'bad'}> answered {a.correct ? '✓' : '✗'} earlier</span> : null
 }
