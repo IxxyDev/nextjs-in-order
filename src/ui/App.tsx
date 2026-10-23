@@ -22,7 +22,7 @@ export function App() {
   const [wantAll, setWantAll] = useState(false)
   const allJourneys = useLazy(wantAll ? lazyAllJourneys : undefined)
   /** a failed chunk here only leaves some progress meta blank; the menu retries on its next open */
-  const openJourneys = () => { setWantAll(true); if (allJourneys.isFailed) allJourneys.retry() }
+  const openJourneys = () => { setWantAll(true); if (allJourneys.isFailed) allJourneys.load() }
   const Page = pageMap[route.mode] as FunctionComponent<PageProps<Route['mode']>>
   return (
     <div class="app">
@@ -42,29 +42,26 @@ export function App() {
 }
 
 function JourneyPage({ route, go }: PageProps<'journey'>) {
-  const load = useLazy(lazyJourney(route.slug) ?? lazyJourney(DEFAULT_JOURNEY))
-  const journey = load.value
+  const { value: journey, isFailed, load } = useLazy(lazyJourney(route.slug) ?? lazyJourney(DEFAULT_JOURNEY))
   const step = journey ? clampIndex(route.step, journey.steps.length) : 0
   useCanonicalRoute(route, journey && { ...route, slug: journey.slug, step }, go)
-  if (!journey) return <LoadStatus isFailed={load.isFailed} retry={load.retry} what="this journey" message="Loading journey…" />
+  if (!journey) return <LoadStatus isFailed={isFailed} retry={load} what="this journey" message="Loading journey…" />
   return <JourneyView journey={journey} step={step} cam={route.cam} onStep={(n) => go({ mode: 'journey', slug: journey.slug, step: clampIndex(n, journey.steps.length) })} />
 }
 
 function ComparePage({ route, go }: PageProps<'compare'>) {
-  const load = useLazy(lazyCompare(route.slug) ?? lazyCompare(DEFAULT_COMPARE))
-  const pair = load.value
+  const { value: pair, isFailed, load } = useLazy(lazyCompare(route.slug) ?? lazyCompare(DEFAULT_COMPARE))
   const step = pair ? clampIndex(route.step, pair.steps.length) : 0
   useCanonicalRoute(route, pair && { ...route, slug: pair.slug, step }, go)
-  if (!pair) return <LoadStatus isFailed={load.isFailed} retry={load.retry} what="this comparison" message="Loading comparison…" />
+  if (!pair) return <LoadStatus isFailed={isFailed} retry={load} what="this comparison" message="Loading comparison…" />
   return <CompareView key={pair.slug} pair={pair} step={step} onStep={(n) => go({ mode: 'compare', slug: pair.slug, step: clampIndex(n, pair.steps.length) })} />
 }
 
 function PredictPage({ route, go }: PageProps<'predict'>) {
-  const load = useLazy(lazyQuiz)
-  const quiz = load.value
+  const { value: quiz, isFailed, load } = useLazy(lazyQuiz)
   const n = quiz ? clampIndex(route.n, quiz.length) : 0
   useCanonicalRoute(route, quiz && { ...route, n }, go)
-  if (!quiz) return <LoadStatus isFailed={load.isFailed} retry={load.retry} what="the questions" message="Loading questions…" />
+  if (!quiz) return <LoadStatus isFailed={isFailed} retry={load} what="the questions" message="Loading questions…" />
   return <PredictView key={quiz[n].id} quiz={quiz} n={n} cam={route.cam} onGo={(next) => go({ mode: 'predict', n: clampIndex(next, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} />
 }
 

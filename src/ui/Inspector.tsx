@@ -11,7 +11,7 @@ import { useLazy } from './useLazy'
 export function Inspector({ id, onClose }: { id: string; onClose: () => void }) {
   const e = entityById(id)
   /** journeys already loaded are used at once; otherwise the catalog loads each chunk once and keeps it */
-  const { value: journeys, isFailed, retry } = useLazy(lazyAllJourneys)
+  const { value: journeys, isFailed, load } = useLazy(lazyAllJourneys)
   const appearances = journeys ? appearancesOf(journeys, id) : []
   return (
     <aside class="inspector" aria-label={`Inspector: ${e.name}`}>
@@ -28,7 +28,7 @@ export function Inspector({ id, onClose }: { id: string; onClose: () => void }) 
         {e.history && <><dt>History</dt><dd><ol class="history">{e.history.map((h) => <li key={h.version}><strong>{h.version}</strong> {h.text}</li>)}</ol></dd></>}
         <dt>Crosses to the browser</dt><dd>{e.reaches === 'no' ? 'no' : e.reaches === 'code' ? 'yes, as code' : `yes, as ${e.reaches}`}</dd>
         <dt>Appears in</dt>
-        <dd>{isFailed ? <span role="alert">Couldn't load the journeys. <button onClick={retry}>Retry</button></span> : !journeys ? '…' : appearances.length ? appearances.map(({ journey: j, step: i }) => <a key={`${j.id}-${i}`} href={formatRoute({ mode: 'journey', slug: j.slug, step: i })}>{j.title} · step {i + 1}</a>).reduce<ComponentChildren[]>((acc, el, k) => (k ? [...acc, ', ', el] : [el]), []) : '—'}</dd>
+        <dd>{isFailed ? <span role="alert">Couldn't load the journeys. <button onClick={load}>Retry</button></span> : !journeys ? '…' : appearances.length ? appearances.map(({ journey: j, step: i }) => <a key={`${j.id}-${i}`} href={formatRoute({ mode: 'journey', slug: j.slug, step: i })}>{j.title} · step {i + 1}</a>).reduce<ComponentChildren[]>((acc, el, k) => (k ? [...acc, ', ', el] : [el]), []) : '—'}</dd>
       </dl>
       {e.versionNote && (
         <div class="version-note">
