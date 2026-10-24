@@ -62,7 +62,7 @@ function PredictPage({ route, go }: PageProps<'predict'>) {
   const n = quiz ? clampIndex(route.n, quiz.length) : 0
   useCanonicalRoute(route, quiz && { ...route, n }, go)
   if (!quiz) return <LoadStatus isFailed={isFailed} retry={load} what="the questions" message="Loading questions…" />
-  return <PredictView key={quiz[n].id} quiz={quiz} n={n} cam={route.cam} onGo={(next) => go({ mode: 'predict', n: clampIndex(next, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} />
+  return <PredictView quiz={quiz} n={n} cam={route.cam} onGo={(next) => go({ mode: 'predict', n: clampIndex(next, quiz.length) })} onAnswered={(id, correct) => progress.record(quizId(id), correct)} />
 }
 
 function AtlasPage({ route, go }: PageProps<'atlas'>) {

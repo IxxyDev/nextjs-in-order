@@ -32,7 +32,10 @@ function cameraFor(q: QuizQuestion): CameraTarget {
 
 export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQuestion[]; n: number; cam?: Camera; onGo: (n: number) => void; onAnswered: (questionId: string, correct: boolean) => void }) {
   const q = quiz[n]
-  const [{ picks, checked }, set] = useState({ picks: [] as string[], checked: false })
+  /** picks belong to the question they were made on, so Prev or Next shows the other with none; the view stays mounted, and an open legend with it */
+  const [attempt, setAttempt] = useState({ questionId: q.id, picks: [] as string[], checked: false })
+  const { picks, checked } = attempt.questionId === q.id ? attempt : { picks: [] as string[], checked: false }
+  const set = (next: { picks: string[]; checked: boolean }) => setAttempt({ questionId: q.id, ...next })
   const result = checked ? scoreQuestion(q, picks) : undefined
 
   const vp = viewport.value
