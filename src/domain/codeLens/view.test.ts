@@ -7,13 +7,21 @@ import { beforePanes, chipRows, entitiesForRow, isFold, rowsForEntities, stripLi
 const LENS: CodeLens = { journey: 'j0', steps: STEPS }
 const step = (id: string) => LENS.steps.find((s) => s.step === id)!
 const at = (id: string) => LENS.steps.findIndex((s) => s.step === id)
-const line = (s: LensStep, p: number, r: number) => s.panes[p].rows[r] as CodeLine
 
 describe('lens links', () => {
-  it('lights every entity linked to the row\'s hue, plus links narrowed to its source lines', () => {
-    const s = step('j0-3')
-    expect(entitiesForRow(s, line(s, 0, 0))).toEqual(['swc', 'src-dashboard-nav'])
-    expect(entitiesForRow(s, line(s, 0, 3))).toEqual(['swc'])
+  const nav: LensStep = {
+    step: 'j0-3', mode: 'open', form: 'js', panes: [], motion: [],
+    links: [
+      { fate: 'client-boundary', entities: ['swc'] },
+      { fate: 'client-boundary', entities: ['src-dashboard-nav'], from: ['DN1'] }
+    ]
+  }
+
+  it('lights every entity linked to the row\'s hue, a link narrowed to the row\'s source line included', () => {
+    expect(entitiesForRow(nav, { text: '/* __next_internal_client_entry_do_not_use__ default auto */', from: ['DN1'], fate: 'client-boundary' })).toEqual(['swc', 'src-dashboard-nav'])
+  })
+  it('leaves out a link narrowed to other source lines', () => {
+    expect(entitiesForRow(nav, { text: 'export default function DashboardNav() {', from: ['DN5'], fate: 'client-boundary' })).toEqual(['swc'])
   })
   it('lights through the timing mark when the row has one', () => {
     const s: LensStep = {
@@ -30,11 +38,14 @@ describe('lens links', () => {
     expect(entitiesForRow(s, { text: '…["$","$1",null,{"children":"$L2"}]…', from: ['BP7', 'BP8'], fate: 'server-only', mark: 'suspended' })).toEqual(['rsc-runtime-entity', 'suspense-hole'])
     expect(entitiesForRow(s, { text: 'DashboardLayout {children} → LayoutRouter', from: ['DL6'], fate: 'server-only' })).toEqual(['layout-router'])
   })
-  it('lights nothing from folds, fateless lines or a step with no links', () => {
-    const s = step('j0-3')
-    expect(entitiesForRow(s, s.panes[0].rows[2])).toEqual([])
-    expect(entitiesForRow(step('j0-10'), { text: 'GET /dashboard/billing?_rsc=qR7vX2mK9pLw3sTb · RSC: 1' })).toEqual([])
-    expect(entitiesForRow(step('j0-6'), { text: 'x', fate: 'split' })).toEqual([])
+  it('lights nothing from a fold', () => {
+    expect(entitiesForRow(nav, { fold: 3, label: '3 import lines, unchanged', from: ['DN2', 'DN3', 'DN4'] })).toEqual([])
+  })
+  it('lights nothing from a fateless line', () => {
+    expect(entitiesForRow(nav, { text: 'GET /dashboard/billing?_rsc=qR7vX2mK9pLw3sTb · RSC: 1' })).toEqual([])
+  })
+  it('lights nothing on a step with no links', () => {
+    expect(entitiesForRow({ ...nav, links: [] }, { text: 'export default function DashboardNav() {', from: ['DN5'], fate: 'client-boundary' })).toEqual([])
   })
   it('maps an entity back to the rows that link to it', () => {
     const s = step('j0-4')
@@ -59,10 +70,21 @@ describe('lens chips', () => {
 })
 
 describe('lens strip', () => {
-  it('uses the step ledger when it has one, else pane titles and fate counts', () => {
-    expect(stripLines(step('j0-5'), FATES)).toHaveLength(5)
-    expect(stripLines(step('j0-3'), FATES)).toEqual(['DashboardNav.js · ⚡ client boundary 1 · ⚡ split 5'])
-    expect(stripLines(step('j0-4'), FATES)[0]).toMatch(/^server · rsc layer \| static\/chunks\/app\/dashboard\/layout-3c4d\.js · /)
+  it('uses the step ledger when it has one', () => {
+    const s: LensStep = { step: 'j0-5', mode: 'peek', form: 'manifest', summary: ['client-reference-manifest.json · 1 entry'], panes: [], links: [], motion: [] }
+
+    expect(stripLines(s, FATES)).toEqual(['client-reference-manifest.json · 1 entry'])
+  })
+  it('counts the lines of each fate after the pane titles, without a ledger', () => {
+    const s: LensStep = {
+      step: 'j0-4', mode: 'peek', form: 'js-reference', links: [], motion: [],
+      panes: [
+        { title: 'server · rsc layer', abridged: true, rows: [{ text: 'export default registerClientReference(', fate: 'client-boundary' }] },
+        { title: 'static/chunks/app/dashboard/layout-3c4d.js', abridged: true, rows: [{ text: 'useState(false)', fate: 'split' }, { text: '}' }, { text: '_jsx("button", …)', fate: 'split' }] }
+      ]
+    }
+
+    expect(stripLines(s, FATES)).toEqual(['server · rsc layer | static/chunks/app/dashboard/layout-3c4d.js · ⚡ client boundary 1 · ⚡ split 2'])
   })
 })
 
