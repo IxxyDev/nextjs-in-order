@@ -94,7 +94,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
   )
 
   return (
-    <div class={`journey ${isTablet ? 'has-sheet' : ''} ${lensed ? 'has-lens' : ''} ${roomy ? 'is-roomy' : ''}`} style={`--sheet-peek: ${PEEK}`} ref={root}>
+    <div class={`journey ${isTablet ? 'has-sheet' : ''} ${lensed ? 'has-lens' : ''} ${roomy ? 'is-roomy' : ''}`} style={{ '--sheet-peek': String(PEEK) }} ref={root}>
       <Breadcrumb crumbs={crumbs} onGo={(t) => onManual(goTo(t, reducedMotion.value))} />
       <div class="stage" ref={stage}>
         <World entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={select} />

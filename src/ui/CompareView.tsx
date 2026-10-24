@@ -41,7 +41,7 @@ function Ruler({ lanes, times }: { lanes: CompareLane[]; times: number[] }) {
   return (
     <div class="ruler" role="img" aria-label={ahead ? `${ahead.short} is ahead` : 'Lanes in step'}>
       <div class="ruler-track" aria-hidden="true">
-        {times.map((t, i) => <span key={lanes[i].short} class={`ruler-mark mark-${i}`} style={`--at: ${t}`}>{lanes[i].short}</span>)}
+        {times.map((t, i) => <span key={lanes[i].short} class={`ruler-mark mark-${i}`} style={{ '--at': String(t) }}>{lanes[i].short}</span>)}
       </div>
       <div class="ruler-note" aria-hidden="true">{ahead ? `${ahead.short} ahead` : 'in step'}</div>
     </div>
