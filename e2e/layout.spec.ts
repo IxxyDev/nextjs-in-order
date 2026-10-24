@@ -278,6 +278,15 @@ test('legend: the canvas disclosure opens from the keyboard and names every glyp
   errors.assertClean()
 })
 
+test('legend: an open legend stays open across Next question in predict', async ({ page }) => {
+  await page.goto('/#/predict/1')
+  await page.locator('.legend summary').click()
+  await page.getByRole('button', { name: 'Next question' }).click()
+  await expect(page.locator('.quiz-counter')).toContainText(/^2 \//)
+
+  await expect(page.locator('.legend')).toHaveAttribute('open')
+})
+
 test('compare: the last lane title leaves the legend its corner rather than running under it', async ({ page }) => {
   await page.goto('/#/compare/client-navigation/3')
   await settle(page)
