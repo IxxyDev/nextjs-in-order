@@ -13,7 +13,7 @@ import { phone, reducedMotion } from './layout'
 import { useStepControls } from './useStepControls'
 import { useCameraGestures } from './useCameraGestures'
 
-/** the room between the last lane's title and the legend, in px */
+/** the room between the title of the lane under the legend and the legend, in px */
 const LANE_TITLE_GAP = 8
 /** ruler times closer than this count as in step */
 const TIE = 0.02
@@ -26,7 +26,7 @@ function Lane({ meta, world, rig, framing, hasLegend, selected, onSelect }: { me
   useEffect(() => { rig.hasLegend.value = hasLegend }, [hasLegend])
   useEffect(() => { goTo(framing === 'follow' ? world.cameraTarget : { kind: 'world' }, reducedMotion.value, rig) }, [world, framing, vp.w, vp.h, hasLegend])
   return (
-    <section class="lane" ref={stage} aria-label={meta.title}>
+    <section class={`lane ${hasLegend ? 'has-legend' : ''}`} ref={stage} aria-label={meta.title}>
       <World rig={rig} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
       <Labels rig={rig} differs={world.differs} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
       <div class="lane-title">{meta.title}</div>

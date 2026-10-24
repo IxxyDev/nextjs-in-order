@@ -341,8 +341,8 @@ a { color: var(--accent); }
 .lane { position: relative; min-width: 0; min-height: 0; height: 100%; }
 .lane-title { position: absolute; top: 8px; left: 8px; max-width: calc(100% - 16px); z-index: 2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: var(--bg); border: 1px solid var(--line); padding: 4px 8px; font: 500 11px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg); pointer-events: none; }
 .lane-title::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--accent); }
-/* the last lane shares its top edge with the legend; CompareView sets --legend-room from LEGEND */
-.lane:last-child .lane-title { max-width: calc(100% - 16px - var(--legend-room)); }
+/* the lane under the legend shares its top edge with it; CompareView sets --legend-room from LEGEND */
+.lane.has-legend .lane-title { max-width: calc(100% - 16px - var(--legend-room)); }
 .lane:not(:first-child) .lane-title::before { background: var(--ok); }
 .lanes-3 .lane:last-child .lane-title::before { background: var(--warn); }
 .ruler { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 40px 0 16px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); background: var(--surface); }
