@@ -35,6 +35,11 @@ export function regionById(id: RegionId): Region {
   return r
 }
 
+/** the name a region goes by in the breadcrumb and the atlas filter: its title before ' · ' */
+export function shortTitleById(id: RegionId): string {
+  return regionById(id).title.split(' · ')[0]
+}
+
 /** room the custom-server ring leaves around the regions it frames */
 const RING_MARGIN = 6
 

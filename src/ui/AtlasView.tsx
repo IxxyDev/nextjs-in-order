@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { Camera, CameraTarget, EntityState } from '../domain/types'
 import { ENTITIES, entityById } from '../domain/entities'
-import { REGIONS } from '../domain/regions'
+import { REGIONS, shortTitleById } from '../domain/regions'
 import { ENVS, PHASES, REACHES, isFiltering, matchesFilter, type AtlasFilter } from '../domain/atlasFilter'
 import { breadcrumbFor } from '../domain/breadcrumb'
 import { World } from './World'
@@ -47,7 +47,7 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
       <div class="atlas-filters">
         <label>Phase <select value={filter.phase ?? ''} onChange={set('phase')}><option value="">all</option>{PHASES.map((p) => <option key={p} value={p}>{p}</option>)}</select></label>
         <label>Environment <select value={filter.env ?? ''} onChange={set('env')}><option value="">all</option>{ENVS.map((v) => <option key={v} value={v}>{v}</option>)}</select></label>
-        <label>Region <select value={filter.region ?? ''} onChange={set('region')}><option value="">all</option>{REGIONS.map((r) => <option key={r.id} value={r.id}>{r.title.split(' · ')[0]}</option>)}</select></label>
+        <label>Region <select value={filter.region ?? ''} onChange={set('region')}><option value="">all</option>{REGIONS.map((r) => <option key={r.id} value={r.id}>{shortTitleById(r.id)}</option>)}</select></label>
         <label>Reaches the browser <select value={filter.reaches ?? ''} onChange={set('reaches')}><option value="">all</option>{REACHES.map((r) => <option key={r} value={r}>{r}</option>)}</select></label>
         <button type="button" onClick={() => setFilter({})} disabled={!filtering}>Clear</button>
         <span aria-live="polite"><strong class="atlas-count">{matching.size} of {ENTITIES.length}</strong> entities. Click any to inspect. Press Escape to return to the whole system.</span>

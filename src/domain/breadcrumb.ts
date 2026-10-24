@@ -1,5 +1,5 @@
 import type { Band, CameraTarget, RegionId } from './types'
-import { BAND_TITLES, WORLD, regionById, regionChain } from './regions'
+import { BAND_TITLES, WORLD, regionById, regionChain, shortTitleById } from './regions'
 import { entityById, shortNameById } from './entities'
 
 export interface Crumb { label: string; target: CameraTarget }
@@ -24,7 +24,7 @@ export function breadcrumbFor({ target, entity }: { target: CameraTarget; entity
   const e = f.entity ? entityById(f.entity) : undefined
   const crumbs: Crumb[] = [{ label: 'World', target: { kind: 'world' } }]
   if (f.band) crumbs.push({ label: BAND_TITLES[f.band], target: { kind: 'band', id: f.band } })
-  for (const id of f.regions) crumbs.push({ label: regionById(id).title.split(' · ')[0], target: { kind: 'region', id } })
+  for (const id of f.regions) crumbs.push({ label: shortTitleById(id), target: { kind: 'region', id } })
   const label = e && shortNameById(e.id)
   /** an entity that stands for its region (the RSC runtime in "RSC runtime") adds no crumb of its own */
   if (e && label !== crumbs[crumbs.length - 1].label) crumbs.push({ label: label!, target: { kind: 'entities', ids: [e.id] } })
