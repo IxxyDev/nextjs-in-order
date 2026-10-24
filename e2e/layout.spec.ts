@@ -287,6 +287,16 @@ test('compare: the last lane title leaves the legend its corner rather than runn
   expect(title.x + title.width).toBeLessThanOrEqual(legend.x)
 })
 
+test('compare on a phone: the first lane title leaves the legend its corner rather than running under it', async ({ page }, info) => {
+  test.skip(info.project.name !== 'phone-390', 'the ≤767px layout stacks the lanes')
+  await page.goto('/#/compare/bundlers/1')
+  await settle(page)
+  const title = (await page.locator('.lane').first().locator('.lane-title').boundingBox())!
+  const legend = (await page.locator('.legend summary').boundingBox())!
+
+  expect(title.x + title.width).toBeLessThanOrEqual(legend.x)
+})
+
 test('compare: no label of the last lane runs under the legend toggle beside it', async ({ page }, info) => {
   test.skip(info.project.name === 'phone-390', 'phones stack the lanes, so the legend sits on the first')
   await page.goto('/#/compare/initial-load/2')
