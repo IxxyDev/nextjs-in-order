@@ -19,14 +19,14 @@ const LANE_TITLE_GAP = 8
 const TIE = 0.02
 
 /** hasLegend: the stage's legend sits over this lane's top-right corner, so its labels and framing keep clear of it */
-function Lane({ meta, world, rig, framing, hasLegend, selected, onSelect }: { meta: CompareLane; world: LaneWorld; rig: CameraRig; framing: Framing; hasLegend: boolean; selected?: string; onSelect: (id?: string) => void }) {
+function Lane({ index, meta, world, rig, framing, hasLegend, selected, onSelect }: { index: number; meta: CompareLane; world: LaneWorld; rig: CameraRig; framing: Framing; hasLegend: boolean; selected?: string; onSelect: (id?: string) => void }) {
   const vp = rig.viewport.value
   const stage = useRef<HTMLElement>(null)
   useCameraGestures(rig, stage)
   useEffect(() => { rig.hasLegend.value = hasLegend }, [hasLegend])
   useEffect(() => { goTo(framing === 'follow' ? world.cameraTarget : { kind: 'world' }, reducedMotion.value, rig) }, [world, framing, vp.w, vp.h, hasLegend])
   return (
-    <section class={`lane ${hasLegend ? 'has-legend' : ''}`} ref={stage} aria-label={meta.title}>
+    <section class={`lane mark-${index} ${hasLegend ? 'has-legend' : ''}`} ref={stage} aria-label={meta.title}>
       <World rig={rig} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
       <Labels rig={rig} differs={world.differs} entityStates={world.entityStates} activeEdges={world.activeEdges} token={world.token} selected={selected} onSelect={onSelect} />
       <div class="lane-title">{meta.title}</div>
@@ -82,7 +82,7 @@ export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: 
   /** the legend takes the stage's top-right corner: the last lane's side by side, the first lane's once phones stack them */
   const legendLane = phone.value ? 0 : pair.lanes.length - 1
   const lane = (i: number) => (
-    <Lane key={pair.lanes[i].title} meta={pair.lanes[i]} world={world.lanes[i]} rig={rigs[i]} framing={framing} hasLegend={i === legendLane}
+    <Lane key={pair.lanes[i].title} index={i} meta={pair.lanes[i]} world={world.lanes[i]} rig={rigs[i]} framing={framing} hasLegend={i === legendLane}
       selected={selected?.lane === i ? selected.id : undefined}
       onSelect={(id) => { setPlaying(false); setSelected(id ? { lane: i, id } : undefined) }} />
   )

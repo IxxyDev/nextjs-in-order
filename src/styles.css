@@ -343,8 +343,8 @@ a { color: var(--accent); }
 .lane-title::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--accent); }
 /* the lane under the legend shares its top edge with it; CompareView sets --legend-room from LEGEND */
 .lane.has-legend .lane-title { max-width: calc(100% - 16px - var(--legend-room)); }
-.lane:not(:first-child) .lane-title::before { background: var(--ok); }
-.lanes-3 .lane:last-child .lane-title::before { background: var(--warn); }
+.lane.mark-1 .lane-title::before { background: var(--ok); }
+.lane.mark-2 .lane-title::before { background: var(--warn); }
 .ruler { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 40px 0 16px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); background: var(--surface); }
 .ruler-track { position: relative; flex: 1; width: 2px; background: var(--line); }
 .ruler-mark { position: absolute; top: calc(var(--at) * 100%); left: 0; transform: translate(-50%, -110%); font: 500 9px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 4px; background: var(--bg); border: 1px solid currentColor; white-space: nowrap; transition: top 500ms cubic-bezier(0.2, 0.7, 0.2, 1); }
