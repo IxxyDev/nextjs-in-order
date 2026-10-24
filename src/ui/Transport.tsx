@@ -2,6 +2,9 @@ import { useId } from 'preact/hooks'
 import type { Step } from '../domain/types'
 import type { Framing, View } from './camera'
 
+/** 'toggle' presses Whole system against Follow; 'overlay' opens it over the page instead (phones); 'none' leaves it out (tablets lock Follow) */
+export type WholeMode = 'toggle' | 'overlay' | 'none'
+
 interface TransportProps {
   /** a journey's or a compare pair's steps, for the scrubber and its ticks */
   steps: Pick<Step, 'id' | 'title'>[]
@@ -13,8 +16,7 @@ interface TransportProps {
   onPlay: (p: boolean) => void
   onView: (framing: Framing) => void
   onShowText: (t: boolean) => void
-  /** 'toggle' presses Whole system against Follow; 'overlay' opens it over the page instead (phones); 'none' leaves it out (tablets lock Follow) */
-  whole?: 'toggle' | 'overlay' | 'none'
+  whole?: WholeMode
   onWhole?: () => void
 }
 

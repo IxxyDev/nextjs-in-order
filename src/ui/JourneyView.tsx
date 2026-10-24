@@ -8,7 +8,7 @@ import { Labels } from './Labels'
 import { Minimap } from './Minimap'
 import { Legend } from './Legend'
 import { StepPanel } from './StepPanel'
-import { Transport } from './Transport'
+import { Transport, type WholeMode } from './Transport'
 import { Inspector } from './Inspector'
 import { Breadcrumb } from './Breadcrumb'
 import { WholeOverlay } from './WholeOverlay'
@@ -106,7 +106,7 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
       <StepPanel journey={journey} world={world} showText={showText} header={sheetHead || roomHead} expanded={isTablet && isSheetExpanded} panelRef={panel}
         lens={lensed && <CodeLens key={journey.slug} slug={journey.slug} stepId={world.step.id} selected={selected} />} />
       <Transport steps={journey.steps} step={step} playing={playing} view={shown} showText={showText} onStep={stepTo} onPlay={setPlaying} onView={pickView}
-        onShowText={setShowText} whole={isTablet ? 'none' : isPhone ? 'overlay' : 'toggle'} onWhole={() => { setPlaying(false); setOverlay(true) }} />
+        onShowText={setShowText} whole={wholeMode(isTablet, isPhone)} onWhole={() => { setPlaying(false); setOverlay(true) }} />
       {overlay && <WholeOverlay world={world} onSelect={(id) => { setOverlay(false); select(id) }} onClose={() => setOverlay(false)} />}
     </div>
   )
@@ -117,4 +117,11 @@ function shownView(isHeld: boolean, isLocked: boolean, framing: Framing): View {
   if (isHeld) return 'manual'
   if (isLocked && framing === 'whole') return 'follow'
   return framing
+}
+
+/** where Whole system lives: left out on a tablet, whose canvas is locked to Follow, over the page on a phone, else beside Follow */
+function wholeMode(isTablet: boolean, isPhone: boolean): WholeMode {
+  if (isTablet) return 'none'
+  if (isPhone) return 'overlay'
+  return 'toggle'
 }
