@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks'
+import { useLayoutEffect, useRef, useState } from 'preact/hooks'
 import type { ComponentChildren, RefObject } from 'preact'
 import type { Journey, WorldState, ChipState, MisconceptionCheck, PredictQuestion } from '../domain/types'
 import { shortNameById } from '../domain/entities'
@@ -9,10 +9,23 @@ import { Internals } from './Internals'
 
 /** the changed / kept list (§3.1) */
 const GROUPED: ChipState[] = ['new', 'replaced', 'kept', 'invalid', 'stale']
+/** room left under the story where the panel peeks down to it, so the next block shows its top edge */
+const STORY_GAP = 12
 
 /** header and expanded: the tablet bottom sheet's handle row and state (on phones, the room toggle of an open code lens); lens: the code lens, on journeys that have one */
 export function StepPanel({ journey, world, showText, header, expanded, lens, panelRef }: { journey: Journey; world: WorldState; showText: boolean; header?: ComponentChildren; expanded?: boolean; lens?: ComponentChildren; panelRef?: RefObject<HTMLElement> }) {
   const { step } = world
+  const story = useRef<HTMLParagraphElement>(null)
+  /** where the story ends, as --story-end on the panel: phones peek the panel down to it, so the story reads without scrolling (styles.css) */
+  useLayoutEffect(() => {
+    const p = panelRef?.current, s = story.current
+    if (!p || !s) return
+    const fit = () => p.style.setProperty('--story-end', `${s.offsetTop + s.offsetHeight + STORY_GAP}px`)
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(s)
+    return () => { ro.disconnect(); p.style.removeProperty('--story-end') }
+  }, [step.id, journey.slug, !!header])
   const whatShouldClick = <div class="click" aria-label="What should click">{journey.whatShouldClick}</div>
   const groups = GROUPED.map((state) => ({ state, ids: Object.entries(world.entityStates).filter(([, s]) => s === state).map(([id]) => id) })).filter((g) => g.ids.length)
   return (
@@ -21,7 +34,7 @@ export function StepPanel({ journey, world, showText, header, expanded, lens, pa
       <div class="eyebrow">{journey.title} · step {world.stepIndex + 1} of {journey.steps.length}</div>
       <h2 id="step-title">{step.title}</h2>
       {world.token && <div class="following">Following: {world.token.label}</div>}
-      <p class="story">{step.story}</p>
+      <p class="story" ref={story}>{step.story}</p>
       {step.checks && <><Checks key={step.id} stepId={step.id} checks={step.checks} />{whatShouldClick}</>}
       {groups.length > 0 && (
         <dl>{groups.map((g) => <><dt key={`t-${g.state}`}>{STATE_LABEL[g.state]}</dt><dd key={`d-${g.state}`}>{g.ids.map(shortNameById).join(', ')}</dd></>)}</dl>

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { Camera, Journey } from '../domain/types'
 import { deriveWorldState } from '../domain/worldState'
 import { breadcrumbFor, regionLevel } from '../domain/breadcrumb'
@@ -22,8 +22,6 @@ import { phone, reducedMotion, tablet } from './layout'
 
 /** the tablet sheet's peek height as a share of the canvas; .has-sheet .panel in styles.css reads it as --sheet-peek */
 const PEEK = 0.3
-/** room the phone peek leaves under the story, so the next block shows its top edge */
-const STORY_GAP = 12
 
 export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; step: number; cam?: Camera; onStep: (n: number) => void }) {
   const world = useMemo(() => deriveWorldState(journey, step), [journey, step])
@@ -62,16 +60,6 @@ export function JourneyView({ journey, step, cam, onStep }: { journey: Journey; 
     const top = p.scrollTop + lens.getBoundingClientRect().top - p.getBoundingClientRect().top - (head?.offsetHeight ?? 0) - 4
     p.scrollTo({ top, behavior: reducedMotion.value ? 'auto' : 'smooth' })
   }, [roomy, step])
-  /** phones: the panel peeks down to the end of the story, so it reads without scrolling; the map keeps the rest (styles.css, --story-end) */
-  useLayoutEffect(() => {
-    const p = panel.current, story = p?.querySelector<HTMLElement>('.story')
-    if (!isPhone || !p || !story) return
-    const fit = () => p.style.setProperty('--story-end', `${story.offsetTop + story.offsetHeight + STORY_GAP}px`)
-    fit()
-    const ro = new ResizeObserver(fit)
-    ro.observe(story)
-    return () => { ro.disconnect(); p.style.removeProperty('--story-end') }
-  }, [isPhone, step, journey.slug, canRoom])
 
   const onEscape = () => {
     if (overlay) { setOverlay(false); return }
