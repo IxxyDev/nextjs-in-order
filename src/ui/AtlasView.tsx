@@ -14,7 +14,7 @@ import { MAIN_RIG, goTo, viewport } from './camera'
 import { reducedMotion } from './layout'
 import { useCameraGestures } from './useCameraGestures'
 import { useUrlCamera } from './useUrlCamera'
-import { TEXT } from './useStepControls'
+import { isTyping } from './useStepControls'
 
 /** a URL camera, or one the user moved, holds until the route changes; until then framing leaves it alone */
 export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Camera; onSelect: (id?: string) => void }) {
@@ -30,7 +30,7 @@ export function AtlasView({ entity, cam, onSelect }: { entity?: string; cam?: Ca
   latest.current = { entity, onSelect }
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || (e.target as HTMLElement).closest?.(TEXT)) return
+      if (e.key !== 'Escape' || isTyping(e.target as HTMLElement)) return
       if (latest.current.entity) latest.current.onSelect(undefined)
       else release()
     }
