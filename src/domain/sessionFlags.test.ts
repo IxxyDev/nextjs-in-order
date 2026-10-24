@@ -9,7 +9,7 @@ describe('sessionFlags', () => {
   it('writes one key per flag and reads it back in a new store (a reload)', () => {
     const s = fakeStorage()
     createSessionFlags(() => s).set(K, true)
-    expect(s.m.get(K)).toBe('true')
+    expect(s.map.get(K)).toBe('true')
     expect(createSessionFlags(() => s).get(K)).toBe(true)
     createSessionFlags(() => s).set(K, false)
     expect(createSessionFlags(() => s).get(K)).toBe(false)
