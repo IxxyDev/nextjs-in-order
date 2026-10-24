@@ -21,7 +21,7 @@ describe('coverage-matrix.md', () => {
       ...[...text.matchAll(/\b([jc]\d+)-(\d+)\b/g)].map(([ref, id, s]) => ({ ref, id, step: Number(s), counts: id.startsWith('j') ? stepCounts : pairStepCounts })),
       ...[...text.matchAll(/\bC(\d+)\b/g)].map(([ref, n]) => ({ ref, id: `c${n}`, step: 1, counts: pairStepCounts }))
     ]
-    return refs.filter((r) => !(r.step <= (r.counts.get(r.id) ?? 0))).map((r) => r.ref)
+    return refs.filter((r) => (r.counts.get(r.id) ?? 0) < r.step).map((r) => r.ref)
   }
 
   /** `1, 3–4` → [1, 3, 4] */
