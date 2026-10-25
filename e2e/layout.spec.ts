@@ -287,7 +287,8 @@ test('legend: an open legend stays open across Next question in predict', async 
   await expect(page.locator('.legend')).toHaveAttribute('open')
 })
 
-test('compare: the last lane title leaves the legend its corner rather than running under it', async ({ page }) => {
+test('compare: the last lane title leaves the legend its corner rather than running under it', async ({ page }, info) => {
+  test.skip(info.project.name === 'phone-390', 'the ≤767px layout puts the legend on the first lane')
   await page.goto('/#/compare/client-navigation/3')
   await settle(page)
   const title = (await page.locator('.lane').last().locator('.lane-title').boundingBox())!
