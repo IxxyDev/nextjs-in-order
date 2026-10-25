@@ -28,11 +28,11 @@ export type Framing = 'follow' | 'whole'
 /** a framing, or a camera the user left (a URL cam) held until they step or pick a framing */
 export type View = Framing | 'manual'
 
-export function createRig(hasLegend = false): CameraRig {
+export function createRig({ hasLegend = false }: { hasLegend?: boolean } = {}): CameraRig {
   return { camera: signal<Camera>({ x: WORLD.w / 2, y: WORLD.h / 2, zoom: 0.5 }), viewport: signal<Viewport>({ w: 1200, h: 800 }), frame: 0, sheet: signal(0), hasLegend: signal(hasLegend) }
 }
 
-export const MAIN_RIG = createRig(true)
+export const MAIN_RIG = createRig({ hasLegend: true })
 export const viewport = MAIN_RIG.viewport
 export const camera = MAIN_RIG.camera
 
