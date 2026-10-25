@@ -4,6 +4,7 @@ import type { Journey, WorldState, ChipState, MisconceptionCheck, PredictQuestio
 import { shortNameById } from '../domain/entities'
 import { checkId, journeyId, progress } from '../domain/progress'
 import { STATE_LABEL } from '../domain/stateLabel'
+import { phone } from './layout'
 import { STEP_INTERNALS_KEY } from '../domain/sessionFlags'
 import { Internals } from './Internals'
 
@@ -16,16 +17,17 @@ const STORY_GAP = 12
 export function StepPanel({ journey, world, showText, header, expanded, lens, panelRef }: { journey: Journey; world: WorldState; showText: boolean; header?: ComponentChildren; expanded?: boolean; lens?: ComponentChildren; panelRef?: RefObject<HTMLElement> }) {
   const { step } = world
   const story = useRef<HTMLParagraphElement>(null)
+  const isPhone = phone.value
   /** where the story ends, as --story-end on the panel: phones peek the panel down to it, so the story reads without scrolling (styles.css) */
   useLayoutEffect(() => {
     const p = panelRef?.current, s = story.current
-    if (!p || !s) return
+    if (!isPhone || !p || !s) return
     const fit = () => p.style.setProperty('--story-end', `${s.offsetTop + s.offsetHeight + STORY_GAP}px`)
     fit()
     const ro = new ResizeObserver(fit)
     ro.observe(s)
     return () => { ro.disconnect(); p.style.removeProperty('--story-end') }
-  }, [step.id, journey.slug, !!header])
+  }, [isPhone, step.id, journey.slug, !!header]) // the header above the story moves its top, which the observer on the story does not see
   const whatShouldClick = <div class="click" aria-label="What should click">{journey.whatShouldClick}</div>
   const groups = GROUPED.map((state) => ({ state, ids: Object.entries(world.entityStates).filter(([, s]) => s === state).map(([id]) => id) })).filter((g) => g.ids.length)
   return (
