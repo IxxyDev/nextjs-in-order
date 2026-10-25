@@ -48,6 +48,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
   const tokenEntity = token ? entityById(token.at) : undefined
   /** a step that lists states focuses the scene: unrelated edges are hidden */
   const focused = Object.keys(entityStates).length > 0
+  const linked = lensLit.value
   return (
     <div class="canvas-wrap" ref={ref}>
       <svg class="world" role="img" aria-label="System map of Next.js" viewBox={`0 0 ${vp.w} ${vp.h}`}>
@@ -83,7 +84,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
           {ENTITIES.map((e) => (
             <g key={e.id} data-entity={e.id} class={marks?.[e.id] ? `mark-${marks[e.id]}` : undefined} transform={`translate(${e.x} ${e.y})`} onClick={() => onSelect(e.id)}
               onMouseEnter={() => { mapHover.value = e.id }} onMouseLeave={() => { if (mapHover.peek() === e.id) mapHover.value = undefined }}>
-              <Glyph kind={e.glyph} state={entityStates[e.id]} selected={selected === e.id} linked={lensLit.value.ids.has(e.id) ? lensLit.value.hue ?? true : undefined}><title>{e.name}</title></Glyph>
+              <Glyph kind={e.glyph} state={entityStates[e.id]} selected={selected === e.id} linked={linked.ids.has(e.id) ? linked.hue ?? true : undefined}><title>{e.name}</title></Glyph>
             </g>
           ))}
           {tokenEntity && token && (

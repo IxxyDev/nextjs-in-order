@@ -80,6 +80,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     candidates.push({ id: `edge:${e.id}`, x: p.x, y: p.y - 10, text: e.label, chips: e.crossing ? [e.crossing] : [], isToken: false, isSelected: false, isEdge: true })
   }
   const shown = placeLabels(candidates, glyphBoxes, { reserved, bounds: vp, soft })
+  const linked = lensLit.value
   const boxes = [...shown.values()].map((s) => s.box)
   /** region titles are context: a plain title gives way to any label or zone it would sit under */
   const clearOf = (x: number, y: number, text: string, anchorRight = false) => {
@@ -116,10 +117,11 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
         const e = entityById(c.id)
         const m = marks?.[c.id]
         const at = shown.get(c.id)!
+        const lit = linked.ids.has(c.id) ? `is-linked ${linked.hue ? `fate-${linked.hue}` : ''}` : ''
         return (
           <button
             key={c.id}
-            class={`label ${c.state === 'dimmed' ? 'is-dimmed' : ''} ${c.inline ? 'is-inline' : ''} ${lensLit.value.ids.has(c.id) ? `is-linked ${lensLit.value.hue ? `fate-${lensLit.value.hue}` : ''}` : ''}`}
+            class={`label ${c.state === 'dimmed' ? 'is-dimmed' : ''} ${c.inline ? 'is-inline' : ''} ${lit}`}
             style={{ left: `${at.x}px`, top: `${at.y}px` }}
             data-entity={c.id}
             onMouseEnter={hover(c.id)} onMouseLeave={hover(undefined)} onFocus={hover(c.id)} onBlur={hover(undefined)}
