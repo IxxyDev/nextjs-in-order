@@ -46,7 +46,7 @@ const TWO_ROWS_H = LABEL_H * 2 + 2
 const TYPICAL_LABEL_W = 120
 
 /** the box a glyph takes around its entity's center, in world units (most shapes; the runtime is 72 wide) */
-const GLYPH = { w: 60, h: 56 }
+export const GLYPH = { w: 60, h: 56 }
 /** an entity label hangs this many world units below the entity's center, just under its glyph */
 export const LABEL_DROP = 30
 
