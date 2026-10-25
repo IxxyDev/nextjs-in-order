@@ -44,9 +44,9 @@ export function shortTitleById(id: RegionId): string {
 const RING_MARGIN = 6
 
 /** the custom-server ring: a frame around HTTP entry + router-server */
-export const CUSTOM_SERVER_RING: Rect = around([regionById('http-entry'), regionById('router-server')], RING_MARGIN)
+export const CUSTOM_SERVER_RING: Rect = boundingRect([regionById('http-entry'), regionById('router-server')], RING_MARGIN)
 
-function around(rects: Rect[], margin: number): Rect {
+function boundingRect(rects: Rect[], margin: number): Rect {
   const x = Math.min(...rects.map((r) => r.x)) - margin, y = Math.min(...rects.map((r) => r.y)) - margin
   const right = Math.max(...rects.map((r) => r.x + r.w)) + margin, bottom = Math.max(...rects.map((r) => r.y + r.h)) + margin
   return { x, y, w: right - x, h: bottom - y }
