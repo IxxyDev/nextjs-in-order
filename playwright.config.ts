@@ -14,6 +14,7 @@ export default defineConfig({
   reporter: [['list']],
   use: { baseURL: `http://localhost:${PORT}`, trace: 'retain-on-failure' },
   webServer: {
+    // vite itself, not pnpm dev: pnpm dev leaves vite running after Playwright stops it
     command: `node_modules/.bin/vite --port ${PORT} --strictPort`,
     port: PORT,
     reuseExistingServer: false,
