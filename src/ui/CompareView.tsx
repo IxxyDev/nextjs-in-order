@@ -23,7 +23,6 @@ function Lane({ index, meta, world, rig, framing, hasLegend, selected, onSelect 
   const vp = rig.viewport.value
   const stage = useRef<HTMLElement>(null)
   useCameraGestures(rig, stage)
-  useEffect(() => { rig.hasLegend.value = hasLegend }, [hasLegend])
   useEffect(() => { goTo(framing === 'follow' ? world.cameraTarget : { kind: 'world' }, reducedMotion.value, rig) }, [world, framing, vp.w, vp.h, hasLegend])
   return (
     <section class={`lane mark-${index} ${hasLegend ? 'has-legend' : ''}`} ref={stage} aria-label={meta.title}>
@@ -81,6 +80,7 @@ export function CompareView({ pair, step, onStep }: { pair: ResolvedPair; step: 
   const { playing, setPlaying, stepTo } = useStepControls({ count: pair.steps.length, step, onStep, onEscape: () => { setSelected(undefined); setFraming('whole') } })
   /** the legend takes the stage's top-right corner: the last lane's side by side, the first lane's once phones stack them */
   const legendLane = phone.value ? 0 : pair.lanes.length - 1
+  useEffect(() => { rigs.forEach((rig, i) => { rig.hasLegend.value = i === legendLane }) }, [legendLane])
   const lane = (i: number) => (
     <Lane key={pair.lanes[i].title} index={i} meta={pair.lanes[i]} world={world.lanes[i]} rig={rigs[i]} framing={framing} hasLegend={i === legendLane}
       selected={selected?.lane === i ? selected.id : undefined}
