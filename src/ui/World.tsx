@@ -60,7 +60,7 @@ export function World({ entityStates, activeEdges, token, selected, onSelect, ri
             const r = bandRect(band)
             return <rect key={band} class={`band band-${band}`} x={r.x} y={r.y} width={r.w} height={r.h} />
           })}
-          {([['build time · once per deploy', ROWS.build.y, ROWS.build.h + ROWS.artifacts.h], ['server · request time', ROWS.server.y, ROWS.server.h], ['browser · per tab', ROWS.browser.y, ROWS.browser.h]] as const).map(([t, y, h]) => (
+          {([['build time · once per deploy', bandRect('build').y, bandRect('build').h], ['server · request time', ROWS.server.y, ROWS.server.h], ['browser · per tab', ROWS.browser.y, ROWS.browser.h]] as const).map(([t, y, h]) => (
             <text key={t} class="band-title" transform={`translate(12 ${y + h / 2}) rotate(-90)`} text-anchor="middle">{t}</text>
           ))}
           <line class="boundary-build" x1={0} y1={ROWS.server.y} x2={DEV_X} y2={ROWS.server.y} />
