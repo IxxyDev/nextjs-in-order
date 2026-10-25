@@ -328,6 +328,7 @@ test('compare on a phone: no label of the first lane runs under the legend toggl
 
 test('compare: each lane title is marked in its ruler mark\'s colour', async ({ page }) => {
   await page.goto('/#/compare/rendering-strategies/1')
+  await expect(page.locator('.lane')).toHaveCount(3)
   const marks = await page.locator('.lane .lane-title').evaluateAll((els) => els.map((el) => getComputedStyle(el, '::before').backgroundColor))
   const ruler = await page.locator('.ruler-mark').evaluateAll((els) => els.map((el) => getComputedStyle(el).color))
 
