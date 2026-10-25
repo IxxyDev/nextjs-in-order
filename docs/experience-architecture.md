@@ -107,8 +107,9 @@ A journey is an ordered list of steps over the world. The UI is the same for eve
 - **Step panel**: journey title, step `n / N`, **Following:** token name, **Story** (Level 1,
   ≤ 60 words), **Changed / kept** list (when relevant), **What should click** (one sentence,
   persistent per journey, highlighted when the step is the one that delivers it). On a predict
-  step What should click appears only after a pick, since it spells out the answer; on a check
-  step the statements and What should click come right after the story, before the code lens.
+  step What should click appears only after a pick, on this visit or an earlier one recorded in
+  progress, since it spells out the answer; on a check step the statements and What should click
+  come right after the story, before the code lens.
 - **Transport**: Previous / Next, Play / Pause (autoplay advances every 6 s, pauses on any
   interaction), a scrubber with step ticks, keyboard `←/→`, `space`, `Home/End`, `Esc` (whole
   system). Deterministic: step *n* always produces the same world state regardless of path.
