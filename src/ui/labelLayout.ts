@@ -1,4 +1,5 @@
 import type { EntityState } from '../domain/types'
+import { hasChip } from '../domain/stateLabel'
 import type { Point } from './camera'
 
 export interface LabelCandidate {
@@ -90,7 +91,7 @@ function priority(c: LabelCandidate): number {
   if (c.state === 'current') return 1
   if (c.isEdge) return 1.5
   if (c.isSelected) return 2
-  if (c.state && c.state !== 'dimmed') return 3
+  if (hasChip(c.state)) return 3
   if (!c.state) return 4
   return 5
 }

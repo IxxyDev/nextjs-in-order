@@ -3,7 +3,7 @@ import type { Camera, CameraTarget, EntityState, PickMark, QuizQuestion, RegionI
 import { ENTITIES, entityById, shortNameById } from '../domain/entities'
 import { regionById } from '../domain/regions'
 import { entryBySlug } from '../domain/journeys'
-import { answerIds, markFor, scoreQuestion } from '../domain/predict'
+import { answerIds, hasMarkChip, markFor, scoreQuestion } from '../domain/predict'
 import { formatRoute } from '../domain/route'
 import { progress, quizId } from '../domain/progress'
 import { breadcrumbFor } from '../domain/breadcrumb'
@@ -114,7 +114,7 @@ export function PredictView({ quiz, n, cam, onGo, onAnswered }: { quiz: QuizQues
             })
             : listed.map((id) => {
               const m = listMark(id)
-              return <li key={id}><button aria-pressed={picked.has(id)} onClick={() => toggle(id)}>{name(id)}{m && m !== 'candidate' && <span class={`chip chip-mark-${m}`}>{m}</span>}</button></li>
+              return <li key={id}><button aria-pressed={picked.has(id)} onClick={() => toggle(id)}>{name(id)}{hasMarkChip(m) && <span class={`chip chip-mark-${m}`}>{m}</span>}</button></li>
             })}
         </ul>
         <div class="quiz-actions">

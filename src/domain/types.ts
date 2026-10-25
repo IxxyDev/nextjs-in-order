@@ -212,6 +212,8 @@ export interface CompareWorld {
 
 /** how an entity or region is marked on the map in predict mode; a chip names a mark by its own word, a candidate is only drawn */
 export type PickMark = 'candidate' | 'picked' | 'correct' | 'missed' | 'extra' | 'answer'
+/** the marks a chip names; a candidate is only drawn */
+export type ChipMark = Exclude<PickMark, 'candidate'>
 
 interface QuizBase {
   id: string
