@@ -49,18 +49,19 @@ export function fitRect(rect: Rect, vp: Viewport, inset: Inset = NO_INSET, pad =
 
 /** the minimap's place on the stage (bottom-left); it is drawn on every MAIN_RIG view and hidden on phones */
 export const MINIMAP = { left: 12, bottom: 12, w: 132, h: 82 }
-const MINIMAP_GAP = 8
+/** room kept clear around a corner widget, the minimap's and the legend's */
+const CORNER_GAP = 8
 
 function minimapRect(vp: Viewport): ScreenRect | undefined {
   if (phone.value) return undefined
-  return { x: 0, y: vp.h - MINIMAP.bottom - MINIMAP.h - MINIMAP_GAP, w: MINIMAP.left + MINIMAP.w + MINIMAP_GAP, h: MINIMAP.bottom + MINIMAP.h + MINIMAP_GAP }
+  return { x: 0, y: vp.h - MINIMAP.bottom - MINIMAP.h - CORNER_GAP, w: MINIMAP.left + MINIMAP.w + CORNER_GAP, h: MINIMAP.bottom + MINIMAP.h + CORNER_GAP }
 }
 
 /** the legend's toggle in the stage's top-right corner, phones included: over every MAIN_RIG view, and over the compare lane whose rig hasLegend */
 export const LEGEND = { top: 12, right: 12, w: 84, h: 32 }
 
 function legendRect(vp: Viewport): ScreenRect {
-  return { x: vp.w - LEGEND.right - LEGEND.w - MINIMAP_GAP, y: 0, w: LEGEND.right + LEGEND.w + MINIMAP_GAP, h: LEGEND.top + LEGEND.h + MINIMAP_GAP }
+  return { x: vp.w - LEGEND.right - LEGEND.w - CORNER_GAP, y: 0, w: LEGEND.right + LEGEND.w + CORNER_GAP, h: LEGEND.top + LEGEND.h + CORNER_GAP }
 }
 
 /** screen zones a rig's labels and framing keep clear: the legend's toggle, and the sheet's peek when there is one (the minimap sits in it), else the minimap */
