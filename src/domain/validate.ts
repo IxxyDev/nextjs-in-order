@@ -3,12 +3,13 @@ import { ENTITIES, entityById } from './entities'
 import { EDGES } from './edges'
 import { REGIONS, regionById } from './regions'
 import { JOURNEY_CATALOG } from './journeys'
+import { JOURNEY_META } from './journeys/meta'
 
 const entityIds = new Set(ENTITIES.map((e) => e.id))
 const edgeIds = new Set(EDGES.map((e) => e.id))
 const regionIds: ReadonlySet<string> = new Set(REGIONS.map((r) => r.id))
-/** a specimen line's journeys list only the journeys after J0 (code-lens.md §4), and the catalog opens with J0 */
-const journeyIdsAfterJ0 = new Set(JOURNEY_CATALOG.slice(1).map((j) => j.id))
+/** a specimen line's journeys list only the journeys after J0 (code-lens.md §4) */
+const journeyIdsAfterJ0 = new Set(JOURNEY_CATALOG.map((j) => j.id).filter((id) => id !== JOURNEY_META.wholeLifecycle.id))
 /** docs/code-lens.md §9: an open pane shows at most this many non-folded lines; the rest fold */
 const MAX_OPEN_LINES = 8
 
