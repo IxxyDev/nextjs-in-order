@@ -78,7 +78,7 @@ export const CACHING: Journey = {
       states: { 'routing-ladder': 'active', 'pages-renderer': 'kept', 'server-cache': 'fresh', html: 'active', dom: 'new', 'rsc-runtime-entity': 'dimmed', 'ssr-runtime-entity': 'dimmed' },
       edges: ['e-ladder-pages', 'e-pages-server-cache', 'e-server-cache-html', 'e-html-dom'],
       internals: ['prerender-manifest: /posts/7 initialRevalidateSeconds 60', '.next/server/pages/posts/7.html + posts/7.json', 'a plain static route is the same branch with an entry that never goes stale (revalidate: false)'],
-      sources: [SOURCES.isr]
+      sources: [SOURCES.isrApp]
     },
     {
       id: 'j8-6', kind: 'predict', title: 'A stale entry',
@@ -107,7 +107,7 @@ export const CACHING: Journey = {
       states: { 'server-cache': 'stale', html: 'active', dom: 'new', 'isr-regeneration': 'current', 'pages-renderer': 'active' },
       edges: ['e-server-cache-html', 'e-html-dom', 'e-pages-regen'],
       internals: ['stale-while-revalidate: the response never waits for the regeneration', 'a failed regeneration keeps the old entry and retries on a later stale hit', 'App Router: revalidateTag(tag, "max") puts tagged entries into the same stale state'],
-      sources: [SOURCES.isr, SOURCES.getStaticProps]
+      sources: [SOURCES.isrApp, SOURCES.getStaticProps]
     },
     {
       id: 'j8-8', kind: 'transform', title: 'A miss renders and stores',
@@ -117,7 +117,7 @@ export const CACHING: Journey = {
       states: { 'routing-ladder': 'kept', 'pages-renderer': 'current', db: 'active', html: 'new', dom: 'new', 'server-cache': 'new' },
       edges: ['e-ladder-pages', 'e-db-pages', 'e-pages-html', 'e-pages-store', 'e-html-dom'],
       internals: ['getStaticPaths → { paths, fallback: "blocking" }', 'getStaticProps → { props, revalidate: 60 }', 'stored entry: HTML + props JSON + revalidate'],
-      sources: [SOURCES.isr, SOURCES.getStaticPaths]
+      sources: [SOURCES.isrApp, SOURCES.getStaticPaths]
     },
     {
       id: 'j8-9', kind: 'explain', title: 'One store, several names',
@@ -151,7 +151,7 @@ export const CACHING: Journey = {
       states: { 'image-cache': 'fresh', 'image-optimizer': 'active', 'next-cache-dir': 'kept', 'public-dir': 'active' },
       edges: ['e-image-cache', 'e-image-cache-dir'],
       internals: ['GET /_next/image?url=/hero.jpg&w=640&q=75 with Accept: image/avif,image/webp,…', 'stored in .next/cache/images', '16.0 defaults: minimumCacheTTL 4 h, qualities [75]', 'the default loader does not optimize SVG, which is why the example image is a JPEG'],
-      sources: [SOURCES.image, SOURCES.upgradingTo16]
+      sources: [SOURCES.imageComponent, SOURCES.upgradingTo16]
     },
     {
       id: 'j8-12', kind: 'explain', title: 'The build remembers',

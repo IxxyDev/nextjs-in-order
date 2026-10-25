@@ -307,7 +307,7 @@ export const ENTITIES: Entity[] = [
     what: 'Optional wrapper that owns the socket and calls handle(req, res, parsedUrl?). It wraps router-server; it never replaces it.',
     consumes: ['req, res'], produces: ['handle() calls'], exists: 'process lifetime; not compiled or watched by Next', connects: ['routing-ladder', 'custom-handle', 'custom-healthz'], reaches: 'no',
     internals: ['const app = next({ dev }); await app.prepare(); const handle = app.getRequestHandler()', 'createServer((req, res) => handle(req, res, parse(req.url, true))).listen(3000)', 'not traced by output: \'standalone\'; output: \'export\' has no server'],
-    sources: [SOURCES.customServer]
+    sources: [SOURCES.customServerApp]
   },
   {
     id: 'custom-healthz', short: '/healthz', name: 'GET /healthz · answered by server.js', region: 'http-entry', glyph: 'response', x: 75, y: 1180,
@@ -315,7 +315,7 @@ export const ENTITIES: Entity[] = [
     what: 'A response server.js writes itself without calling handle. Next.js never sees the request: no ladder, no Proxy, no manifests.',
     consumes: ['GET /healthz'], produces: ['200 ok'], exists: 'per request', connects: ['custom-server'], reaches: 'data',
     internals: ['if (pathname === "/healthz") { res.statusCode = 200; return res.end("ok") }'],
-    sources: [SOURCES.customServer]
+    sources: [SOURCES.customServerApp]
   },
 
   // ---------- router-server ----------
@@ -326,7 +326,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['req, res from server.js', 'optional parsedUrl (pathname, query)'], produces: ['the request on the routing ladder'],
     exists: 'created after app.prepare(); called per request', connects: ['custom-server', 'routing-ladder'], reaches: 'no',
     internals: ['a passed parsedUrl rebuilds req.url before routing', 'deprecated app.render() normalizes its arguments and calls the same requestHandler', 'packages/next/src/server/next.ts: NextCustomServer'],
-    sources: [SOURCES.customServer, SOURCES.nextServer]
+    sources: [SOURCES.customServerApp, SOURCES.nextServer]
   },
   {
     id: 'routing-ladder', short: 'Routing ladder', name: 'Routing ladder · 8 steps', region: 'router-server', glyph: 'machine', x: 620, y: 920,
@@ -416,7 +416,7 @@ export const ENTITIES: Entity[] = [
       current: 'Format is part of the key; 16.0 changed defaults (minimumCacheTTL 4 h, qualities [75], local IPs blocked, maximumRedirects 3).',
       why: 'The same URL can produce several cached files, one per format the browsers ask for.'
     },
-    sources: [SOURCES.image, SOURCES.upgradingTo16]
+    sources: [SOURCES.imageComponent, SOURCES.upgradingTo16]
   },
 
   // ---------- render-server ----------
@@ -523,7 +523,7 @@ export const ENTITIES: Entity[] = [
     what: 'Key: url + width + quality + format. Value: the sharp-transformed image, so each variant is computed once.',
     consumes: ['/_next/image requests'], produces: ['cached variants'], exists: 'per TTL', connects: ['image-optimizer', 'next-cache-dir'], reaches: 'data',
     internals: ['/hero.jpg|640|75|webp', 'minimumCacheTTL 4 h by default (16.0)'],
-    sources: [SOURCES.image]
+    sources: [SOURCES.imageComponent]
   },
   {
     id: 'request-memo', short: 'Memoization', name: 'Request memoization', region: 'data-caches', glyph: 'cache', x: 1550, y: 1395, badge: 'one request',
@@ -637,7 +637,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['a stale server cache entry'], produces: ['a fresh entry for the next visitor'],
     exists: 'after a stale hit, until the new entry is stored', connects: ['server-cache', 'pages-renderer'], reaches: 'no',
     internals: ['prerender-manifest: initialRevalidateSeconds 60 for /posts/7', 'a failed regeneration keeps serving the old entry', 'App Router: revalidateTag(tag, "max") marks entries stale the same way'],
-    sources: [SOURCES.isr, SOURCES.revalidateTag]
+    sources: [SOURCES.isrApp, SOURCES.revalidateTag]
   },
   {
     id: 'suspense-hole', short: 'Suspense hole', name: 'Suspense boundary · streamed hole', region: 'browser', glyph: 'segment', x: 500, y: 1880,
@@ -782,7 +782,7 @@ export const ENTITIES: Entity[] = [
     consumes: ['source image bytes', 'width, quality, format'], produces: ['encoded WebP or AVIF variant'],
     exists: 'loaded once per server process', connects: ['image-optimizer'], reaches: 'no',
     internals: ['libvips through N-API bindings', 'installed automatically with next 15+; required for next start self-hosting'],
-    sources: [SOURCES.images]
+    sources: [SOURCES.imagesGuide]
   },
   {
     id: 'next-image', short: 'next/image', name: 'next/image · reserved box + srcset', region: 'browser', glyph: 'dom', x: 350, y: 1715,
@@ -796,7 +796,7 @@ export const ENTITIES: Entity[] = [
       current: '16.0 removed 16 from the default imageSizes and set qualities to [75].',
       why: 'Fewer variants means fewer cached files per image.'
     },
-    sources: [SOURCES.image, SOURCES.upgradingTo16]
+    sources: [SOURCES.imageComponent, SOURCES.upgradingTo16]
   },
   {
     id: 'next-dynamic', short: 'next/dynamic', name: 'next/dynamic · lazy chunk at an import() boundary', region: 'browser', glyph: 'browser-chunk', x: 500, y: 1770,

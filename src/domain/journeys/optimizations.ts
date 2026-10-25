@@ -75,7 +75,7 @@ export const OPTIMIZATIONS: Journey = {
       states: { 'next-image': 'current', dom: 'active', 'rung-filesystem': 'kept', 'image-optimizer': 'active', sharp: 'active', 'image-cache': 'new', 'rsc-runtime-entity': 'dimmed' },
       edges: ['e-next-image-dom', 'e-next-image-optimizer', 'e-filesystem-image', 'e-image-sharp', 'e-image-cache'],
       internals: ['cache key /hero.jpg|640|75|webp in .next/cache/images', 'Accept: image/avif,image/webp,… → webp (avif only when images.formats lists it)', 'srcset from deviceSizes [640, 750, 828, 1080, 1200, 1920, 2048, 3840]', '16.0 defaults: minimumCacheTTL 4 h, qualities [75], imageSizes without 16, maximumRedirects 3, local IPs blocked, localPatterns.search required for query strings', 'SVG is not optimized by the default loader'],
-      sources: [SOURCES.image, SOURCES.upgradingTo16]
+      sources: [SOURCES.imageComponent, SOURCES.upgradingTo16]
     },
     {
       id: 'j11-8', kind: 'transform', title: 'Local fonts become CSS at build',

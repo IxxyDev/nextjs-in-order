@@ -165,7 +165,7 @@ export const DEV_MODE: Journey = {
       states: { 'custom-server': 'current', 'routing-ladder': 'active', 'dev-hmr': 'active' },
       edges: ['e-dev-custom-upgrade'],
       internals: ['server.on("upgrade", (req, socket, head) => app.getUpgradeHandler()(req, socket, head))', 'nodemon or similar to restart on server.js changes'],
-      sources: [SOURCES.customServer]
+      sources: [SOURCES.customServerApp]
     },
     {
       id: 'j9-17', kind: 'explain', title: 'Dev is not production',

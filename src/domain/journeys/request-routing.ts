@@ -129,7 +129,7 @@ export const REQUEST_ROUTING: Journey = {
       states: { 'rung-filesystem': 'kept', 'early-exits': 'kept', 'image-optimizer': 'current', 'image-cache': 'new', 'route-handler': 'active', 'rsc-runtime-entity': 'dimmed', 'ssr-runtime-entity': 'dimmed', 'loader-tree': 'dimmed' },
       edges: ['e-filesystem-image', 'e-image-cache', 'e-filesystem-route-handler'],
       internals: ['image cache key: /hero.jpg|640|75|webp in .next/cache/images; format chosen from the Accept header', '16.0 image defaults: minimumCacheTTL 4 h, qualities [75], local IPs blocked', 'pages/api/hello.ts: (req, res) => res.json({ ok: true }) with body parsing and cookie helpers', 'app/**/route.ts: export async function GET(request) → Response'],
-      sources: [SOURCES.image, SOURCES.routeHandlers]
+      sources: [SOURCES.imageComponent, SOURCES.routeHandlers]
     },
     {
       id: 'j2-13', kind: 'explain', title: 'Minimal mode',
