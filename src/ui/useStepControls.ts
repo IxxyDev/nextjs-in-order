@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from 'preact/hooks'
 import type { RefObject } from 'preact'
 import { clampIndex } from '../domain/route'
 import { phone } from './layout'
+import { ownsKeys } from './ownsKeys'
 
 const AUTOPLAY_MS = 6000
-/** focus here owns every key */
-const TEXT = 'input, textarea, select, [role=option], [role=listbox]'
 /** focus here owns Space; stepping and Escape still work */
 const CONTROL = 'button, a, summary'
 
@@ -25,7 +24,7 @@ export function useStepControls({ count, step, onStep, onEscape }: { count: numb
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement
-      if (isTyping(t)) return
+      if (ownsKeys(t)) return
       const { step, onStep, onEscape, last } = latest.current
       if (e.key === 'ArrowRight') { setPlaying(false); onStep(step + 1) }
       else if (e.key === 'ArrowLeft') { setPlaying(false); onStep(step - 1) }
@@ -40,11 +39,6 @@ export function useStepControls({ count, step, onStep, onEscape }: { count: numb
 
   const stepTo = (n: number) => { setPlaying(false); onStep(clampIndex(n, count)) }
   return { playing, setPlaying, stepTo }
-}
-
-/** a key pressed in a text field, a list box or editable content belongs to it, not to the page's shortcuts */
-export function isTyping(target: HTMLElement): boolean {
-  return target.isContentEditable || !!target.closest?.(TEXT)
 }
 
 /** horizontal travel that makes a swipe, in px; it must also be more than twice the vertical travel */

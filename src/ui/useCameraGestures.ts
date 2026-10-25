@@ -4,7 +4,7 @@ import type { Camera } from '../domain/types'
 import { smallestRegionAround } from '../domain/regions'
 import { cancelCameraAnimation, goTo, pinchCamera, screenToWorld, setCamera, zoomAt, type CameraRig, type Point } from './camera'
 import { reducedMotion } from './layout'
-import { isTyping } from './useStepControls'
+import { ownsKeys } from './ownsKeys'
 
 /** a press that moves this far or less is a click */
 const SLOP = 4
@@ -90,7 +90,7 @@ export function useCameraGestures(rig: CameraRig, stageRef: RefObject<HTMLElemen
       const group = stage.closest('.compare-stage')
       if (group && (active.get(group) ?? group.querySelector('.lane')) !== stage) return
       const t = e.target as HTMLElement
-      if (e.ctrlKey || e.metaKey || e.altKey || isTyping(t)) return
+      if (e.ctrlKey || e.metaKey || e.altKey || ownsKeys(t)) return
       const factor = e.key === '+' || e.key === '=' ? KEY_ZOOM : e.key === '-' ? 1 / KEY_ZOOM : 0
       if (!factor) return
       const vp = rig.viewport.value
