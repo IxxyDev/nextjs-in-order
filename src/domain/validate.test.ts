@@ -3,7 +3,6 @@ import { validateCodeLens, validateEntities, validateJourney, validateSpecimen }
 import { ENTITIES, entityById } from './entities'
 import { lazyAllJourneys } from './journeys'
 import { WHOLE_LIFECYCLE } from './journeys/whole-lifecycle'
-import { APP_INITIAL } from './journeys/app-initial'
 import { STEPS } from './codeLens/whole-lifecycle'
 import { FATES, SPECIMEN } from './codeLens/specimen'
 import { loadLens } from './codeLens'
@@ -15,14 +14,13 @@ describe('validateJourney', () => {
   it('accepts every registered journey', async () => {
     for (const j of await lazyAllJourneys.load()) expect(validateJourney(j), j.slug).toEqual([])
   })
-  it('reports unknown ids, missing questions and a step that both asks and checks', () => {
+  it('reports unknown ids and a predict step without a question', () => {
     const j = WHOLE_LIFECYCLE
     const broken = {
       ...j,
       steps: [
         { ...j.steps[1], id: 'x1', states: { nope: 'current' as const }, edges: ['e-missing'], token: { at: 'ghost', glyph: 'flight' as const, label: 'g' } },
-        { ...j.steps[0], id: 'x1', kind: 'predict' as const },
-        { ...j.steps[9], id: 'x3', question: APP_INITIAL.steps[6].question }
+        { ...j.steps[0], id: 'x1', kind: 'predict' as const }
       ]
     }
     const errors = validateJourney(broken)
@@ -31,9 +29,15 @@ describe('validateJourney', () => {
       'whole-lifecycle step 1 (x1): unknown edge e-missing',
       'whole-lifecycle step 1 (x1): token at unknown entity ghost',
       'whole-lifecycle step 2 (x1): duplicate step id',
-      'whole-lifecycle step 2 (x1): predict step without a question',
-      'whole-lifecycle step 3 (x3): step with both a question and checks'
+      'whole-lifecycle step 2 (x1): predict step without a question'
     ])
+  })
+  it('reports a step with both a question and checks, which the panel would caption twice', () => {
+    const question = { text: 'Does the request cross the network?', options: ['Yes', 'No'], answer: 0, why: 'It does.' }
+    const checks = [{ statement: 'Flight is HTML.', isTrue: false, why: 'Flight is its own text format.' }]
+    const asksAndChecks = { ...WHOLE_LIFECYCLE, steps: [{ ...WHOLE_LIFECYCLE.steps[9], id: 'x1', question, checks }] }
+
+    expect(validateJourney(asksAndChecks)).toEqual(['whole-lifecycle step 1 (x1): step with both a question and checks'])
   })
 })
 
