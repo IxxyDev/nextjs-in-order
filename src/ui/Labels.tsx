@@ -89,7 +89,6 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
     return true
   }
   const ringText = 'server.js · custom server ring'
-  const lit = lensLit.value
   const hover = (id: string | undefined) => () => { if (id || mapHover.peek()) mapHover.value = id }
 
   return (
@@ -119,7 +118,7 @@ export function Labels({ entityStates, activeEdges, token, selected, onSelect, r
         return (
           <button
             key={c.id}
-            class={`label ${c.state === 'dimmed' ? 'is-dimmed' : ''} ${c.inline ? 'is-inline' : ''} ${lit.ids.has(c.id) ? `is-linked ${lit.hue ? `fate-${lit.hue}` : ''}` : ''}`}
+            class={`label ${c.state === 'dimmed' ? 'is-dimmed' : ''} ${c.inline ? 'is-inline' : ''} ${lensLit.value.ids.has(c.id) ? `is-linked ${lensLit.value.hue ? `fate-${lensLit.value.hue}` : ''}` : ''}`}
             style={{ left: `${at.x}px`, top: `${at.y}px` }}
             data-entity={c.id}
             onMouseEnter={hover(c.id)} onMouseLeave={hover(undefined)} onFocus={hover(c.id)} onBlur={hover(undefined)}

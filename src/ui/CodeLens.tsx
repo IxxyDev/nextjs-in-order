@@ -43,7 +43,7 @@ const SIGN: Partial<Record<LineChange, string>> = { new: '+', gone: '−' }
 
 interface LineProps {
   step: LensStep; row: CodeLine; rowKey: string; index: number; chip: { hue: boolean; mark: boolean }
-  fate: (id?: FateId) => Fate | undefined; lit: boolean; roving: (rowKey: string) => { tabIndex: number; 'data-key': string; 'data-lens-row': true }
+  fate: (id?: FateId) => Fate | undefined; isLensLit: boolean; roving: (rowKey: string) => { tabIndex: number; 'data-key': string; 'data-lens-row': true }
   /** the pane's own header says it (every line new, or every line gone): the lines carry no per-line change */
   quiet?: boolean
   /** a reduced-motion before pane: earlier context, linked to nothing at this step and never flagged off-map */
@@ -54,12 +54,12 @@ interface LineProps {
  * one code line: change as a diff sign and tint, fate as the hue bar and gutter glyphs, the note as a trailing
  * annotation; the group's fate chip sits on its first line only, so color is never the only signal
  */
-function Line({ step, row, rowKey, index, chip, fate, lit, roving, quiet, context }: LineProps) {
+function Line({ step, row, rowKey, index, chip, fate, isLensLit, roving, quiet, context }: LineProps) {
   const hue = fate(row.fate), mark = fate(row.mark)
   const entities = context ? [] : entitiesForRow(step, row)
   const change = quiet ? undefined : row.change
   const point = () => { lensLit.value = { ids: new Set(entities), hue: row.fate } }
-  const cls = ['lens-row', row.fate ? `fate-${row.fate}` : 'is-frame', row.mark ? `has-${row.mark}` : '', change ? `is-${change}` : '', lit ? 'is-lit' : '', context ? 'is-context' : '']
+  const cls = ['lens-row', row.fate ? `fate-${row.fate}` : 'is-frame', row.mark ? `has-${row.mark}` : '', change ? `is-${change}` : '', isLensLit ? 'is-lit' : '', context ? 'is-context' : '']
   /** rule 4: a fate with nothing on the map at this step says so */
   const offMap = !context && (!!hue || !!mark) && !entities.length
   const chips = (hue && chip.hue) || (mark && chip.mark) || offMap
@@ -119,7 +119,7 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
   const panes: LensPane[] = [...before, ...step.panes]
   const pointed = new Set([mapHover.value, selected].filter((id): id is string => !!id))
   /** keys are `pane:row` over all panes; before panes are context and never light */
-  const lit = rowsForEntities(step, panes, pointed)
+  const lensLitRows = rowsForEntities(step, panes, pointed)
   const roving = (k: string) => ({ tabIndex: k === (active ?? '0:0') ? 0 : -1, 'data-key': k, 'data-lens-row': true as const })
   const onFocusIn = (e: FocusEvent) => { const k = (e.target as HTMLElement).dataset?.key; if (k) setActive(k) }
   const onKeyDown = (e: KeyboardEvent) => {
@@ -140,8 +140,8 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
     return c && c !== 'same' && lines.every((r) => r.change === c) ? c : undefined
   }
 
-  const rowFor = (row: LensRow, rowKey: string, index: number, chip: { hue: boolean; mark: boolean }, isLit: boolean, quiet: boolean, context: boolean) => {
-    if (!isFold(row)) return <Line key={rowKey} step={step} row={row} rowKey={rowKey} index={index} chip={chip} fate={fate} lit={isLit} roving={roving} quiet={quiet} context={context} />
+  const rowFor = (row: LensRow, rowKey: string, index: number, chip: { hue: boolean; mark: boolean }, isLensLit: boolean, quiet: boolean, context: boolean) => {
+    if (!isFold(row)) return <Line key={rowKey} step={step} row={row} rowKey={rowKey} index={index} chip={chip} fate={fate} isLensLit={isLensLit} roving={roving} quiet={quiet} context={context} />
     /** a fold is one calm line, never struck: what it leaves out, and (when it can) a toggle that shows it */
     const cls = 'lens-row is-fold'
     const gone = row.change === 'gone' && <span class="visually-hidden"> · removed</span>
@@ -165,7 +165,7 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
           {open && (
             <div class="lens-unfolded">
               {caption && <p class="lens-caption">{caption}</p>}
-              <ol class="lens-rows">{inner.map((r, j) => <Line key={`${rowKey}:${j}`} step={step} row={r} rowKey={`${rowKey}:${j}`} index={0} chip={chips[j]} fate={fate} lit={!context && entitiesForRow(step, r).some((e) => pointed.has(e))} roving={roving} context={context} />)}</ol>
+              <ol class="lens-rows">{inner.map((r, j) => <Line key={`${rowKey}:${j}`} step={step} row={r} rowKey={`${rowKey}:${j}`} index={0} chip={chips[j]} fate={fate} isLensLit={!context && entitiesForRow(step, r).some((e) => pointed.has(e))} roving={roving} context={context} />)}</ol>
             </div>
           )}
         </div>
@@ -189,7 +189,7 @@ export function CodeLens({ slug, stepId, selected }: { slug: string; stepId: str
           {p.abridged && <span class="lens-flag">abridged</span>}
         </header>
         {p.hint && !isBefore && <p class="lens-hint">{p.hint}</p>}
-        <ol class="lens-rows">{p.rows.map((r, j) => rowFor(r, `${i}:${j}`, j, chips[j], !isBefore && lit.has(`${i}:${j}`), !!all, isBefore))}</ol>
+        <ol class="lens-rows">{p.rows.map((r, j) => rowFor(r, `${i}:${j}`, j, chips[j], !isBefore && lensLitRows.has(`${i}:${j}`), !!all, isBefore))}</ol>
       </section>
     )
   }
